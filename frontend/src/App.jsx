@@ -5,6 +5,7 @@ import Eleves from './pages/Eleves';
 import Presences from './pages/Presences';
 import Paiements from './pages/Paiements';
 import Notes from './pages/Notes';
+import Bulletins from './pages/Bulletins';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
 
@@ -12,11 +13,12 @@ function Layout({ children, page, setPage }) {
   const { user, school, logout } = useAuthStore();
   const nav = [
     ['dashboard','🏠','Tableau de bord'],
-    ['eleves','👥','Elèves'],
-    ['presences','✅','Présences'],
+    ['eleves','👥','Eleves'],
+    ['presences','✅','Presences'],
     ['notes','📊','Notes'],
+    ['bulletins','📄','Bulletins PDF'],
     ['paiements','💰','Paiements'],
-    ['parametres','⚙️','Paramètres']
+    ['parametres','⚙️','Parametres']
   ];
   return (
     <div style={{ display:'flex', height:'100vh', background:'#EEF2F7' }}>
@@ -47,7 +49,7 @@ function Layout({ children, page, setPage }) {
             </div>
             <div>
               <div style={{ fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.75)' }}>{user?.firstName} {user?.lastName}</div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)' }}>Directeur · Se déconnecter</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)' }}>Directeur · Se deconnecter</div>
             </div>
           </div>
         </div>
@@ -56,7 +58,7 @@ function Layout({ children, page, setPage }) {
         <div style={{ background:'white', borderBottom:'1px solid #E8E6E0', height:62, padding:'0 22px', display:'flex', alignItems:'center' }}>
           <div>
             <div style={{ fontSize:15, fontWeight:700, color:'#042C53' }}>{nav.find(n=>n[0]===page)?.[2] || 'LuxEdu'}</div>
-            <div style={{ fontSize:11, color:'#888780' }}>{school?.name} · 2025–2026</div>
+            <div style={{ fontSize:11, color:'#888780' }}>{school?.name} · 2025-2026</div>
           </div>
         </div>
         <div style={{ flex:1, overflowY:'auto' }}>{children}</div>
@@ -77,8 +79,9 @@ function AppPages() {
     eleves: <Eleves />,
     presences: <Presences />,
     notes: <Notes />,
+    bulletins: <Bulletins />,
     paiements: <Paiements />,
-    parametres: <div style={{padding:22}}><h2 style={{color:'#042C53'}}>Paramètres — bientôt disponible</h2></div>
+    parametres: <div style={{padding:22}}><h2 style={{color:'#042C53'}}>Parametres - bientot disponible</h2></div>
   };
   return <Layout page={page} setPage={setPage}>{pages[page]}</Layout>;
 }
