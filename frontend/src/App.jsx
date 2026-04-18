@@ -4,12 +4,20 @@ import Dashboard from './pages/Dashboard';
 import Eleves from './pages/Eleves';
 import Presences from './pages/Presences';
 import Paiements from './pages/Paiements';
+import Notes from './pages/Notes';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
 
 function Layout({ children, page, setPage }) {
   const { user, school, logout } = useAuthStore();
-  const nav = [['dashboard','🏠','Tableau de bord'],['eleves','👥','Eleves'],['presences','✅','Presences'],['notes','📊','Notes'],['paiements','💰','Paiements'],['parametres','⚙️','Parametres']];
+  const nav = [
+    ['dashboard','🏠','Tableau de bord'],
+    ['eleves','👥','Elèves'],
+    ['presences','✅','Présences'],
+    ['notes','📊','Notes'],
+    ['paiements','💰','Paiements'],
+    ['parametres','⚙️','Paramètres']
+  ];
   return (
     <div style={{ display:'flex', height:'100vh', background:'#EEF2F7' }}>
       <div style={{ width:234, background:'#042C53', display:'flex', flexDirection:'column', flexShrink:0 }}>
@@ -64,7 +72,14 @@ function PrivateRoute({ children }) {
 
 function AppPages() {
   const [page, setPage] = useState('dashboard');
-  const pages = { dashboard: <Dashboard setPage={setPage} />, eleves: <Eleves />, presences: <Presences />, paiements: <Paiements />, notes: <div style={{padding:22}}><h2 style={{color:'#042C53'}}>Notes — bientôt disponible</h2></div>, parametres: <div style={{padding:22}}><h2 style={{color:'#042C53'}}>Paramètres — bientôt disponible</h2></div> };
+  const pages = {
+    dashboard: <Dashboard setPage={setPage} />,
+    eleves: <Eleves />,
+    presences: <Presences />,
+    notes: <Notes />,
+    paiements: <Paiements />,
+    parametres: <div style={{padding:22}}><h2 style={{color:'#042C53'}}>Paramètres — bientôt disponible</h2></div>
+  };
   return <Layout page={page} setPage={setPage}>{pages[page]}</Layout>;
 }
 
