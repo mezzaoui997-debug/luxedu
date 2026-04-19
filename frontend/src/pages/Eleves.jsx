@@ -58,7 +58,7 @@ export default function Eleves() {
   const openBulletin = async (studentId) => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:5000/api/bulletin/' + studentId + '/1', {
+      const res = await fetch('https://luxedu-production.up.railway.app/api/bulletin/' + studentId + '/1', {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       const html = await res.text();

@@ -9,7 +9,7 @@ export default function Bulletins() {
 
   const openBulletin = async (studentId) => {
     const token = localStorage.getItem('token');
-    const res = await fetch('http://localhost:5000/api/bulletin/' + studentId + '/' + semester, {
+    const res = await fetch('https://luxedu-production.up.railway.app/api/bulletin/' + studentId + '/' + semester, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const html = await res.text();
