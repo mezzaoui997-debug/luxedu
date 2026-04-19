@@ -1,40 +1,40 @@
 import useAuthStore from '../store/authStore';
 
-const navItems = {
-  dir: [
-    { sec: 'Principal' },
-    { id: 'dashboard', ic: '🏠', lbl: 'Tableau de bord' },
-    { id: 'eleves', ic: '👥', lbl: 'Élèves' },
-    { id: 'parents', ic: '👨‍👩‍👧', lbl: 'Parents & WhatsApp' },
-    { id: 'presences', ic: '✅', lbl: 'Présences' },
-    { id: 'notes', ic: '📊', lbl: 'Notes & bulletins' },
-    { id: 'planning', ic: '📅', lbl: 'Emploi du temps' },
-    { sec: 'Finance' },
-    { id: 'paiements', ic: '💰', lbl: 'Paiements', dot: true },
-    { id: 'classes', ic: '🏫', lbl: 'Classes & matières' },
-    { id: 'calendrier', ic: '📆', lbl: 'Calendrier scolaire' },
-    { sec: 'Documents' },
-    { id: 'bulletins', ic: '📄', lbl: 'Bulletins PDF' },
-    { id: 'certificats', ic: '🎓', lbl: 'Certificats' },
-    { sec: 'Outils' },
-    { id: 'messages', ic: '💬', lbl: 'Messages', dot: true },
-    { id: 'notifs', ic: '🔔', lbl: 'Notifications', dot: true },
-    { id: 'parametres', ic: '⚙️', lbl: 'Paramètres' },
-  ]
-};
+const navItems = [
+  { sec: 'Principal' },
+  { id: 'dashboard', ic: '🏠', lbl: 'Tableau de bord' },
+  { id: 'eleves', ic: '👥', lbl: 'Eleves' },
+  { id: 'parents', ic: '👨‍👩‍👧', lbl: 'Parents & WhatsApp' },
+  { id: 'presences', ic: '✅', lbl: 'Presences' },
+  { id: 'notes', ic: '📊', lbl: 'Notes & bulletins' },
+  { id: 'planning', ic: '📅', lbl: 'Emploi du temps' },
+  { sec: 'Classes' },
+  { id: 'classes', ic: '🏫', lbl: 'Classes & matieres' },
+  { id: 'enseignants', ic: '👨‍🏫', lbl: 'Enseignants' },
+  { id: 'import', ic: '📥', lbl: 'Import Excel notes' },
+  { sec: 'Finance' },
+  { id: 'paiements', ic: '💰', lbl: 'Paiements', dot: true },
+  { id: 'calendrier', ic: '📆', lbl: 'Calendrier scolaire' },
+  { sec: 'Documents' },
+  { id: 'bulletins', ic: '📄', lbl: 'Bulletins PDF' },
+  { id: 'certificats', ic: '🎓', lbl: 'Certificats' },
+  { sec: 'Outils' },
+  { id: 'messages', ic: '💬', lbl: 'Messages', dot: true },
+  { id: 'notifs', ic: '🔔', lbl: 'Notifications', dot: true },
+  { id: 'parametres', ic: '⚙️', lbl: 'Parametres' },
+];
 
 export default function Layout({ children, page, setPage }) {
   const { user, school, logout } = useAuthStore();
-  const items = navItems.dir;
   const today = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   const pageTitles = {
-    dashboard: 'Tableau de bord', eleves: 'Gestion des élèves',
-    parents: 'Parents & WhatsApp', presences: 'Présences',
-    notes: 'Notes & bulletins', planning: 'Emploi du temps',
-    paiements: 'Paiements', classes: 'Classes & matières',
-    calendrier: 'Calendrier scolaire', bulletins: 'Bulletins PDF',
-    certificats: 'Certificats de scolarité', messages: 'Messages',
-    notifs: 'Notifications', parametres: 'Paramètres',
+    dashboard:'Tableau de bord', eleves:'Gestion des eleves',
+    parents:'Parents & WhatsApp', presences:'Presences',
+    notes:'Notes & bulletins', planning:'Emploi du temps',
+    classes:'Classes & matieres', enseignants:'Enseignants', import:'Import Excel notes',
+    paiements:'Paiements', calendrier:'Calendrier scolaire',
+    bulletins:'Bulletins PDF', certificats:'Certificats',
+    messages:'Messages', notifs:'Notifications', parametres:'Parametres',
   };
 
   return (
@@ -48,10 +48,10 @@ export default function Layout({ children, page, setPage }) {
           </div>
         </div>
         <div className="sb-nav">
-          {items.map((item, i) => item.sec ? (
+          {navItems.map((item, i) => item.sec ? (
             <div key={i} className="sb-sec">{item.sec}</div>
           ) : (
-            <div key={item.id} className={`sbi${page===item.id?' active':''}`} onClick={() => setPage(item.id)}>
+            <div key={item.id} className={'sbi' + (page===item.id?' active':'')} onClick={() => setPage(item.id)}>
               <span style={{ fontSize:14 }}>{item.ic}</span>
               <span style={{ flex:1 }}>{item.lbl}</span>
               {item.dot && <div className="sbi-dot"></div>}
@@ -63,7 +63,7 @@ export default function Layout({ children, page, setPage }) {
             <div className="sb-av">{user?.firstName?.[0]}{user?.lastName?.[0]}</div>
             <div>
               <div className="sb-uname">{user?.firstName} {user?.lastName}</div>
-              <div className="sb-urole">Directeur · Se déconnecter</div>
+              <div className="sb-urole">Directeur · Se deconnecter</div>
             </div>
           </div>
         </div>

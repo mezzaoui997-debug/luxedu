@@ -97,6 +97,7 @@ model Payment {
 enum Role {
   DIRECTOR
   TEACHER
+  FONCTIONNAIRE
   PARENT
 }
 

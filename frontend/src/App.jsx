@@ -6,6 +6,11 @@ import Presences from './pages/Presences';
 import Paiements from './pages/Paiements';
 import Notes from './pages/Notes';
 import Bulletins from './pages/Bulletins';
+import Classes from './pages/Classes';
+import TeacherDashboard from './pages/TeacherDashboard';
+import FonctionnaireDashboard from './pages/FonctionnaireDashboard';
+import Enseignants from './pages/Enseignants';
+import ImportNotes from './pages/ImportNotes';
 import Layout from './components/Layout';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
@@ -25,6 +30,14 @@ function PrivateRoute({ children }) {
   return token ? children : <Navigate to="/login" />;
 }
 
+function RoleRoute() {
+  const { token, user } = useAuthStore();
+  if (!token) return <Navigate to="/login" />;
+  if (user?.role === 'TEACHER') return <TeacherDashboard />;
+  if (user?.role === 'FONCTIONNAIRE') return <FonctionnaireDashboard />;
+  return <AppPages />;
+}
+
 function AppPages() {
   const [page, setPage] = useState('dashboard');
 
@@ -35,14 +48,16 @@ function AppPages() {
     notes: <Notes />,
     bulletins: <Bulletins />,
     paiements: <Paiements />,
+    classes: <Classes />,
+    enseignants: <Enseignants />,
+    import: <ImportNotes />,
     parents: <ComingSoon title="Parents & WhatsApp" />,
     planning: <ComingSoon title="Emploi du temps" />,
-    classes: <ComingSoon title="Classes & matières" />,
     calendrier: <ComingSoon title="Calendrier scolaire" />,
-    certificats: <ComingSoon title="Certificats de scolarité" />,
+    certificats: <ComingSoon title="Certificats de scolarite" />,
     messages: <ComingSoon title="Messages" />,
     notifs: <ComingSoon title="Notifications" />,
-    parametres: <ComingSoon title="Paramètres" />,
+    parametres: <ComingSoon title="Parametres" />,
   };
 
   return (
@@ -57,7 +72,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/*" element={<PrivateRoute><AppPages /></PrivateRoute>} />
+        <Route path="/*" element={<RoleRoute />} />
       </Routes>
     </BrowserRouter>
   );
