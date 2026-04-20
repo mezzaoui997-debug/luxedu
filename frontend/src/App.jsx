@@ -7,10 +7,10 @@ import Paiements from './pages/Paiements';
 import Notes from './pages/Notes';
 import Bulletins from './pages/Bulletins';
 import Classes from './pages/Classes';
-import TeacherDashboard from './pages/TeacherDashboard';
-import FonctionnaireDashboard from './pages/FonctionnaireDashboard';
 import Enseignants from './pages/Enseignants';
 import ImportNotes from './pages/ImportNotes';
+import TeacherDashboard from './pages/TeacherDashboard';
+import FonctionnaireDashboard from './pages/FonctionnaireDashboard';
 import Layout from './components/Layout';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
@@ -25,22 +25,8 @@ function ComingSoon({ title }) {
   );
 }
 
-function PrivateRoute({ children }) {
-  const token = useAuthStore(s => s.token);
-  return token ? children : <Navigate to="/login" />;
-}
-
-function RoleRoute() {
-  const { token, user } = useAuthStore();
-  if (!token) return <Navigate to="/login" />;
-  if (user?.role === 'TEACHER') return <TeacherDashboard />;
-  if (user?.role === 'FONCTIONNAIRE') return <FonctionnaireDashboard />;
-  return <AppPages />;
-}
-
-function AppPages() {
+function DirectorPages() {
   const [page, setPage] = useState('dashboard');
-
   const pages = {
     dashboard: <Dashboard setPage={setPage} />,
     eleves: <Eleves />,
@@ -54,17 +40,24 @@ function AppPages() {
     parents: <ComingSoon title="Parents & WhatsApp" />,
     planning: <ComingSoon title="Emploi du temps" />,
     calendrier: <ComingSoon title="Calendrier scolaire" />,
-    certificats: <ComingSoon title="Certificats de scolarite" />,
+    certificats: <ComingSoon title="Certificats" />,
     messages: <ComingSoon title="Messages" />,
     notifs: <ComingSoon title="Notifications" />,
     parametres: <ComingSoon title="Parametres" />,
   };
-
   return (
     <Layout page={page} setPage={setPage}>
       {pages[page] || <ComingSoon title={page} />}
     </Layout>
   );
+}
+
+function RoleRoute() {
+  const { token, user } = useAuthStore();
+  if (!token) return <Navigate to="/login" />;
+  if (user?.role === 'TEACHER') return <TeacherDashboard />;
+  if (user?.role === 'FONCTIONNAIRE') return <FonctionnaireDashboard />;
+  return <DirectorPages />;
 }
 
 export default function App() {

@@ -72,4 +72,22 @@ const getTeachers = async (req, res) => {
   }
 };
 
-module.exports = { register, login, registerTeacher, getTeachers };
+
+const registerStaff = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, role } = req.body;
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) return res.status(400).json({ error: 'Email deja utilise' });
+    const hash = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: { firstName, lastName, email, password: hash, role: role || 'TEACHER', schoolId: req.schoolId },
+      include: { school: true }
+    });
+    const token = jwt.sign({ userId: user.id, schoolId: user.schoolId, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: user.id, firstName, lastName, email, role: user.role }, school: { id: user.school.id, name: user.school.name } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { register, login, registerTeacher, getTeachers, registerStaff };

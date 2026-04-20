@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getPayments, createPayment, markPaid } = require('../controllers/paymentController');
+const { getPayments, createPayment, markPaid, sendPaymentRemindersAuto } = require('../controllers/paymentController');
 const { protect } = require('../middleware/auth');
 router.use(protect);
 router.get('/', getPayments);
 router.post('/', createPayment);
 router.put('/:id/pay', markPaid);
+router.post('/reminders', sendPaymentRemindersAuto);
 module.exports = router;

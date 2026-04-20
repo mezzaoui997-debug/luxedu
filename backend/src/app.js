@@ -12,4 +12,6 @@ app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/grades', require('./routes/grades'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/bulletin', require('./routes/bulletin'));
+app.use('/api/whatsapp', require('./routes/whatsapp'));
+app.use('/api/certificat', require('./routes/certificat'));
 module.exports = app;

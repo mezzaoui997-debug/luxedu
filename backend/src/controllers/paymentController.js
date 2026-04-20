@@ -26,6 +26,36 @@ const createPayment = async (req, res) => {
   }
 };
 
+const whatsapp = require('../services/whatsapp');
+
+const sendPaymentRemindersAuto = async (req, res) => {
+  try {
+    const prisma = require('../utils/prisma');
+    const pending = await prisma.payment.findMany({
+      where: { schoolId: req.schoolId, status: 'PENDING' },
+      include: { student: true, school: true }
+    });
+    let sent = 0;
+    for (const p of pending) {
+      if (!p.student?.parentPhone) continue;
+      try {
+        await whatsapp.sendPaymentReminder(
+          p.student.parentPhone,
+          'Parent',
+          p.student.firstName + ' ' + p.student.lastName,
+          p.amount,
+          p.month,
+          7
+        );
+        sent++;
+      } catch(e) { console.log('WA error:', e.message); }
+    }
+    res.json({ sent, total: pending.length });
+  } catch(error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const markPaid = async (req, res) => {
   try {
     const payment = await prisma.payment.update({
@@ -38,4 +68,4 @@ const markPaid = async (req, res) => {
   }
 };
 
-module.exports = { getPayments, createPayment, markPaid };
+module.exports = { getPayments, createPayment, markPaid, sendPaymentRemindersAuto };
