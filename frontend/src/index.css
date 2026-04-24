@@ -146,3 +146,49 @@ body { background: #EEF2F7; color: var(--g3); font-size: 14px; line-height: 1.5;
 
 @media(max-width:900px) { .metrics { grid-template-columns: 1fr 1fr; } .g2,.g3,.g4 { grid-template-columns: 1fr; } }
 @media(max-width:580px) { .sb { width: 62px; } .sb-sname,.sb-scity,.sbi-label,.sb-uname,.sb-urole { display: none; } }
+
+/* === DEMO STYLES === */
+.page-enter{animation:fu .18s ease}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.metric{background:white;border-radius:var(--r);border:1px solid var(--g1);padding:17px;cursor:pointer;transition:all .15s;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.metric:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.08)}
+.mic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:11px}
+.mlbl{font-size:10px;font-weight:700;color:var(--g2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.mval{font-size:28px;font-weight:700;color:var(--navy)}
+.g2d{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.g3d{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px}
+.profile-header{background:var(--navy);border-radius:var(--r);padding:24px;margin-bottom:16px;display:flex;align-items:flex-start;gap:18px}
+.profile-avatar{width:80px;height:96px;border-radius:12px;background:white;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0;border:3px solid rgba(255,255,255,0.2)}
+.profile-name{font-size:22px;font-weight:700;color:white;margin-bottom:4px}
+.profile-meta{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:14px}
+.profile-chips{display:flex;gap:8px;flex-wrap:wrap}
+.profile-chip{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px}
+.profile-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-left:auto}
+.ps{background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;text-align:center}
+.ps-val{font-size:24px;font-weight:700;color:white}
+.ps-lbl{font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.04em;margin-top:3px;font-weight:700}
+.ptab-bar{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.ptab{padding:8px 16px;border-radius:24px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--g1);background:white;color:var(--g2);transition:all .15s}
+.ptab:hover{border-color:var(--blue)}
+.ptab.on{background:var(--navy);color:white;border-color:var(--navy)}
+.ptab-pane{display:none}
+.ptab-pane.on{display:block}
+.br-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.br-lbl{font-size:12px;color:var(--g4);flex-shrink:0;min-width:100px}
+.br-track{flex:1;height:8px;background:var(--g0);border-radius:4px;overflow:hidden}
+.br-fill{height:100%;border-radius:4px}
+.br-val{font-size:12px;font-weight:700;color:var(--navy);min-width:36px;text-align:right}
+.tl-item{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid #F5F5F3}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-content{flex:1}
+.tl-title{font-size:13px;font-weight:700;color:var(--g3)}
+.tl-date{font-size:11px;color:var(--g2);margin-top:2px}
+.ai-alert{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.toolbar{display:flex;gap:9px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.sbox{display:flex;align-items:center;gap:7px;flex:1;min-width:180px;background:white;border:1px solid var(--g1);border-radius:8px;padding:0 11px}
+.sbox:focus-within{border-color:var(--blue)}
+.sinp{flex:1;border:none;outline:none;padding:9px 0;font-size:13px;background:transparent}
+.fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}

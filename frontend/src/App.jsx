@@ -11,6 +11,8 @@ import Enseignants from './pages/Enseignants';
 import ImportNotes from './pages/ImportNotes';
 import TeacherDashboard from './pages/TeacherDashboard';
 import FonctionnaireDashboard from './pages/FonctionnaireDashboard';
+import Notifications from './pages/Notifications';
+import Parametres from './pages/Parametres';
 import Layout from './components/Layout';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
@@ -42,6 +44,8 @@ function DirectorPages() {
     calendrier: <ComingSoon title="Calendrier scolaire" />,
     certificats: <ComingSoon title="Certificats" />,
     messages: <ComingSoon title="Messages" />,
+    notifs: <Notifications />,
+    parametres: <Parametres />,
     notifs: <ComingSoon title="Notifications" />,
     parametres: <ComingSoon title="Parametres" />,
   };

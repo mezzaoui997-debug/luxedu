@@ -223,8 +223,7 @@ export default function FonctionnaireDashboard() {
                         sendWA(p.student.parentPhone, 'Bonjour, les frais de scolarite de ' + p.student.firstName + ' pour ' + p.month + ' (' + p.amount + ' MAD) sont en attente. Merci de regulariser. ' + school?.name);
                       }, i * 1000);
                     });
-                  }} style={{ background:'#25D366', color:'white', border:'none', borderRadius:8, padding:'9px 16px', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}>
-                    💬 Rappels WA groupes
+                  }} style={{ background:'#25D366', color:'white', border:'none', borderRadius:8, padding:'9px 16px', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}> Rappels WA groupes
                   </button>
                 </div>
               )}
@@ -251,8 +250,7 @@ export default function FonctionnaireDashboard() {
                       <div style={{ display:'flex', gap:6 }}>
                         {p.student?.parentPhone && (
                           <button onClick={() => sendWA(p.student.parentPhone, 'Bonjour, les frais de ' + p.student.firstName + ' pour ' + p.month + ' (' + p.amount + ' MAD) sont en attente. Merci. ' + school?.name)}
-                            style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'5px 10px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                            💬 WA
+                            style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'5px 10px', fontSize:11, fontWeight:700, cursor:'pointer' }}> WA
                           </button>
                         )}
                         <button onClick={() => markPaid(p.id)}
@@ -386,8 +384,7 @@ export default function FonctionnaireDashboard() {
                           <div style={{ display:'flex', gap:5 }}>
                             {s.parentPhone && (
                               <button onClick={() => sendWA(s.parentPhone, 'Bonjour parent de ' + s.firstName + ', message de ' + school?.name + '.')}
-                                style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'5px 9px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                                💬 WA
+                                style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'5px 9px', fontSize:11, fontWeight:700, cursor:'pointer' }}> WA
                               </button>
                             )}
                             <button onClick={() => openCertificat(s.id)}
@@ -427,12 +424,10 @@ export default function FonctionnaireDashboard() {
                     {s.parentPhone ? (
                       <div style={{ display:'flex', gap:6 }}>
                         <button onClick={() => sendWA(s.parentPhone, 'Bonjour, votre enfant ' + s.firstName + ' etait absent(e) aujourd hui. Merci de nous contacter. ' + school?.name)}
-                          style={{ background:'#25D366', color:'white', border:'none', borderRadius:7, padding:'6px 12px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                          💬 Absent WA
+                          style={{ background:'#25D366', color:'white', border:'none', borderRadius:7, padding:'6px 12px', fontSize:11, fontWeight:700, cursor:'pointer' }}> Absent WA
                         </button>
                         <button onClick={() => sendWA(s.parentPhone, 'Bonjour, votre enfant ' + s.firstName + ' est arrive(e) en retard aujourd hui. ' + school?.name)}
-                          style={{ background:'#FAEEDA', color:'#854F0B', border:'1px solid #FAC775', borderRadius:7, padding:'6px 12px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                          ⏰ Retard WA
+                          style={{ background:'#FAEEDA', color:'#854F0B', border:'1px solid #FAC775', borderRadius:7, padding:'6px 12px', fontSize:11, fontWeight:700, cursor:'pointer' }}> Retard WA
                         </button>
                       </div>
                     ) : (
@@ -508,8 +503,7 @@ export default function FonctionnaireDashboard() {
                                   <div style={{ fontSize:12, color:'#888780' }}>{pendingPay[0].amount} MAD · {pendingPay[0].month}</div>
                                 </div>
                                 <button onClick={() => sendWA(s.parentPhone, 'Bonjour, les frais de scolarite de ' + s.firstName + ' pour ' + pendingPay[0].month + ' (' + pendingPay[0].amount + ' MAD) sont en attente. Merci de regulariser. ' + school?.name)}
-                                  style={{ background:'#25D366', color:'white', border:'none', borderRadius:8, padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}>
-                                  💬 Rappel WA
+                                  style={{ background:'#25D366', color:'white', border:'none', borderRadius:8, padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}> Rappel WA
                                 </button>
                               </div>
                             )}
@@ -527,8 +521,7 @@ export default function FonctionnaireDashboard() {
                                   <div style={{ fontSize:11, color:'#888780', marginTop:2 }}>{t.msg.slice(0,60)}...</div>
                                 </div>
                                 <button onClick={() => sendWA(s.parentPhone, t.msg)}
-                                  style={{ background:'#25D366', color:'white', border:'none', borderRadius:8, padding:'7px 14px', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}>
-                                  💬 Envoyer
+                                  style={{ background:'#25D366', color:'white', border:'none', borderRadius:8, padding:'7px 14px', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}> Envoyer
                                 </button>
                               </div>
                             ))}
@@ -628,8 +621,7 @@ export default function FonctionnaireDashboard() {
                             )}
                             {p.student?.parentPhone && (
                               <button onClick={() => sendWA(p.student.parentPhone, 'Recu de paiement: ' + p.amount + ' MAD pour ' + p.month + '. Merci. ' + school?.name)}
-                                style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                                💬 Recu WA
+                                style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'4px 10px', fontSize:11, fontWeight:700, cursor:'pointer' }}> Recu WA
                               </button>
                             )}
                           </div>
@@ -678,8 +670,7 @@ export default function FonctionnaireDashboard() {
                             </button>
                             {s.parentPhone && (
                               <button onClick={() => sendWA(s.parentPhone, 'Bonjour, le certificat de scolarite de ' + s.firstName + ' est disponible. Contactez l ecole pour le recuperer. ' + school?.name)}
-                                style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'6px 14px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
-                                💬 Notifier WA
+                                style={{ background:'#25D366', color:'white', border:'none', borderRadius:6, padding:'6px 14px', fontSize:11, fontWeight:700, cursor:'pointer' }}> Notifier WA
                               </button>
                             )}
                           </div>
@@ -743,7 +734,7 @@ export default function FonctionnaireDashboard() {
                         placeholder="ex: G412252321"
                         style={{ width:'100%', padding:'10px 12px', border:'1.5px solid '+(massarStatus==='ok'?'#3B6D11':massarStatus==='err'?'#A32D2D':'#E8E6E0'), borderRadius:8, fontSize:13, outline:'none', fontFamily:'monospace' }} />
                       <div style={{ fontSize:11, marginTop:4, color:massarStatus==='ok'?'#3B6D11':massarStatus==='err'?'#A32D2D':'#888780' }}>
-                        {massarStatus==='ok'?'✓ Valide':massarStatus==='err'?'Format incorrect':'1 lettre + 9 chiffres'}
+                        {massarStatus==='ok'?'Valide':massarStatus==='err'?'Format incorrect':'1 lettre + 9 chiffres'}
                       </div>
                     </div>
                     <div>
@@ -794,7 +785,7 @@ export default function FonctionnaireDashboard() {
                       style={{ width:'100%', padding:'10px 12px', border:'1.5px solid #E8E6E0', borderRadius:8, fontSize:13, outline:'none', marginBottom:14 }} />
                   </div>
                   <div style={{ display:'flex', justifyContent:'space-between', paddingTop:14, borderTop:'1px solid #E8E6E0' }}>
-                    <button onClick={() => setStep(1)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}>← Precedent</button>
+                    <button onClick={() => setStep(1)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}> Precedent</button>
                     <button onClick={() => setStep(3)} style={{ background:'#4F46E5', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:700, cursor:'pointer' }}>Suivant →</button>
                   </div>
                 </div>
@@ -827,7 +818,7 @@ export default function FonctionnaireDashboard() {
                     </div>
                   </div>
                   <div style={{ display:'flex', justifyContent:'space-between', paddingTop:14, borderTop:'1px solid #E8E6E0' }}>
-                    <button onClick={() => setStep(2)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}>← Precedent</button>
+                    <button onClick={() => setStep(2)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}> Precedent</button>
                     <button onClick={() => setStep(4)} style={{ background:'#4F46E5', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:700, cursor:'pointer' }}>Suivant →</button>
                   </div>
                 </div>
@@ -852,7 +843,7 @@ export default function FonctionnaireDashboard() {
                     <div style={{ fontSize:22, fontWeight:700 }}>{totalPrice.toLocaleString('fr-FR')} MAD</div>
                   </div>
                   <div style={{ display:'flex', justifyContent:'space-between', paddingTop:14, borderTop:'1px solid #E8E6E0' }}>
-                    <button onClick={() => setStep(3)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}>← Precedent</button>
+                    <button onClick={() => setStep(3)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}> Precedent</button>
                     <button onClick={() => setStep(5)} style={{ background:'#042C53', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:700, cursor:'pointer' }}>Recapitulatif →</button>
                   </div>
                 </div>
@@ -878,10 +869,10 @@ export default function FonctionnaireDashboard() {
                   </div>
                   {saved && <div style={{ background:'#EAF3DE', borderRadius:8, padding:12, marginBottom:12, fontSize:13, fontWeight:700, color:'#3B6D11', textAlign:'center' }}>Eleve inscrit avec succes !</div>}
                   <div style={{ display:'flex', justifyContent:'space-between', paddingTop:14, borderTop:'1px solid #E8E6E0' }}>
-                    <button onClick={() => setStep(4)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}>← Precedent</button>
+                    <button onClick={() => setStep(4)} style={{ background:'#F5F5F3', border:'1px solid #E8E6E0', borderRadius:8, padding:'10px 20px', fontSize:13, fontWeight:700, cursor:'pointer' }}> Precedent</button>
                     <button onClick={submitInscription} disabled={saving}
                       style={{ background:'#3B6D11', color:'white', border:'none', borderRadius:8, padding:'10px 28px', fontSize:13, fontWeight:700, cursor:'pointer' }}>
-                      {saving ? 'Enregistrement...' : '✓ Confirmer inscription'}
+                      {saving ? 'Enregistrement...' : 'Confirmer inscription'}
                     </button>
                   </div>
                 </div>
