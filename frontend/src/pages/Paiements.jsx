@@ -1,204 +1,225 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '../api/axios';
+import useAuthStore from '../store/authStore';
+
+function DonutPay({ recouvrement }) {
+  const ref = useRef(null);
+  const chart = useRef(null);
+  useEffect(() => {
+    if (!ref.current || !window.Chart) return;
+    if (chart.current) chart.current.destroy();
+    const pending = 100 - recouvrement;
+    chart.current = new window.Chart(ref.current.getContext('2d'), {
+      type:'doughnut',
+      data:{ datasets:[{ data:[recouvrement, Math.max(pending-3,0), 3], backgroundColor:['#22c55e','#f59e0b','#ef4444'], borderWidth:0 }] },
+      options:{ cutout:'70%', responsive:false, plugins:{ legend:{ display:false }, tooltip:{ enabled:false } } }
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, [recouvrement]);
+  return <canvas ref={ref} width={160} height={160} />;
+}
 
 export default function Paiements() {
-  const [payments, setPayments] = useState([]);
+  const { school } = useAuthStore();
   const [students, setStudents] = useState([]);
-  const [showForm, setShowForm] = useState(false);
+  const [payments, setPayments] = useState([]);
+  const [loaded, setLoaded] = useState(!!window.Chart);
+  const [toast, setToast] = useState('');
   const [form, setForm] = useState({ studentId:'', amount:2800, month:'Avril 2026', mode:'Especes' });
-  const [loading, setLoading] = useState(false);
 
-  const load = () => api.get('/payments').then(r => setPayments(r.data));
-  useEffect(() => { load(); api.get('/students').then(r => setStudents(r.data)); }, []);
+  useEffect(() => {
+    api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
+    api.get('/payments').then(r => setPayments(r.data)).catch(()=>{});
+    if (!window.Chart) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+      s.onload = () => setLoaded(true);
+      document.head.appendChild(s);
+    }
+  }, []);
 
+  const showT = (m) => { setToast(m); setTimeout(() => setToast(''), 3000); };
   const pending = payments.filter(p => p.status === 'PENDING');
   const paid = payments.filter(p => p.status === 'PAID');
-  const totalAmount = payments.reduce((a,p) => a + p.amount, 0);
-  const paidAmount = paid.reduce((a,p) => a + p.amount, 0);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!form.studentId) { alert('Selectionnez un eleve'); return; }
-    setLoading(true);
-    try {
-      await api.post('/payments', form);
-      setShowForm(false);
-      setForm({ studentId:'', amount:2800, month:'Avril 2026', mode:'Especes' });
-      load();
-    } catch(err) { alert('Erreur: ' + err.message); }
-    finally { setLoading(false); }
-  };
+  const recouvrement = payments.length > 0 ? Math.round(paid.length/payments.length*100) : 0;
+  const totalPaid = paid.reduce((a,p) => a+p.amount, 0);
+  const totalPending = pending.reduce((a,p) => a+p.amount, 0);
 
   const markPaid = async (id) => {
-    try { await api.put('/payments/' + id + '/pay'); load(); }
-    catch(err) { alert('Erreur: ' + err.message); }
+    try {
+      await api.put('/payments/'+id+'/pay');
+      const r = await api.get('/payments');
+      setPayments(r.data);
+      showT('Paiement marque comme regle');
+    } catch {}
   };
 
-  const sendReminder = (p) => {
-    alert('Rappel WhatsApp envoye a la famille ' + p.student?.lastName);
+  const sendWA = (phone, name, amount, month) => {
+    if (!phone) { showT('Aucun telephone pour ce parent'); return; }
+    window.open('https://wa.me/'+phone.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Bonjour, les frais de scolarite de '+name+' pour '+month+' ('+amount+' MAD) sont en attente. Merci de regulariser. '+school?.name), '_blank');
   };
+
+  const submitPayment = async () => {
+    if (!form.studentId) { showT('Selectionnez un eleve'); return; }
+    try {
+      await api.post('/payments', form);
+      const r = await api.get('/payments');
+      setPayments(r.data);
+      setForm({ studentId:'', amount:2800, month:'Avril 2026', mode:'Especes' });
+      showT('Paiement enregistre');
+    } catch(e) { showT('Erreur: '+e.message); }
+  };
+
+  const C = { background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 };
+  const TH = { textAlign:'left', fontSize:10, fontWeight:600, letterSpacing:'.06em', textTransform:'uppercase', color:'#6b7280', padding:'10px 14px', borderBottom:'1px solid #e5e9f2', background:'#fafbfd' };
+  const TD = { padding:'13px 14px', borderBottom:'1px solid #e5e9f2', fontSize:13, verticalAlign:'middle' };
 
   return (
     <div>
-      <div style={{ marginBottom:18 }}>
-        <div style={{ fontSize:21, fontWeight:700, color:'var(--navy)', marginBottom:2 }}>Paiements</div>
-        <div style={{ fontSize:13, color:'var(--g2)' }}>Suivi des frais de scolarite · Avril 2026</div>
+      {toast && <div style={{ position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)', background:'#1e2d4f', color:'white', padding:'11px 20px', borderRadius:10, fontSize:13, fontWeight:600, zIndex:999 }}>✓ {toast}</div>}
+      <div style={{ marginBottom:20 }}>
+        <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Paiements</h2>
+        <p style={{ fontSize:12, color:'#6b7280' }}>Gestion des frais de scolarite · {new Date().toLocaleDateString('fr-FR', { month:'long', year:'numeric' })}</p>
       </div>
 
-      <div className="metrics">
-        <div className="metric">
-          <div className="mic" style={{ background:'#EAF3DE' }}>✅</div>
-          <div className="mlbl">Encaisse</div>
-          <div className="mval" style={{ fontSize:22 }}>{paidAmount.toLocaleString('fr-FR')}</div>
-          <div className="msub">MAD ce mois</div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
+        {[
+          { label:'Encaisse ce mois', value:totalPaid.toLocaleString('fr-FR'), sub:'MAD', color:'#16a34a' },
+          { label:'En attente', value:totalPending.toLocaleString('fr-FR'), sub:pending.length+' familles', color:'#dc2626', red:true },
+          { label:'Taux recouvrement', value:recouvrement+'%', sub:paid.length+' regles / '+payments.length, color:'#2563eb' },
+          { label:'Total eleves', value:students.length, sub:'Annee 2025-2026', color:'#6b7280' },
+        ].map((s,i) => (
+          <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px' }}>
+            <div style={{ fontSize:10, fontWeight:600, letterSpacing:'.07em', textTransform:'uppercase', color:'#6b7280', marginBottom:12 }}>{s.label}</div>
+            <div style={{ fontSize:28, fontWeight:700, letterSpacing:'-1px', color:s.red?'#ef4444':'#111827' }}>{s.value}</div>
+            <div style={{ fontSize:11, color:s.color, marginTop:8, fontWeight:500 }}>{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:14, marginBottom:14 }}>
+        <div style={C}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+            <span style={{ fontSize:13, fontWeight:600 }}>Paiements en attente</span>
+            <button onClick={() => { pending.forEach(p => { if(p.student?.parentPhone) sendWA(p.student.parentPhone, p.student.firstName+' '+p.student.lastName, p.amount, p.month); }); showT('Rappels WA envoyes'); }}
+              style={{ background:'#22c55e', color:'white', border:'none', borderRadius:7, padding:'7px 14px', fontSize:12, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:6 }}>
+              Envoyer rappels WA
+            </button>
+          </div>
+          {pending.length === 0 ? (
+            <div style={{ padding:32, textAlign:'center', color:'#6b7280' }}>
+              <div style={{ fontSize:28, marginBottom:8 }}>✓</div>
+              <div style={{ fontWeight:600 }}>Tous les paiements sont regles</div>
+            </div>
+          ) : (
+            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+              <thead><tr>{['Famille','Montant','Mois','Statut','Actions'].map(h => <th key={h} style={TH}>{h}</th>)}</tr></thead>
+              <tbody>
+                {pending.map(p => (
+                  <tr key={p.id}>
+                    <td style={TD}>
+                      <div style={{ fontWeight:500 }}>{p.student?.firstName} {p.student?.lastName}</div>
+                      <div style={{ fontSize:11, color:'#6b7280' }}>{p.student?.massar}</div>
+                    </td>
+                    <td style={{ ...TD, fontWeight:600, color:'#dc2626' }}>{p.amount.toLocaleString('fr-FR')} MAD</td>
+                    <td style={{ ...TD, color:'#6b7280' }}>{p.month}</td>
+                    <td style={TD}><span style={{ padding:'3px 8px', borderRadius:20, fontSize:11, fontWeight:500, background:'#fee2e2', color:'#dc2626' }}>En retard</span></td>
+                    <td style={TD}>
+                      <div style={{ display:'flex', gap:6 }}>
+                        <button onClick={() => sendWA(p.student?.parentPhone, p.student?.firstName+' '+p.student?.lastName, p.amount, p.month)}
+                          style={{ padding:'5px 10px', background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0', borderRadius:6, fontSize:11, fontWeight:500, cursor:'pointer' }}>
+                          Rappel WA
+                        </button>
+                        <button onClick={() => markPaid(p.id)}
+                          style={{ padding:'5px 10px', background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer' }}>
+                          Paye ✓
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-        <div className="metric">
-          <div className="mic" style={{ background:'#FCEBEB' }}>⏳</div>
-          <div className="mlbl">En attente</div>
-          <div className="mval" style={{ color:'var(--amber)' }}>{pending.length}</div>
-          <div className="msub">{pending.reduce((a,p)=>a+p.amount,0).toLocaleString('fr-FR')} MAD</div>
-        </div>
-        <div className="metric">
-          <div className="mic" style={{ background:'#E6F1FB' }}>📊</div>
-          <div className="mlbl">Taux recouvrement</div>
-          <div className="mval">{payments.length > 0 ? Math.round(paid.length/payments.length*100) : 0}<span style={{ fontSize:15, color:'var(--g2)' }}>%</span></div>
-          <div className="msub">ce mois</div>
-        </div>
-        <div className="metric">
-          <div className="mic" style={{ background:'#E8F8EE' }}>💬</div>
-          <div className="mlbl">Rappels WA</div>
-          <div className="mval">{pending.length}</div>
-          <div className="msub" style={{ color:'#25D366' }}>a envoyer</div>
+
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          <div style={C}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Repartition</div>
+            <div style={{ position:'relative', width:160, height:160, margin:'0 auto 16px' }}>
+              {loaded && <DonutPay recouvrement={recouvrement} />}
+              <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', pointerEvents:'none' }}>
+                <div style={{ fontSize:18, fontWeight:700 }}>{recouvrement}%</div>
+                <div style={{ fontSize:10, color:'#6b7280' }}>paye</div>
+              </div>
+            </div>
+            {[['#22c55e','Paye'],['#f59e0b','En attente'],['#ef4444','En retard']].map(([c,l]) => (
+              <div key={l} style={{ display:'flex', alignItems:'center', gap:7, fontSize:12, marginBottom:5 }}>
+                <div style={{ width:9, height:9, borderRadius:'50%', background:c }}></div>{l}
+              </div>
+            ))}
+          </div>
+          <div style={{ background:'#f0fdf4', border:'1px solid #86efac', borderRadius:12, padding:14 }}>
+            <div style={{ fontSize:10, fontWeight:600, letterSpacing:'.07em', textTransform:'uppercase', color:'#16a34a', marginBottom:4 }}>Total encaisse</div>
+            <div style={{ fontSize:22, fontWeight:700, color:'#15803d' }}>{totalPaid.toLocaleString('fr-FR')} MAD</div>
+            <div style={{ fontSize:11, color:'#16a34a', marginTop:2 }}>sur {(totalPaid+totalPending).toLocaleString('fr-FR')} MAD attendus · {recouvrement}%</div>
+          </div>
         </div>
       </div>
 
-      <div style={{ background:'#E8F8EE', border:'1px solid #97C459', borderRadius:10, padding:'12px 16px', marginBottom:14, display:'flex', alignItems:'center', gap:11 }}>
-        <span style={{ fontSize:20 }}>💬</span>
-        <div style={{ flex:1 }}>
-          <div style={{ fontSize:13, fontWeight:700, color:'#1a5e2a' }}>WhatsApp Business connecte</div>
-          <div style={{ fontSize:12, color:'var(--green)' }}>Les rappels de paiement sont envoyes automatiquement aux familles en retard</div>
+      <div style={{ ...C, marginBottom:14 }}>
+        <div style={{ fontSize:13, fontWeight:600, marginBottom:16 }}>Historique des paiements</div>
+        <table style={{ width:'100%', borderCollapse:'collapse' }}>
+          <thead><tr>{['Eleve','Montant','Mois','Mode','Statut'].map(h => <th key={h} style={TH}>{h}</th>)}</tr></thead>
+          <tbody>
+            {payments.map(p => (
+              <tr key={p.id}>
+                <td style={TD}><span style={{ fontWeight:500 }}>{p.student?.firstName} {p.student?.lastName}</span></td>
+                <td style={{ ...TD, fontWeight:600 }}>{p.amount.toLocaleString('fr-FR')} MAD</td>
+                <td style={{ ...TD, color:'#6b7280' }}>{p.month}</td>
+                <td style={{ ...TD, color:'#6b7280' }}>{p.mode || 'Especes'}</td>
+                <td style={TD}><span style={{ padding:'3px 8px', borderRadius:20, fontSize:11, fontWeight:500, background:p.status==='PAID'?'#dcfce7':'#fee2e2', color:p.status==='PAID'?'#16a34a':'#dc2626' }}>{p.status==='PAID'?'Regle':'En attente'}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={C}>
+        <div style={{ fontSize:13, fontWeight:600, marginBottom:16 }}>Enregistrer un paiement</div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:14 }}>
+          <div>
+            <label style={{ display:'block', fontSize:10, fontWeight:600, color:'#6b7280', marginBottom:5, textTransform:'uppercase', letterSpacing:'.07em' }}>Eleve</label>
+            <select value={form.studentId} onChange={e => setForm({...form, studentId:e.target.value})}
+              style={{ width:'100%', padding:'9px 12px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:13, outline:'none' }}>
+              <option value="">Selectionner</option>
+              {students.map(s => <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display:'block', fontSize:10, fontWeight:600, color:'#6b7280', marginBottom:5, textTransform:'uppercase', letterSpacing:'.07em' }}>Montant (MAD)</label>
+            <input type="number" value={form.amount} onChange={e => setForm({...form, amount:+e.target.value})}
+              style={{ width:'100%', padding:'9px 12px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:13, outline:'none' }} />
+          </div>
+          <div>
+            <label style={{ display:'block', fontSize:10, fontWeight:600, color:'#6b7280', marginBottom:5, textTransform:'uppercase', letterSpacing:'.07em' }}>Mois</label>
+            <select value={form.month} onChange={e => setForm({...form, month:e.target.value})}
+              style={{ width:'100%', padding:'9px 12px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:13, outline:'none' }}>
+              {['Janvier 2026','Fevrier 2026','Mars 2026','Avril 2026','Mai 2026','Juin 2026','Septembre 2025','Octobre 2025','Novembre 2025','Decembre 2025'].map(m => <option key={m}>{m}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ display:'block', fontSize:10, fontWeight:600, color:'#6b7280', marginBottom:5, textTransform:'uppercase', letterSpacing:'.07em' }}>Mode</label>
+            <select value={form.mode} onChange={e => setForm({...form, mode:e.target.value})}
+              style={{ width:'100%', padding:'9px 12px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:13, outline:'none' }}>
+              {['Especes','Virement','Cheque','CMI Carte'].map(m => <option key={m}>{m}</option>)}
+            </select>
+          </div>
         </div>
-        <button className="btn btn-wa btn-sm" onClick={() => { pending.forEach(p => sendReminder(p)); alert('Rappels envoyes a ' + pending.length + ' familles'); }}>
-          Envoyer rappels groupes
+        <button onClick={submitPayment}
+          style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+          Enregistrer le paiement
         </button>
-      </div>
-
-      <div className="g4">
-        <div className="card cp">
-          <div className="ch">
-            <div className="ct">Paiements en attente</div>
-            <div style={{ display:'flex', gap:7 }}>
-              <button className="btn btn-wa btn-sm" onClick={() => { pending.forEach(p => sendReminder(p)); }}>Rappels WA</button>
-              <button className="btn btn-navy btn-sm" onClick={() => setShowForm(!showForm)}>+ Enregistrer</button>
-            </div>
-          </div>
-
-          {showForm && (
-            <form onSubmit={submit} style={{ background:'var(--g0)', borderRadius:8, padding:14, marginBottom:14 }}>
-              <div className="fgrid2" style={{ marginBottom:10 }}>
-                <div className="fg" style={{ marginBottom:0 }}>
-                  <label>Eleve *</label>
-                  <select value={form.studentId} onChange={e => setForm({...form, studentId:e.target.value})}>
-                    <option value="">Selectionnez un eleve</option>
-                    {students.map(s => <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>)}
-                  </select>
-                </div>
-                <div className="fg" style={{ marginBottom:0 }}>
-                  <label>Mois</label>
-                  <select value={form.month} onChange={e => setForm({...form, month:e.target.value})}>
-                    {['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'].map(m => (
-                      <option key={m}>{m} 2026</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="fgrid2" style={{ marginBottom:10 }}>
-                <div className="fg" style={{ marginBottom:0 }}>
-                  <label>Montant (MAD)</label>
-                  <input type="number" value={form.amount} onChange={e => setForm({...form, amount:+e.target.value})} />
-                </div>
-                <div className="fg" style={{ marginBottom:0 }}>
-                  <label>Mode de paiement</label>
-                  <select value={form.mode} onChange={e => setForm({...form, mode:e.target.value})}>
-                    <option>Especes</option>
-                    <option>Virement bancaire</option>
-                    <option>CMI / Carte</option>
-                    <option>Cheque</option>
-                  </select>
-                </div>
-              </div>
-              <div style={{ background:'var(--greenl)', borderRadius:8, padding:'8px 12px', fontSize:12, color:'var(--green)', marginBottom:10 }}>
-                Apres validation : recu PDF + notification WhatsApp au parent
-              </div>
-              <div style={{ display:'flex', gap:8 }}>
-                <button type="submit" className="btn btn-green" disabled={loading} style={{ flex:1 }}>{loading?'...':'✓ Valider le paiement'}</button>
-                <button type="button" className="btn btn-out" onClick={() => setShowForm(false)} style={{ flex:1 }}>Annuler</button>
-              </div>
-            </form>
-          )}
-
-          <div style={{ background:'var(--g0)', borderRadius:7, marginBottom:5 }}>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 100px 90px 80px 110px', gap:8, padding:'9px 12px', fontSize:10, fontWeight:700, color:'var(--g2)', textTransform:'uppercase' }}>
-              <div>Famille</div><div>Montant</div><div>Mois</div><div>Statut</div><div>Actions</div>
-            </div>
-          </div>
-          {payments.map(p => (
-            <div key={p.id} style={{ display:'grid', gridTemplateColumns:'1fr 100px 90px 80px 110px', gap:8, padding:'10px 12px', borderBottom:'1px solid #F5F5F3', alignItems:'center' }}
-              onMouseOver={e => e.currentTarget.style.background='#FAFAF8'}
-              onMouseOut={e => e.currentTarget.style.background='transparent'}>
-              <div>
-                <div style={{ fontSize:13, fontWeight:700 }}>{p.student?.firstName} {p.student?.lastName}</div>
-                <div style={{ fontSize:11, color:'var(--g2)' }}>{p.mode || 'Especes'}</div>
-              </div>
-              <div style={{ fontSize:13, fontWeight:700, color: p.status==='PAID'?'var(--green)':'var(--amber)' }}>
-                {p.amount.toLocaleString('fr-FR')} MAD
-              </div>
-              <div style={{ fontSize:12, color:'var(--g2)' }}>{p.month}</div>
-              <span className={'badge ' + (p.status==='PAID'?'b-g':'b-a')}>
-                {p.status==='PAID'?'Paye ✓':'Attente'}
-              </span>
-              <div style={{ display:'flex', gap:4 }}>
-                {p.status !== 'PAID' && (
-                  <>
-                    <button className="btn btn-wa btn-xs" onClick={() => sendReminder(p)}>WA</button>
-                    <button className="btn btn-xs" style={{ background:'var(--greenl)', color:'var(--green)', border:'none', borderRadius:5, padding:'4px 8px', fontSize:10, fontWeight:700, cursor:'pointer' }}
-                      onClick={() => markPaid(p.id)}>Paye ✓</button>
-                  </>
-                )}
-                {p.status === 'PAID' && <span style={{ fontSize:11, color:'var(--green)' }}>✓</span>}
-              </div>
-            </div>
-          ))}
-          {payments.length === 0 && (
-            <div style={{ padding:24, textAlign:'center', color:'var(--g2)' }}>Aucun paiement enregistre</div>
-          )}
-        </div>
-
-        <div className="card cp">
-          <div className="ch"><div className="ct">Repartition</div></div>
-          <div style={{ marginBottom:16 }}>
-            <div className="br-row">
-              <div className="br-lbl">Payes</div>
-              <div className="br-track"><div className="br-fill" style={{ width: payments.length>0?Math.round(paid.length/payments.length*100)+'%':'0%', background:'var(--green)' }}></div></div>
-              <div className="br-val" style={{ color:'var(--green)' }}>{paid.length}</div>
-            </div>
-            <div className="br-row">
-              <div className="br-lbl">En attente</div>
-              <div className="br-track"><div className="br-fill" style={{ width: payments.length>0?Math.round(pending.length/payments.length*100)+'%':'0%', background:'var(--amber)' }}></div></div>
-              <div className="br-val" style={{ color:'var(--amber)' }}>{pending.length}</div>
-            </div>
-          </div>
-          <div style={{ padding:14, background:'var(--greenl)', borderRadius:8, marginBottom:10 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'var(--green)', marginBottom:4 }}>TOTAL ENCAISSE</div>
-            <div style={{ fontSize:22, fontWeight:700, color:'var(--navy)' }}>{paidAmount.toLocaleString('fr-FR')} MAD</div>
-            <div style={{ fontSize:12, color:'var(--g2)' }}>sur {totalAmount.toLocaleString('fr-FR')} MAD total</div>
-          </div>
-          <div style={{ padding:14, background:'var(--amberl)', borderRadius:8 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'var(--gd)', marginBottom:4 }}>EN ATTENTE</div>
-            <div style={{ fontSize:22, fontWeight:700, color:'var(--navy)' }}>{pending.reduce((a,p)=>a+p.amount,0).toLocaleString('fr-FR')} MAD</div>
-            <div style={{ fontSize:12, color:'var(--g2)' }}>{pending.length} famille(s)</div>
-          </div>
-        </div>
       </div>
     </div>
   );

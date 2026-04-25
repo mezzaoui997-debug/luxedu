@@ -1,20 +1,88 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '../api/axios';
 import useAuthStore from '../store/authStore';
 
+const C = { background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 };
+const TH = { textAlign:'left', fontSize:10, fontWeight:600, letterSpacing:'.06em', textTransform:'uppercase', color:'#6b7280', padding:'10px 14px', borderBottom:'1px solid #e5e9f2', background:'#fafbfd' };
+const TD = { padding:'13px 14px', borderBottom:'1px solid #e5e9f2', fontSize:13, verticalAlign:'middle' };
+
+function LineChart({ data }) {
+  const ref = useRef(null);
+  const chart = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chart.current) chart.current.destroy();
+    const ctx = ref.current.getContext('2d');
+    chart.current = new window.Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan','Fev','Mar','Avr','Mai','Jun'],
+        datasets: [
+          { label:'6eme Exc.', data:[17,17.2,17.4,17.8,null,null], borderColor:'#1e2d4f', backgroundColor:'rgba(30,45,79,0.05)', tension:.4, pointRadius:4, pointBackgroundColor:'#1e2d4f', spanGaps:false },
+          { label:'5eme A', data:[14,14.3,14.6,15.1,null,null], borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,0.05)', tension:.4, pointRadius:4, pointBackgroundColor:'#f59e0b', spanGaps:false },
+          { label:'4eme A', data:[13.8,13.9,14.1,14.3,null,null], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.05)', tension:.4, pointRadius:4, pointBackgroundColor:'#3b82f6', spanGaps:false }
+        ]
+      },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ color:'rgba(0,0,0,0.04)' }, ticks:{ font:{ size:11 }, color:'#6b7280' } }, y:{ min:10, max:20, grid:{ color:'rgba(0,0,0,0.04)' }, ticks:{ font:{ size:11 }, color:'#6b7280' } } } }
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, []);
+  return <canvas ref={ref} />;
+}
+
+function DonutChart({ id, data, colors, cutout, size }) {
+  const ref = useRef(null);
+  const chart = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chart.current) chart.current.destroy();
+    const ctx = ref.current.getContext('2d');
+    chart.current = new window.Chart(ctx, {
+      type: 'doughnut',
+      data: { datasets:[{ data, backgroundColor:colors, borderWidth:0 }] },
+      options: { cutout: cutout||'72%', responsive:false, plugins:{ legend:{ display:false }, tooltip:{ enabled:false } } }
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, []);
+  return <canvas ref={ref} width={size||100} height={size||100} />;
+}
+
+function BarChart() {
+  const ref = useRef(null);
+  const chart = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chart.current) chart.current.destroy();
+    const ctx = ref.current.getContext('2d');
+    chart.current = new window.Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['6eme Exc.','5eme A','5eme B','4eme A','3eme Bac'],
+        datasets: [
+          { label:'Semestre 1', data:[16.8,14.5,13.9,13.2,11.8], backgroundColor:'#3b82f6', borderRadius:4 },
+          { label:'Semestre 2', data:[17.6,15.1,14.4,13.8,12.1], backgroundColor:'#f59e0b', borderRadius:4 }
+        ]
+      },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ grid:{ display:false }, ticks:{ font:{ size:11 }, color:'#6b7280' } }, y:{ min:8, max:20, grid:{ color:'rgba(0,0,0,0.04)' }, ticks:{ font:{ size:11 }, color:'#6b7280' } } } }
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, []);
+  return <canvas ref={ref} />;
+}
+
 const CALENDRIER = [
-  { ic:'🏫', lbl:'Rentree scolaire', date:'08 Sep 2025', color:'#3B6D11', bg:'#EAF3DE', past:true },
-  { ic:'🌙', lbl:'1ere pause', date:'19-26 Oct 2025', color:'#185FA5', bg:'#E6F1FB', past:true },
-  { ic:'🇲🇦', lbl:'Marche Verte', date:'06 Nov 2025', color:'#854F0B', bg:'#FAEEDA', past:true },
-  { ic:'🇲🇦', lbl:'Fete Independance', date:'18 Nov 2025', color:'#854F0B', bg:'#FAEEDA', past:true },
-  { ic:'❄️', lbl:'2eme pause', date:'07-14 Dec 2025', color:'#185FA5', bg:'#E6F1FB', past:true },
-  { ic:'🇲🇦', lbl:'Manifeste Independance', date:'11 Jan 2026', color:'#854F0B', bg:'#FAEEDA', past:true },
-  { ic:'📚', lbl:'Vacances mi-annee S1', date:'25 Jan-01 Fev 2026', color:'#534AB7', bg:'#EEEDFE', past:true },
-  { ic:'🌸', lbl:'3eme pause', date:'15-22 Mars 2026', color:'#185FA5', bg:'#E6F1FB', past:true },
-  { ic:'🇲🇦', lbl:'Fete du Travail', date:'01 Mai 2026', color:'#854F0B', bg:'#FAEEDA', past:false },
-  { ic:'☀️', lbl:'4eme pause', date:'03-10 Mai 2026', color:'#185FA5', bg:'#E6F1FB', past:false },
-  { ic:'🌙', lbl:'Aid Al-Adha', date:'27-29 Mai 2026', color:'#854F0B', bg:'#FAEEDA', past:false },
-  { ic:'📝', lbl:'Examens BAC', date:'Juin 2026', color:'#A32D2D', bg:'#FCEBEB', past:false },
+  { lbl:'Rentree scolaire', date:'08 Sep 2025', past:true },
+  { lbl:'1ere pause', date:'19-26 Oct 2025', past:true },
+  { lbl:'Marche Verte', date:'06 Nov 2025', past:true },
+  { lbl:'Fete Independance', date:'18 Nov 2025', past:true },
+  { lbl:'2eme pause', date:'07-14 Dec 2025', past:true },
+  { lbl:'Manifeste Independance', date:'11 Jan 2026', past:true },
+  { lbl:'Vacances mi-annee S1', date:'25 Jan - 01 Fev 2026', past:true },
+  { lbl:'3eme pause', date:'15-22 Mars 2026', past:true },
+  { lbl:'Fete du Travail', date:'01 Mai 2026', past:false },
+  { lbl:'4eme pause', date:'03-10 Mai 2026', past:false },
+  { lbl:'Aid Al-Adha', date:'27-29 Mai 2026', past:false },
+  { lbl:'Examens BAC', date:'Juin 2026', past:false },
 ];
 
 export default function Dashboard({ setPage }) {
@@ -24,13 +92,18 @@ export default function Dashboard({ setPage }) {
   const [attendance, setAttendance] = useState([]);
   const [customEvents, setCustomEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({ title:'', date:'' });
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [search, setSearch] = useState('');
+  const [chartLoaded, setChartLoaded] = useState(false);
 
   useEffect(() => {
     api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
     api.get('/payments').then(r => setPayments(r.data)).catch(()=>{});
     api.get('/attendance').then(r => setAttendance(r.data)).catch(()=>{});
+    if (!window.Chart) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+      s.onload = () => setChartLoaded(true);
+      document.head.appendChild(s);
+    } else { setChartLoaded(true); }
   }, []);
 
   const pending = payments.filter(p => p.status === 'PENDING');
@@ -38,198 +111,197 @@ export default function Dashboard({ setPage }) {
   const recouvrement = payments.length > 0 ? Math.round(paid.length/payments.length*100) : 0;
   const todayStr = new Date().toISOString().split('T')[0];
   const todayAbsents = attendance.filter(a => a.date?.startsWith(todayStr) && a.status === 'ABSENT');
-  const filtered = students.filter(s => (s.firstName+' '+s.lastName+s.massar).toLowerCase().includes(search.toLowerCase()));
+  const today = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 
-  const nextEvents = CALENDRIER.filter(e => !e.past).slice(0,3);
+  const markPaid = async (id) => {
+    try { await api.put('/payments/'+id+'/pay'); const r = await api.get('/payments'); setPayments(r.data); } catch {}
+  };
 
   return (
-    <div className="page-enter">
-      <div style={{ marginBottom:22 }}>
-        <div style={{ fontSize:22, fontWeight:700, color:'var(--navy)', marginBottom:3 }}>Bonjour, {user?.firstName} 👋</div>
-        <div style={{ fontSize:13, color:'var(--g2)' }}>{new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })} · {school?.name}</div>
+    <div style={{ fontFamily:"'Inter',sans-serif" }}>
+      <div style={{ marginBottom:20 }}>
+        <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Bonjour, {user?.firstName} !</h2>
+        <p style={{ fontSize:12, color:'#6b7280' }}>Resume de l ecole · {today}</p>
       </div>
 
-      <div className="metrics">
-        <div className="metric" onClick={() => setPage('eleves')} style={{ cursor:'pointer' }}>
-          <div className="mic" style={{ background:'#E6F1FB' }}></div>
-          <div className="mlbl">Eleves inscrits</div>
-          <div className="mval">{students.length}</div>
-          <div style={{ fontSize:11, color:'var(--g2)', marginTop:3 }}>Annee 2025-2026</div>
-        </div>
-        <div className="metric" onClick={() => setPage('paiements')} style={{ cursor:'pointer' }}>
-          <div className="mic" style={{ background:'#FCEBEB' }}></div>
-          <div className="mlbl">Paiements en attente</div>
-          <div className="mval" style={{ color:'var(--red)' }}>{pending.length}</div>
-          <div style={{ fontSize:11, color:'var(--g2)', marginTop:3 }}>{pending.reduce((a,p)=>a+p.amount,0).toLocaleString('fr-FR')} MAD</div>
-        </div>
-        <div className="metric" onClick={() => setPage('paiements')} style={{ cursor:'pointer' }}>
-          <div className="mic" style={{ background:'#EAF3DE' }}></div>
-          <div className="mlbl">Taux recouvrement</div>
-          <div className="mval" style={{ color:'var(--green)' }}>{recouvrement}%</div>
-          <div style={{ fontSize:11, color:'var(--g2)', marginTop:3 }}>{paid.length} payes / {payments.length}</div>
-        </div>
-        <div className="metric" onClick={() => setPage('presences')} style={{ cursor:'pointer' }}>
-          <div className="mic" style={{ background:'#FAEEDA' }}></div>
-          <div className="mlbl">Absents aujourd hui</div>
-          <div className="mval" style={{ color:'var(--amber)' }}>{todayAbsents.length}</div>
-          <div style={{ fontSize:11, color:'var(--g2)', marginTop:3 }}>Sur {students.length} eleves</div>
-        </div>
-      </div>
-
-      {(pending.length > 0 || todayAbsents.length > 0) && (
-        <div style={{ background:'linear-gradient(135deg,var(--navy) 0%,var(--blue2) 100%)', borderRadius:10, padding:'14px 18px', marginBottom:16, display:'flex', alignItems:'center', gap:14 }}>
-          <span style={{ fontSize:26 }}>🤖</span>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:3 }}>Alertes IA — Actions recommandees</div>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.7)' }}>
-              {pending.length > 0 && `${pending.length} paiement(s) en retard · ${pending.reduce((a,p)=>a+p.amount,0).toLocaleString('fr-FR')} MAD non recouvert`}
-              {pending.length > 0 && todayAbsents.length > 0 && ' · '}
-              {todayAbsents.length > 0 && `${todayAbsents.length} absence(s) aujourd hui non notifiees`}
-            </div>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
+        {[
+          { label:'Eleves inscrits', value:students.length, sub:'Annee 2025-2026' },
+          { label:'Presence aujourd hui', value:students.length>0?Math.round((students.length-todayAbsents.length)/students.length*100)+'%':'—', sub:todayAbsents.length+' absent(s)' },
+          { label:'Paiements en attente', value:pending.length, sub:pending.reduce((a,p)=>a+p.amount,0).toLocaleString('fr-FR')+' MAD dus', red:true },
+          { label:'Taux recouvrement', value:recouvrement+'%', sub:paid.length+' payes / '+payments.length },
+        ].map((s,i) => (
+          <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px' }}>
+            <div style={{ fontSize:10, fontWeight:600, letterSpacing:'.07em', textTransform:'uppercase', color:'#6b7280', marginBottom:12 }}>{s.label}</div>
+            <div style={{ fontSize:30, fontWeight:700, letterSpacing:'-1px', color:s.red?'#ef4444':'#111827' }}>{s.value}</div>
+            <div style={{ fontSize:11, color:'#6b7280', marginTop:8 }}>{s.sub}</div>
           </div>
-          <button className="btn btn-gold btn-sm" onClick={() => setPage('notifs')}>Voir alertes</button>
+        ))}
+      </div>
+
+      {pending.length > 0 && (
+        <div style={{ background:'linear-gradient(135deg,#1e2d4f,#2d4a7a)', borderRadius:10, padding:'14px 18px', marginBottom:20, display:'flex', alignItems:'center', gap:14 }}>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:600, color:'white', marginBottom:3 }}>{pending.length} paiement(s) en retard</div>
+            <div style={{ fontSize:12, color:'rgba(255,255,255,0.65)' }}>{pending.reduce((a,p)=>a+p.amount,0).toLocaleString('fr-FR')} MAD non recouvert</div>
+          </div>
+          <button onClick={() => setPage('paiements')} style={{ background:'#f59e0b', color:'#78350f', border:'none', borderRadius:7, padding:'7px 14px', fontSize:12, fontWeight:600, cursor:'pointer' }}>Voir alertes</button>
         </div>
       )}
 
-      <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:14, marginBottom:14 }}>
-        <div className="card cp">
-          <div className="ch">
-            <div className="ct">Eleves inscrits</div>
-            <div style={{ display:'flex', gap:8 }}>
-              <div className="sbox">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input className="sinp" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Rechercher..." />
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 360px', gap:14, marginBottom:14 }}>
+        <div style={C}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+            <span style={{ fontSize:13, fontWeight:600 }}>Evolution des moyennes — 2025/2026</span>
+            <button onClick={() => setPage('rapports')} style={{ fontSize:12, color:'#3b82f6', background:'none', border:'none', cursor:'pointer' }}>Rapports →</button>
+          </div>
+          <div style={{ display:'flex', gap:16, marginBottom:12 }}>
+            {[['#1e2d4f','6eme Exc.'],['#f59e0b','5eme A'],['#3b82f6','4eme A']].map(([c,l]) => (
+              <div key={l} style={{ display:'flex', alignItems:'center', gap:5 }}>
+                <div style={{ width:10, height:10, borderRadius:2, background:c }}></div>
+                <span style={{ fontSize:11, color:'#6b7280' }}>{l}</span>
               </div>
-              <button className="btn btn-navy btn-sm" onClick={() => setPage('eleves')}>Voir tous</button>
+            ))}
+          </div>
+          <div style={{ height:180 }}>{chartLoaded && <LineChart />}</div>
+        </div>
+        <div style={C}>
+          <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Presences S2</div>
+          <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:16 }}>
+            <div style={{ position:'relative', width:100, height:100, flexShrink:0 }}>
+              {chartLoaded && <DonutChart data={[94,3,3]} colors={['#1e2d4f','#f59e0b','#ef4444']} />}
+              <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', pointerEvents:'none' }}>
+                <div style={{ fontSize:20, fontWeight:700 }}>94%</div>
+                <div style={{ fontSize:9, color:'#6b7280' }}>presence</div>
+              </div>
+            </div>
+            <div>
+              {[['#1e2d4f','Present 94%'],['#f59e0b','Retard 3%'],['#ef4444','Absent 3%']].map(([c,l]) => (
+                <div key={l} style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6, fontSize:12 }}>
+                  <div style={{ width:9, height:9, borderRadius:'50%', background:c }}></div>{l}
+                </div>
+              ))}
             </div>
           </div>
-          <table className="tbl">
-            <thead><tr><th>Eleve</th><th>Code Massar</th><th>Date inscription</th><th>Statut paiement</th></tr></thead>
+          {[['6eme Exc.',98,'#22c55e'],['5eme A',95,'#3b82f6'],['4eme A',88,'#3b82f6'],['3eme Bac',81,'#f59e0b']].map(([l,v,c]) => (
+            <div key={l} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:9, fontSize:12 }}>
+              <span style={{ width:70, color:'#6b7280', fontSize:11 }}>{l}</span>
+              <div style={{ flex:1, height:6, background:'#f1f4f9', borderRadius:3, overflow:'hidden' }}>
+                <div style={{ height:'100%', borderRadius:3, background:c, width:v+'%' }}></div>
+              </div>
+              <span style={{ width:32, textAlign:'right', fontWeight:600 }}>{v}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
+        <div style={C}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+            <span style={{ fontSize:13, fontWeight:600 }}>Eleves inscrits</span>
+            <button onClick={() => setPage('eleves')} style={{ fontSize:12, color:'#3b82f6', background:'none', border:'none', cursor:'pointer' }}>Voir tous →</button>
+          </div>
+          <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <thead><tr>{['Eleve','Massar','Paiement'].map(h => <th key={h} style={TH}>{h}</th>)}</tr></thead>
             <tbody>
-              {filtered.slice(0,6).map(s => {
-                const sp = payments.filter(p => p.studentId === s.id);
-                const hasPending = sp.some(p => p.status === 'PENDING');
+              {students.slice(0,5).map(s => {
+                const hasPending = payments.some(p => p.studentId===s.id && p.status==='PENDING');
                 return (
                   <tr key={s.id}>
-                    <td>
-                      <div className="tav">
-                        <div className="av" style={{ width:30, height:30, fontSize:10, background:'var(--bl)', color:'var(--blue)' }}>{s.firstName[0]}{s.lastName[0]}</div>
-                        <div><div style={{ fontWeight:700 }}>{s.firstName} {s.lastName}</div><div style={{ fontSize:11, color:'var(--g2)' }}>{s.parentPhone||'—'}</div></div>
+                    <td style={TD}>
+                      <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+                        <div style={{ width:28, height:28, borderRadius:'50%', background:'#dbeafe', color:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:600 }}>{s.firstName[0]}{s.lastName[0]}</div>
+                        <span style={{ fontWeight:500 }}>{s.firstName} {s.lastName}</span>
                       </div>
                     </td>
-                    <td style={{ fontFamily:'monospace', fontSize:12, color:'var(--navy)', fontWeight:700 }}>{s.massar}</td>
-                    <td style={{ fontSize:12, color:'var(--g2)' }}>{new Date(s.createdAt).toLocaleDateString('fr-FR')}</td>
-                    <td><span className={'badge '+(hasPending?'b-r':'b-g')}>{hasPending?'En retard':'A jour'}</span></td>
+                    <td style={{ ...TD, fontFamily:'monospace', fontSize:11, color:'#1e2d4f' }}>{s.massar}</td>
+                    <td style={TD}><span style={{ padding:'3px 8px', borderRadius:20, fontSize:11, fontWeight:500, background:hasPending?'#fee2e2':'#dcfce7', color:hasPending?'#dc2626':'#16a34a' }}>{hasPending?'En retard':'A jour'}</span></td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
+        <div style={C}>
+          <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Activite recente</div>
+          {[
+            { dot:'#22c55e', text:'Presences enregistrees', time:'Il y a 10 min' },
+            { dot:'#3b82f6', text:'Notes S2 Mathematiques sauvegardees', time:'Il y a 35 min' },
+            { dot:'#f59e0b', text:'Rappel WA envoye — Famille en retard', time:'Il y a 1h' },
+            { dot:'#8b5cf6', text:'Bulletin PDF genere', time:'Il y a 2h' },
+          ].map((a,i) => (
+            <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom:14 }}>
+              <div style={{ width:7, height:7, borderRadius:'50%', background:a.dot, marginTop:5, flexShrink:0 }}></div>
+              <div><div style={{ fontSize:13 }}>{a.text}</div><div style={{ fontSize:11, color:'#6b7280' }}>{a.time}</div></div>
+            </div>
+          ))}
+        </div>
+      </div>
 
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 360px', gap:14, marginBottom:14 }}>
+        <div style={C}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+            <span style={{ fontSize:13, fontWeight:600 }}>Calendrier scolaire 2025-2026 · MEN Maroc</span>
+            <span style={{ background:'#dcfce7', color:'#16a34a', fontSize:10, fontWeight:600, padding:'3px 8px', borderRadius:20 }}>Officiel</span>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:14 }}>
+            {CALENDRIER.map((ev,i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:9, padding:'8px 10px', borderRadius:8, background:ev.past?'#f9fafb':'#eff6ff', border:'1px solid '+(ev.past?'#e5e9f2':'#bfdbfe'), opacity:ev.past?0.6:1 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:11, fontWeight:600, color:ev.past?'#6b7280':'#1e40af' }}>{ev.lbl}</div>
+                  <div style={{ fontSize:10, color:'#9ca3af', marginTop:1 }}>{ev.date}</div>
+                </div>
+                {ev.past && <span style={{ fontSize:9, color:'#9ca3af' }}>✓</span>}
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop:'1px solid #e5e9f2', paddingTop:12 }}>
+            <div style={{ fontSize:12, fontWeight:600, color:'#111827', marginBottom:8 }}>Evenements de l ecole</div>
+            {customEvents.map((ev,i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:8, background:'#eff6ff', border:'1px solid #bfdbfe', marginBottom:6 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:12, fontWeight:600, color:'#1e40af' }}>{ev.title}</div>
+                  <div style={{ fontSize:11, color:'#6b7280' }}>{new Date(ev.date).toLocaleDateString('fr-FR')}</div>
+                </div>
+                <button onClick={() => setCustomEvents(p=>p.filter((_,j)=>j!==i))} style={{ background:'none', border:'none', cursor:'pointer', color:'#9ca3af', fontSize:14 }}>×</button>
+              </div>
+            ))}
+            <div style={{ display:'flex', gap:7, marginTop:8 }}>
+              <input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="Nom de l evenement..."
+                style={{ flex:1, padding:'7px 10px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:12, outline:'none' }} />
+              <input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})}
+                style={{ padding:'7px 10px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:12, outline:'none' }} />
+              <button onClick={() => { if(!newEvent.title||!newEvent.date) return; setCustomEvents([...customEvents,newEvent]); setNewEvent({title:'',date:''}); }}
+                style={{ padding:'7px 14px', background:'#1e2d4f', color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>+</button>
+            </div>
+          </div>
+        </div>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <div className="card cp">
-            <div className="ct" style={{ marginBottom:12 }}>Actions rapides</div>
+          <div style={{ ...C, flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Actions rapides</div>
             {[
-              { ic:'👥', lbl:'Voir les eleves', p:'eleves', color:'var(--navy)', bg:'var(--bl)' },
-              { ic:'📊', lbl:'Consulter les notes', p:'notes', color:'var(--purple)', bg:'var(--purpl)' },
-              { ic:'📄', lbl:'Generer bulletins', p:'bulletins', color:'var(--amber)', bg:'var(--amberl)' },
-              { ic:'💰', lbl:'Suivi paiements', p:'paiements', color:'var(--green)', bg:'var(--greenl)' },
-              { ic:'🔔', lbl:'Notifications', p:'notifs', color:'var(--red)', bg:'var(--redl)' },
+              { lbl:'Tous les eleves', p:'eleves', bg:'#eff6ff', color:'#2563eb' },
+              { lbl:'Notes & bulletins', p:'notes', bg:'#fffbeb', color:'#d97706' },
+              { lbl:'Presences', p:'presences', bg:'#f0fdf4', color:'#16a34a' },
+              { lbl:'Paiements', p:'paiements', bg:'#fef2f2', color:'#dc2626' },
+              { lbl:'Rapports', p:'rapports', bg:'#f5f3ff', color:'#7c3aed' },
+              { lbl:'Parametres', p:'parametres', bg:'#f8fafc', color:'#374151' },
             ].map(a => (
               <button key={a.p} onClick={() => setPage(a.p)}
-                style={{ display:'flex', alignItems:'center', gap:9, padding:'9px 12px', borderRadius:9, border:'none', cursor:'pointer', background:a.bg, width:'100%', textAlign:'left', marginBottom:7 }}>
-                <span style={{ fontSize:14 }}>{a.ic}</span>
-                <span style={{ fontSize:12, fontWeight:700, color:a.color, flex:1 }}>{a.lbl}</span>
-                <span style={{ color:a.color }}>→</span>
+                style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'9px 12px', borderRadius:8, border:'none', cursor:'pointer', background:a.bg, width:'100%', marginBottom:7, fontSize:12, fontWeight:600, color:a.color }}>
+                {a.lbl} <span>→</span>
               </button>
             ))}
           </div>
-
-          <div className="card" style={{ padding:16, background:'var(--navy)' }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', marginBottom:10 }}>Taux de recouvrement</div>
+          <div style={{ background:'#1e2d4f', borderRadius:12, padding:16 }}>
+            <div style={{ fontSize:10, fontWeight:600, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', marginBottom:10 }}>Taux recouvrement</div>
             <div style={{ fontSize:28, fontWeight:700, color:'white', marginBottom:8 }}>{recouvrement}%</div>
-            <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:6, height:8, overflow:'hidden', marginBottom:8 }}>
-              <div style={{ height:'100%', borderRadius:6, background:'var(--gold)', width:recouvrement+'%', transition:'width .8s' }}></div>
+            <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:4, height:6, overflow:'hidden', marginBottom:8 }}>
+              <div style={{ height:'100%', borderRadius:4, background:'#f59e0b', width:recouvrement+'%' }}></div>
             </div>
             <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>{paid.length} payes sur {payments.length}</div>
           </div>
         </div>
-      </div>
-
-      <div className="card cp">
-        <div className="ch">
-          <div className="ct"> Calendrier scolaire 2025-2026 · MEN Maroc</div>
-          <div style={{ display:'flex', gap:8 }}>
-            <span className="badge b-g">Officiel</span>
-            <button className="btn btn-out btn-sm" onClick={() => setShowCalendar(!showCalendar)}>
-              {showCalendar ? 'Reduire' : 'Tout voir'}
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:16 }}>
-          <div>
-            <div style={{ fontSize:12, fontWeight:700, color:'var(--navy)', marginBottom:10 }}>Prochaines dates importantes</div>
-            {nextEvents.map((ev,i) => (
-              <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', borderRadius:9, background:ev.bg, border:'1px solid '+ev.color+'33', marginBottom:8 }}>
-                <span style={{ fontSize:20, flexShrink:0 }}>{ev.ic}</span>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:12, fontWeight:700, color:ev.color }}>{ev.lbl}</div>
-                  <div style={{ fontSize:11, color:'var(--g2)', marginTop:1 }}>{ev.date}</div>
-                </div>
-                <span style={{ background:ev.color, color:'white', fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:20 }}>A venir</span>
-              </div>
-            ))}
-          </div>
-
-          <div>
-            <div style={{ fontSize:12, fontWeight:700, color:'var(--navy)', marginBottom:10 }}> Evenements de l ecole</div>
-            {customEvents.length === 0 ? (
-              <div style={{ fontSize:12, color:'var(--g2)', marginBottom:10, padding:'10px 12px', background:'var(--g0)', borderRadius:9 }}>
-                Aucun evenement · Ajoutez vos evenements ci-dessous
-              </div>
-            ) : (
-              customEvents.map((ev,i) => (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 12px', borderRadius:9, background:'var(--bl)', border:'1px solid var(--g1)', marginBottom:6 }}>
-                  <span>📌</span>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontSize:12, fontWeight:700, color:'var(--navy)' }}>{ev.title}</div>
-                    <div style={{ fontSize:11, color:'var(--g2)' }}>{new Date(ev.date).toLocaleDateString('fr-FR')}</div>
-                  </div>
-                  <button onClick={() => setCustomEvents(p=>p.filter((_,j)=>j!==i))}
-                    style={{ background:'none', border:'none', cursor:'pointer', color:'var(--g2)' }}>✕</button>
-                </div>
-              ))
-            )}
-            <div style={{ display:'flex', gap:7 }}>
-              <input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="Nom evenement..."
-                style={{ flex:1, padding:'8px 10px', border:'1.5px solid var(--g1)', borderRadius:8, fontSize:12, outline:'none' }} />
-              <input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})}
-                style={{ padding:'8px 10px', border:'1.5px solid var(--g1)', borderRadius:8, fontSize:12, outline:'none' }} />
-              <button onClick={() => { if(!newEvent.title||!newEvent.date) return; setCustomEvents([...customEvents,newEvent]); setNewEvent({title:'',date:''}); }}
-                className="btn btn-navy btn-sm">+</button>
-            </div>
-          </div>
-        </div>
-
-        {showCalendar && (
-          <div>
-            <div style={{ fontSize:11, fontWeight:700, color:'var(--g2)', textTransform:'uppercase', marginBottom:10 }}>Calendrier complet MEN 2025-2026</div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8 }}>
-              {CALENDRIER.map((ev,i) => (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:9, padding:'9px 11px', borderRadius:9, background:ev.past?'var(--g0)':ev.bg, border:'1px solid '+(ev.past?'var(--g1)':ev.color+'33'), opacity:ev.past?0.6:1 }}>
-                  <span style={{ fontSize:15, flexShrink:0 }}>{ev.ic}</span>
-                  <div style={{ minWidth:0 }}>
-                    <div style={{ fontSize:11, fontWeight:700, color:ev.past?'var(--g2)':ev.color, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{ev.lbl}</div>
-                    <div style={{ fontSize:10, color:'var(--g2)', marginTop:1 }}>{ev.date}</div>
-                  </div>
-                  {ev.past && <span style={{ marginLeft:'auto', fontSize:9, color:'var(--g2)', flexShrink:0 }}>✓</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
