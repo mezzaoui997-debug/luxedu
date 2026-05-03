@@ -402,6 +402,63 @@ export default function TeacherDashboard() {
                   <div style={{ fontSize:11, color:'var(--red)', marginTop:3 }}>Notes &lt;10</div>
                 </div>
               </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
+                <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Moyennes par eleve — {subject}</div>
+                  <div style={{ fontSize:11, color:'#6b7280', marginBottom:12 }}>Semestre {semester}</div>
+                  <div style={{ display:'flex', alignItems:'flex-end', gap:5, height:130 }}>
+                    {(students.length > 0 ? students : [
+                      {id:'d1',firstName:'Eleve 1'},{id:'d2',firstName:'Eleve 2'},
+                      {id:'d3',firstName:'Eleve 3'},{id:'d4',firstName:'Eleve 4'},
+                      {id:'d5',firstName:'Eleve 5'},{id:'d6',firstName:'Eleve 6'},
+                    ]).slice(0,8).map((s,idx) => {
+                      const demoVals = [17,14,12,16,9,15,11,13];
+                      const g = grades[s.id];
+                      const val = g ? parseFloat(g) : demoVals[idx] || 12;
+                      const h = Math.round((val/20)*100);
+                      const col = val >= 14 ? '#22c55e' : val >= 10 ? '#3b82f6' : '#ef4444';
+                      return (
+                        <div key={s.id} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
+                          <div style={{ fontSize:9, fontWeight:700, color:col }}>{val}</div>
+                          <div style={{ width:'100%', background:col, borderRadius:'3px 3px 0 0', height:h+'%', minHeight:6 }}></div>
+                          <div style={{ fontSize:8, color:'#9ca3af', overflow:'hidden', maxWidth:32, textAlign:'center', whiteSpace:'nowrap' }}>{s.firstName.slice(0,5)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display:'flex', gap:12, marginTop:10, fontSize:10 }}>
+                    <span style={{ display:'flex', alignItems:'center', gap:3 }}><span style={{ width:8, height:8, borderRadius:2, background:'#22c55e', display:'inline-block' }}></span>Bien ≥14</span>
+                    <span style={{ display:'flex', alignItems:'center', gap:3 }}><span style={{ width:8, height:8, borderRadius:2, background:'#3b82f6', display:'inline-block' }}></span>Moyen ≥10</span>
+                    <span style={{ display:'flex', alignItems:'center', gap:3 }}><span style={{ width:8, height:8, borderRadius:2, background:'#ef4444', display:'inline-block' }}></span>Insuffisant</span>
+                  </div>
+                </div>
+                <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Presences cette semaine</div>
+                  <div style={{ fontSize:11, color:'#6b7280', marginBottom:12 }}>Taux par jour</div>
+                  <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:130 }}>
+                    {[{d:'Lun',p:96},{d:'Mar',p:94},{d:'Mer',p:98},{d:'Jeu',p:92},{d:'Ven',p:95},{d:'Sam',p:88}].map(({d,p}) => {
+                      const col = p >= 95 ? '#22c55e' : p >= 90 ? '#3b82f6' : '#f59e0b';
+                      return (
+                        <div key={d} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
+                          <div style={{ fontSize:9, fontWeight:700, color:col }}>{p}%</div>
+                          <div style={{ width:'100%', background:col, borderRadius:'3px 3px 0 0', height:p+'%' }}></div>
+                          <div style={{ fontSize:9, color:'#9ca3af' }}>{d}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ marginTop:10, display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                    <div style={{ background:'#f0fdf4', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+                      <div style={{ fontSize:16, fontWeight:700, color:'#16a34a' }}>94%</div>
+                      <div style={{ fontSize:10, color:'#6b7280' }}>Moy. semaine</div>
+                    </div>
+                    <div style={{ background:'#fef2f2', borderRadius:8, padding:'8px 10px', textAlign:'center' }}>
+                      <div style={{ fontSize:16, fontWeight:700, color:'#dc2626' }}>{absents.length}</div>
+                      <div style={{ fontSize:10, color:'#6b7280' }}>Absents auj.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               {lowGrades.length > 0 && (
                 <div style={{ background:'linear-gradient(135deg,#063828 0%,#0F6E56 100%)', borderRadius:10, padding:'14px 18px', marginBottom:16, display:'flex', alignItems:'center', gap:14 }}>
                   <span style={{ fontSize:24 }}>🤖</span>
@@ -483,42 +540,6 @@ export default function TeacherDashboard() {
                       <span style={{ color:a.color }}>→</span>
                     </button>
                   ))}
-                </div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginTop:14 }}>
-                  <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
-                    <div style={{ fontSize:13, fontWeight:600, marginBottom:12 }}>Moyennes par eleve</div>
-                    <div style={{ display:'flex', alignItems:'flex-end', gap:6, height:110 }}>
-                      {students.slice(0,8).map((s,idx) => {
-                        const g = grades[s.id];
-                        const val = g ? parseFloat(g) : 0;
-                        const h = val > 0 ? Math.round((val/20)*100) : 5;
-                        const col = val >= 14 ? '#22c55e' : val >= 10 ? '#3b82f6' : val > 0 ? '#ef4444' : '#e5e9f2';
-                        return (
-                          <div key={s.id} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
-                            <div style={{ fontSize:9, fontWeight:700, color:col }}>{val > 0 ? val : '-'}</div>
-                            <div style={{ width:'100%', background:col, borderRadius:'3px 3px 0 0', height:h+'%', minHeight:4 }}></div>
-                            <div style={{ fontSize:8, color:'#9ca3af', overflow:'hidden', maxWidth:28, textAlign:'center' }}>{s.firstName.slice(0,4)}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
-                    <div style={{ fontSize:13, fontWeight:600, marginBottom:12 }}>Presences semaine</div>
-                    <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:110 }}>
-                      {['Lun','Mar','Mer','Jeu','Ven','Sam'].map((d,idx) => {
-                        const pct = [96,94,98,92,95,88][idx];
-                        const col = pct >= 95 ? '#22c55e' : pct >= 90 ? '#3b82f6' : '#f59e0b';
-                        return (
-                          <div key={d} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
-                            <div style={{ fontSize:9, fontWeight:700, color:col }}>{pct}%</div>
-                            <div style={{ width:'100%', background:col, borderRadius:'3px 3px 0 0', height:pct+'%' }}></div>
-                            <div style={{ fontSize:9, color:'#9ca3af' }}>{d}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
