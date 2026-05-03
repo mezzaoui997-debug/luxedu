@@ -16,6 +16,7 @@ const MENUS = [
   { id:'dashboard', lbl:'Tableau de bord' },
   { id:'inscriptions', lbl:'Inscriptions' },
   { id:'paiements', lbl:'Paiements' },
+  { id:'presences', lbl:'Presences' },
   { sec:'Communication' },
   { id:'whatsapp', lbl:'Messages WhatsApp' },
   { id:'messages', lbl:'Messages internes' },
@@ -137,6 +138,26 @@ function DashBarChart() {
     });
     return () => { if (chartRef.current) chartRef.current.destroy(); };
   }, []);
+
+  useEffect(() => {
+    setPresLoading(true);
+    api.get('/attendance?date='+presDate).then(r => {
+      setPresStudents(r.data);
+      const d = {};
+      r.data.forEach(s => {
+        if (s.attendances && s.attendances[0]) d[s.id] = s.attendances[0].status;
+        else d[s.id] = 'PRESENT';
+      });
+      setPresData(d);
+      setPresLoading(false);
+    }).catch(() => {
+      setPresStudents(students);
+      const d = {};
+      students.forEach(s => { d[s.id] = 'PRESENT'; });
+      setPresData(d);
+      setPresLoading(false);
+    });
+  }, [presDate, students.length]);
   return <div style={{ position:'relative', height:150 }}><canvas ref={canvasRef} /></div>;
 }
 
@@ -305,6 +326,11 @@ export default function FonctionnaireDashboard() {
   const [certStudent, setCertStudent] = useState('');
   const [dirName, setDirName] = useState('Ahmed Benali');
   const [edtClass, setEdtClass] = useState('6eme Excellence');
+  const [presDate, setPresDate] = useState(new Date().toISOString().split('T')[0]);
+  const [presData, setPresData] = useState({});
+  const [presStudents, setPresStudents] = useState([]);
+  const [presLoading, setPresLoading] = useState(false);
+  const [presSaved, setPresSaved] = useState(false);
 
   useEffect(() => {
     api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
@@ -1101,6 +1127,142 @@ export default function FonctionnaireDashboard() {
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {page === 'presences' && (
+            <div>
+              <div style={{ marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Presences journalieres</h2>
+                  <p style={{ fontSize:12, color:'#6b7280' }}>Pointage quotidien — {presStudents.length} eleves</p>
+                </div>
+                <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+                  <input type="date" value={presDate} onChange={e => { setPresDate(e.target.value); setPresSaved(false); }}
+                    style={{ padding:'8px 12px', border:'1px solid #e5e9f2', borderRadius:8, fontSize:13, outline:'none' }} />
+                  <button onClick={async () => {
+                    const records = presStudents.map(s => ({ studentId:s.id, status:presData[s.id]||'PRESENT', date:presDate }));
+                    try {
+                      await api.post('/attendance', { records });
+                      setPresSaved(true);
+                      showT('Presences enregistrees !');
+                      const absents = presStudents.filter(s => presData[s.id] === 'ABSENT');
+                      if (absents.length > 0) {
+                        absents.forEach(s => {
+                          if (s.parentPhone) sendWA(s.parentPhone, 'Bonjour, votre enfant ' + s.firstName + ' ' + s.lastName + ' etait absent(e) ce jour. Merci de nous contacter. - ' + (school ? school.name : 'Ecole'));
+                        });
+                        showT('Presences enregistrees + WA envoye aux ' + absents.length + ' parents');
+                      }
+                    } catch { showT('Erreur lors de l enregistrement'); }
+                  }} style={{ padding:'9px 20px', background:'#1e2d4f', color:'white', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                    Enregistrer
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:18 }}>
+                {[
+                  { lbl:'Total eleves', val:presStudents.length, color:'#111827', bg:'#f8fafc' },
+                  { lbl:'Presents', val:Object.values(presData).filter(s=>s==='PRESENT').length, color:'#16a34a', bg:'#f0fdf4' },
+                  { lbl:'Absents', val:Object.values(presData).filter(s=>s==='ABSENT').length, color:'#dc2626', bg:'#fef2f2' },
+                  { lbl:'Taux presence', val:presStudents.length>0?Math.round(Object.values(presData).filter(s=>s==='PRESENT').length/presStudents.length*100)+'%':'—', color:'#2563eb', bg:'#eff6ff' },
+                ].map((s,i) => (
+                  <div key={i} style={{ background:s.bg, border:'1px solid #e5e9f2', borderRadius:12, padding:'16px 18px' }}>
+                    <div style={{ fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'.07em', color:'#6b7280', marginBottom:8 }}>{s.lbl}</div>
+                    <div style={{ fontSize:28, fontWeight:700, color:s.color }}>{s.val}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display:'flex', gap:8, marginBottom:14 }}>
+                {['TOUS','PRESENT','ABSENT','RETARD'].map(f => (
+                  <button key={f} style={{ padding:'6px 14px', border:'1px solid #e5e9f2', borderRadius:8, fontSize:12, fontWeight:500, cursor:'pointer', background:'white', color:'#374151' }}
+                    onClick={() => {
+                      if (f === 'TOUS') return;
+                      const updated = {};
+                      presStudents.forEach(s => { updated[s.id] = f; });
+                      setPresData({...presData, ...updated});
+                    }}>
+                    {f === 'TOUS' ? 'Filtrer' : f === 'PRESENT' ? 'Tous presents' : f === 'ABSENT' ? 'Tous absents' : 'Tous en retard'}
+                  </button>
+                ))}
+                {Object.values(presData).filter(s=>s==='ABSENT').length > 0 && (
+                  <button onClick={() => {
+                    const absents = presStudents.filter(s => presData[s.id] === 'ABSENT');
+                    absents.forEach(s => { if (s.parentPhone) sendWA(s.parentPhone, 'Bonjour, votre enfant ' + s.firstName + ' etait absent(e). - ' + (school ? school.name : 'Ecole')); });
+                    showT('WA envoye a ' + absents.length + ' parents');
+                  }} style={{ padding:'6px 14px', background:'#25D366', color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer', marginLeft:'auto' }}>
+                    WhatsApp absents ({Object.values(presData).filter(s=>s==='ABSENT').length})
+                  </button>
+                )}
+              </div>
+
+              <div style={C}>
+                {presLoading ? (
+                  <div style={{ textAlign:'center', padding:40, color:'#6b7280' }}>Chargement...</div>
+                ) : (
+                  <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                    <thead>
+                      <tr>
+                        {['N°','Eleve','Massar','Statut','Action rapide'].map(h => (
+                          <th key={h} style={{ textAlign:'left', fontSize:10, fontWeight:600, letterSpacing:'.06em', textTransform:'uppercase', color:'#6b7280', padding:'10px 14px', borderBottom:'1px solid #e5e9f2', background:'#fafbfd' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {presStudents.map((s,i) => {
+                        const status = presData[s.id] || 'PRESENT';
+                        const statusConfig = {
+                          PRESENT: { color:'#16a34a', bg:'#dcfce7', lbl:'Present' },
+                          ABSENT:  { color:'#dc2626', bg:'#fee2e2', lbl:'Absent' },
+                          RETARD:  { color:'#d97706', bg:'#fef3c7', lbl:'Retard' },
+                        };
+                        const sc = statusConfig[status] || statusConfig.PRESENT;
+                        return (
+                          <tr key={s.id} style={{ background: status === 'ABSENT' ? '#fff8f8' : 'white' }}>
+                            <td style={{ padding:'12px 14px', borderBottom:'1px solid #f3f4f6', fontSize:12, color:'#9ca3af', width:40 }}>{i+1}</td>
+                            <td style={{ padding:'12px 14px', borderBottom:'1px solid #f3f4f6' }}>
+                              <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                                <div style={{ width:32, height:32, borderRadius:'50%', background: status==='ABSENT'?'#fee2e2': status==='RETARD'?'#fef3c7':'#dbeafe', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color: status==='ABSENT'?'#dc2626':status==='RETARD'?'#d97706':'#2563eb', flexShrink:0 }}>
+                                  {s.firstName[0]}{s.lastName[0]}
+                                </div>
+                                <div>
+                                  <div style={{ fontSize:13, fontWeight:600, color:'#111827' }}>{s.lastName.toUpperCase()} {s.firstName}</div>
+                                  {status === 'ABSENT' && s.parentPhone && <div style={{ fontSize:11, color:'#6b7280' }}>{s.parentPhone}</div>}
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ padding:'12px 14px', borderBottom:'1px solid #f3f4f6', fontFamily:'monospace', fontSize:12, color:'#374151' }}>{s.massar}</td>
+                            <td style={{ padding:'12px 14px', borderBottom:'1px solid #f3f4f6' }}>
+                              <div style={{ display:'flex', gap:5 }}>
+                                {['PRESENT','ABSENT','RETARD'].map(st => (
+                                  <button key={st} onClick={() => setPresData({...presData, [s.id]:st})}
+                                    style={{ padding:'4px 10px', borderRadius:6, border:'1px solid '+(status===st?'transparent':'#e5e9f2'), background:status===st?sc.bg:'transparent', color:status===st?sc.color:'#9ca3af', fontSize:11, fontWeight:status===st?600:400, cursor:'pointer' }}>
+                                    {st === 'PRESENT' ? 'P' : st === 'ABSENT' ? 'A' : 'R'}
+                                  </button>
+                                ))}
+                              </div>
+                            </td>
+                            <td style={{ padding:'12px 14px', borderBottom:'1px solid #f3f4f6' }}>
+                              {status === 'ABSENT' && s.parentPhone && (
+                                <button onClick={() => { sendWA(s.parentPhone, 'Bonjour, votre enfant ' + s.firstName + ' ' + s.lastName + ' etait absent(e) ce ' + presDate + '. Merci de nous contacter. - ' + (school ? school.name : 'Ecole')); showT('WA envoye'); }}
+                                  style={{ padding:'5px 10px', background:'#dcfce7', color:'#16a34a', border:'1px solid #bbf7d0', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer' }}>
+                                  WA parent
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+              {presSaved && (
+                <div style={{ marginTop:12, padding:'10px 16px', background:'#dcfce7', border:'1px solid #bbf7d0', borderRadius:8, fontSize:13, color:'#16a34a', fontWeight:500 }}>
+                  Presences du {presDate} enregistrees avec succes.
                 </div>
               )}
             </div>
