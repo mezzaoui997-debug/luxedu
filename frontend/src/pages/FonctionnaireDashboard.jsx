@@ -139,25 +139,6 @@ function DashBarChart() {
     return () => { if (chartRef.current) chartRef.current.destroy(); };
   }, []);
 
-  useEffect(() => {
-    setPresLoading(true);
-    api.get('/attendance?date='+presDate).then(r => {
-      setPresStudents(r.data);
-      const d = {};
-      r.data.forEach(s => {
-        if (s.attendances && s.attendances[0]) d[s.id] = s.attendances[0].status;
-        else d[s.id] = 'PRESENT';
-      });
-      setPresData(d);
-      setPresLoading(false);
-    }).catch(() => {
-      setPresStudents(students);
-      const d = {};
-      students.forEach(s => { d[s.id] = 'PRESENT'; });
-      setPresData(d);
-      setPresLoading(false);
-    });
-  }, [presDate, students.length]);
   return <div style={{ position:'relative', height:150 }}><canvas ref={canvasRef} /></div>;
 }
 
@@ -336,6 +317,27 @@ export default function FonctionnaireDashboard() {
     api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
     api.get('/payments').then(r => setPayments(r.data)).catch(()=>{});
   }, []);
+
+  useEffect(() => {
+    if (!presDate) return;
+    setPresLoading(true);
+    api.get('/attendance?date='+presDate).then(r => {
+      setPresStudents(r.data);
+      const d = {};
+      r.data.forEach(s => {
+        if (s.attendances && s.attendances[0]) d[s.id] = s.attendances[0].status;
+        else d[s.id] = 'PRESENT';
+      });
+      setPresData(d);
+      setPresLoading(false);
+    }).catch(() => {
+      setPresStudents(students);
+      const d = {};
+      students.forEach(s => { d[s.id] = 'PRESENT'; });
+      setPresData(d);
+      setPresLoading(false);
+    });
+  }, [presDate, students.length]);
 
   const showT = (m) => { setToast(m); setTimeout(() => setToast(''), 3000); };
   const pending = payments.filter(p => p.status === 'PENDING');
