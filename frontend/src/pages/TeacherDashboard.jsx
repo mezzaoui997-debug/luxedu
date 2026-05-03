@@ -50,7 +50,7 @@ function DevoirsSection({ students, subject, showT }) {
   return (
     <div>
       {showForm && (
-        <div style={{ background:'white', border:'1px solid #bfdbfe', borderRadius:12, padding:20, marginBottom:16, background:'#eff6ff' }}>
+        <div style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:12, padding:20, marginBottom:16 }}>
           <div style={{ fontSize:13, fontWeight:600, color:'var(--navy)', marginBottom:14 }}>Nouveau devoir</div>
           <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr 1fr', gap:10, marginBottom:10 }}>
             <div><label style={{ fontSize:11, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Titre du devoir</label>
