@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 import api from '../api/axios';
 import useAuthStore from '../store/authStore';
 
@@ -13,7 +15,7 @@ function LineChart({ data }) {
     if (!ref.current) return;
     if (chart.current) chart.current.destroy();
     const ctx = ref.current.getContext('2d');
-    chart.current = new window.Chart(ctx, {
+    chart.current = new Chart(ctx, {
       type: 'line',
       data: {
         labels: ['Jan','Fev','Mar','Avr','Mai','Jun'],
@@ -37,7 +39,7 @@ function DonutChart({ id, data, colors, cutout, size }) {
     if (!ref.current) return;
     if (chart.current) chart.current.destroy();
     const ctx = ref.current.getContext('2d');
-    chart.current = new window.Chart(ctx, {
+    chart.current = new Chart(ctx, {
       type: 'doughnut',
       data: { datasets:[{ data, backgroundColor:colors, borderWidth:0 }] },
       options: { cutout: cutout||'72%', responsive:false, plugins:{ legend:{ display:false }, tooltip:{ enabled:false } } }
@@ -54,7 +56,7 @@ function BarChart() {
     if (!ref.current) return;
     if (chart.current) chart.current.destroy();
     const ctx = ref.current.getContext('2d');
-    chart.current = new window.Chart(ctx, {
+    chart.current = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: ['6eme Exc.','5eme A','5eme B','4eme A','3eme Bac'],
@@ -98,12 +100,7 @@ export default function Dashboard({ setPage }) {
     api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
     api.get('/payments').then(r => setPayments(r.data)).catch(()=>{});
     api.get('/attendance').then(r => setAttendance(r.data)).catch(()=>{});
-    if (!window.Chart) {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
-      s.onload = () => setChartLoaded(true);
-      document.head.appendChild(s);
-    } else { setChartLoaded(true); }
+    setChartLoaded(true);
   }, []);
 
   const pending = payments.filter(p => p.status === 'PENDING');

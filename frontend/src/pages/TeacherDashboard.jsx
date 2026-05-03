@@ -484,6 +484,42 @@ export default function TeacherDashboard() {
                     </button>
                   ))}
                 </div>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginTop:14 }}>
+                  <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
+                    <div style={{ fontSize:13, fontWeight:600, marginBottom:12 }}>Moyennes par eleve</div>
+                    <div style={{ display:'flex', alignItems:'flex-end', gap:6, height:110 }}>
+                      {students.slice(0,8).map((s,idx) => {
+                        const g = grades[s.id];
+                        const val = g ? parseFloat(g) : 0;
+                        const h = val > 0 ? Math.round((val/20)*100) : 5;
+                        const col = val >= 14 ? '#22c55e' : val >= 10 ? '#3b82f6' : val > 0 ? '#ef4444' : '#e5e9f2';
+                        return (
+                          <div key={s.id} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+                            <div style={{ fontSize:9, fontWeight:700, color:col }}>{val > 0 ? val : '-'}</div>
+                            <div style={{ width:'100%', background:col, borderRadius:'3px 3px 0 0', height:h+'%', minHeight:4 }}></div>
+                            <div style={{ fontSize:8, color:'#9ca3af', overflow:'hidden', maxWidth:28, textAlign:'center' }}>{s.firstName.slice(0,4)}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
+                    <div style={{ fontSize:13, fontWeight:600, marginBottom:12 }}>Presences semaine</div>
+                    <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:110 }}>
+                      {['Lun','Mar','Mer','Jeu','Ven','Sam'].map((d,idx) => {
+                        const pct = [96,94,98,92,95,88][idx];
+                        const col = pct >= 95 ? '#22c55e' : pct >= 90 ? '#3b82f6' : '#f59e0b';
+                        return (
+                          <div key={d} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+                            <div style={{ fontSize:9, fontWeight:700, color:col }}>{pct}%</div>
+                            <div style={{ width:'100%', background:col, borderRadius:'3px 3px 0 0', height:pct+'%' }}></div>
+                            <div style={{ fontSize:9, color:'#9ca3af' }}>{d}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
