@@ -192,6 +192,63 @@ export default function Dashboard({ setPage }) {
         </div>
       </div>
 
+
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:14, marginBottom:14 }}>
+        <div style={C}>
+          <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Recouvrement paiements</div>
+          <div style={{ fontSize:11, color:'#6b7280', marginBottom:12 }}>Evolution mensuelle 2025-2026</div>
+          <div style={{ display:'flex', alignItems:'flex-end', gap:5, height:120 }}>
+            {[{m:'Sep',p:45},{m:'Oct',p:52},{m:'Nov',p:61},{m:'Dec',p:68},{m:'Jan',p:74},{m:'Fev',p:78},{m:'Mar',p:82},{m:'Avr',p:recouvrement||85},{m:'Mai',p:null}].map(({m,p}) => {
+              const val = p || 0;
+              const col = val >= 80 ? '#22c55e' : val >= 60 ? '#3b82f6' : val >= 40 ? '#f59e0b' : '#e5e9f2';
+              return (
+                <div key={m} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
+                  {p !== null && <div style={{ fontSize:8, fontWeight:700, color:col }}>{val}%</div>}
+                  <div style={{ width:'100%', background: p !== null ? col : '#e5e9f2', borderRadius:'2px 2px 0 0', height: p !== null ? val+'%' : '5%', minHeight:3 }}></div>
+                  <div style={{ fontSize:8, color:'#9ca3af' }}>{m}</div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ marginTop:10, display:'flex', gap:8 }}>
+            <div style={{ flex:1, background:'#f0fdf4', borderRadius:8, padding:'7px 10px', textAlign:'center' }}>
+              <div style={{ fontSize:14, fontWeight:700, color:'#16a34a' }}>{paid.length}</div>
+              <div style={{ fontSize:9, color:'#6b7280' }}>Payes</div>
+            </div>
+            <div style={{ flex:1, background:'#fef2f2', borderRadius:8, padding:'7px 10px', textAlign:'center' }}>
+              <div style={{ fontSize:14, fontWeight:700, color:'#dc2626' }}>{pending.length}</div>
+              <div style={{ fontSize:9, color:'#6b7280' }}>En attente</div>
+            </div>
+            <div style={{ flex:1, background:'#eff6ff', borderRadius:8, padding:'7px 10px', textAlign:'center' }}>
+              <div style={{ fontSize:14, fontWeight:700, color:'#2563eb' }}>{recouvrement}%</div>
+              <div style={{ fontSize:9, color:'#6b7280' }}>Taux</div>
+            </div>
+          </div>
+        </div>
+        <div style={C}>
+          <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Repartition niveaux</div>
+          <div style={{ fontSize:11, color:'#6b7280', marginBottom:10 }}>Eleves par classe</div>
+          {chartLoaded && <div style={{ position:'relative', width:100, height:100, margin:'0 auto 12px' }}>
+            <DonutChart data={[8,7,6,5,4]} colors={['#1e2d4f','#3b82f6','#f59e0b','#22c55e','#8b5cf6']} cutout="60%" size={100} />
+          </div>}
+          {[['6eme Exc.','#1e2d4f',8],['5eme A','#3b82f6',7],['4eme A','#f59e0b',6],['3eme Bac','#22c55e',5]].map(([l,c,n]) => (
+            <div key={l} style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6, fontSize:11 }}>
+              <div style={{ width:8, height:8, borderRadius:2, background:c, flexShrink:0 }}></div>
+              <span style={{ flex:1, color:'#6b7280' }}>{l}</span>
+              <span style={{ fontWeight:600 }}>{students.length > 0 ? Math.round(students.length*(n/30)) : n} eleves</span>
+            </div>
+          ))}
+        </div>
+        <div style={C}>
+          <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Comparaison S1 vs S2</div>
+          <div style={{ fontSize:11, color:'#6b7280', marginBottom:12 }}>Moyennes par classe</div>
+          <div style={{ height:160 }}>{chartLoaded && <BarChart />}</div>
+          <div style={{ display:'flex', gap:12, marginTop:8, fontSize:11 }}>
+            <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:10, borderRadius:2, background:'#3b82f6', display:'inline-block' }}></span>Semestre 1</span>
+            <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:10, borderRadius:2, background:'#f59e0b', display:'inline-block' }}></span>Semestre 2</span>
+          </div>
+        </div>
+      </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
         <div style={C}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
