@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
 import api from '../api/axios';
 import useAuthStore from '../store/authStore';
 
@@ -18,6 +21,7 @@ const MENUS = [
   { id:'messages', lbl:'Messages internes' },
   { id:'circulaires', lbl:'Circulaires parents' },
   { sec:'Documents' },
+  { id:'bulletins', lbl:'Bulletins PDF' },
   { id:'certificats', lbl:'Certificats' },
   { id:'recu', lbl:'Recus de paiement' },
   { id:'carte', lbl:'Carte eleve' },
@@ -27,6 +31,12 @@ const MENUS = [
   { id:'medical', lbl:'Fiche medicale' },
   { id:'cantine', lbl:'Cantine' },
   { id:'reductions', lbl:'Reductions & frais' },
+  { id:'bibliotheque', lbl:'Bibliotheque' },
+  { id:'transport', lbl:'Transport' },
+  { id:'inventaire', lbl:'Inventaire' },
+  { sec:'Agenda & DR' },
+  { id:'agenda', lbl:'Agenda & RDV' },
+  { id:'qrcode', lbl:'QR Code eleves' },
   { sec:'Administration' },
   { id:'edt', lbl:'Emploi du temps' },
   { id:'budget', lbl:'Budget & depenses' },
@@ -39,6 +49,151 @@ const TEMPLATES = [
   { id:'bulletin', name:'Bulletin disponible', msg:'Bonjour, le bulletin de votre enfant est disponible.' },
   { id:'custom', name:'Message libre', msg:'' },
 ];
+
+
+function DashLineChart({ paid, payments }) {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    const months = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar','Avr','Mai'];
+    const total = payments.length || 10;
+    const paidData = [Math.round(total*0.45), Math.round(total*0.52), Math.round(total*0.61), Math.round(total*0.58), Math.round(total*0.70), Math.round(total*0.74), Math.round(total*0.78), paid.length, paid.length];
+    const pct = paidData.map(v => total > 0 ? Math.round(v/total*100) : 0);
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'Regle %', data: pct, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#3b82f6', borderWidth: 2 },
+          { label: 'Objectif', data: Array(9).fill(80), borderColor: '#fbbf24', borderDash: [5,5], pointRadius: 0, fill: false, borderWidth: 1.5 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%' } } },
+        scales: {
+          y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v + '%', font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [paid.length, payments.length]);
+  return <div style={{ position:'relative', height:180 }}><canvas ref={canvasRef} /></div>;
+}
+
+function DashDonutChart({ paid, total, recouvrement }) {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'doughnut',
+      data: {
+        labels: ['Regles', 'En attente'],
+        datasets: [{ data: [paid || 0, Math.max((total||0) - (paid||0), 0)], backgroundColor: ['#22c55e','#f3f4f6'], borderWidth: 0, hoverOffset: 4 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '72%',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.raw } } }
+      }
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [paid, total]);
+  return (
+    <div style={{ position:'relative', height:140, display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <canvas ref={canvasRef} />
+      <div style={{ position:'absolute', textAlign:'center', pointerEvents:'none' }}>
+        <div style={{ fontSize:24, fontWeight:700, color:'#111827' }}>{recouvrement}%</div>
+        <div style={{ fontSize:10, color:'#6b7280' }}>regle</div>
+      </div>
+    </div>
+  );
+}
+
+function DashBarChart() {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'bar',
+      data: {
+        labels: ['Lun','Mar','Mer','Jeu','Ven','Sam'],
+        datasets: [{ label: 'Presence %', data: [96,94,98,92,95,88], backgroundColor: ['#3b82f6','#3b82f6','#22c55e','#f59e0b','#3b82f6','#ef4444'], borderRadius: 5, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw + '%' } } },
+        scales: {
+          y: { min: 80, max: 100, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v+'%', font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, []);
+  return <div style={{ position:'relative', height:150 }}><canvas ref={canvasRef} /></div>;
+}
+
+function DashLevelChart({ students }) {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    const levels = ['6eme','5eme','4eme','3eme','Autre'];
+    const counts = levels.map((_,i) => Math.max(1, Math.round(students.length / 5) + (i%2===0?1:-1)));
+    counts[0] = students.length - counts.slice(1).reduce((a,b)=>a+b,0);
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'doughnut',
+      data: {
+        labels: levels,
+        datasets: [{ data: counts.map(c=>Math.max(0,c)), backgroundColor: ['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6'], borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10, padding: 8 } } }
+      }
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [students.length]);
+  return <div style={{ position:'relative', height:160 }}><canvas ref={canvasRef} /></div>;
+}
+
+function DashModeChart({ payments }) {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    const modes = { Especes:0, Virement:0, CM2:0, Cheque:0 };
+    payments.forEach(p => { const k = p.mode||'Especes'; if(modes[k]!==undefined) modes[k]++; else modes['Especes']++; });
+    const total = payments.length || 1;
+    if(total <= 1) { modes.Especes=6; modes.Virement=3; modes.CM2=2; modes.Cheque=1; }
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(modes),
+        datasets: [{ label: 'Paiements', data: Object.values(modes), backgroundColor: ['#3b82f6','#22c55e','#f59e0b','#8b5cf6'], borderRadius: 5, borderSkipped: false }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 } } },
+          y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+    return () => { if (chartRef.current) chartRef.current.destroy(); };
+  }, [payments.length]);
+  return <div style={{ position:'relative', height:150 }}><canvas ref={canvasRef} /></div>;
+}
 
 function DonutChart({ paid, total }) {
   const pct = total > 0 ? paid / total : 0;
@@ -122,90 +277,6 @@ const MAT_COLORS = {
   SVT:{bg:'#f0fdf4',tc:'#166534'},
 };
 
-function EdtPage({ school, showT }) {
-  const [selectedClass, setSelectedClass] = useState('6eme Excellence');
-  const rows = EDT_DATA[selectedClass] || EDT_DATA['6eme Excellence'];
-  const jours = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
-
-  const printPDF = () => {
-    const schoolName = school ? school.name : 'Ecole Excellence';
-    const tableRows = rows.map(row =>
-      '<tr><td style="padding:8px 12px;color:#6b7280;font-size:12px;background:#f8fafc;font-weight:600">'+row.h+'</td>' +
-      row.ms.map(m => {
-        const col = MAT_COLORS[m] || {bg:'#f9fafb',tc:'#d1d5db'};
-        return '<td style="padding:6px"><div style="background:'+col.bg+';color:'+col.tc+';padding:7px 8px;border-radius:6px;font-size:11px;font-weight:600;text-align:center">'+m+'</div></td>';
-      }).join('') + '</tr>'
-    ).join('');
-    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>EDT '+selectedClass+'</title>'
-      + '<style>body{font-family:Arial,sans-serif;padding:30px}table{width:100%;border-collapse:collapse}th{background:#1e2d4f;color:white;padding:10px 12px;font-size:12px}td{border-bottom:1px solid #f3f4f6}</style>'
-      + '</head><body>'
-      + '<div style="text-align:center;margin-bottom:20px"><div style="font-size:18px;font-weight:700;color:#1e2d4f">'+schoolName+'</div>'
-      + '<div style="font-size:14px;color:#6b7280;margin-top:4px">Emploi du temps — '+selectedClass+' — 2025-2026</div></div>'
-      + '<table><thead><tr><th>Heure</th>'+jours.map(j=>'<th>'+j+'</th>').join('')+'</tr></thead><tbody>'+tableRows+'</tbody></table>'
-      + '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="background:#1e2d4f;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Imprimer</button></div>'
-      + '</body></html>';
-    window.open(URL.createObjectURL(new Blob([html],{type:'text/html'})),'_blank');
-  };
-
-  const TH2 = { padding:'10px 12px', textAlign:'left', fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', background:'#1e2d4f' };
-
-  return (
-    <div>
-      <div style={{ marginBottom:20 }}>
-        <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Emploi du temps</h2>
-        <p style={{ fontSize:12, color:'#6b7280' }}>Horaires par classe — Annee 2025-2026</p>
-      </div>
-      <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
-          <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-            {Object.keys(EDT_DATA).map(cl => (
-              <button key={cl} onClick={() => setSelectedClass(cl)}
-                style={{ padding:'7px 14px', background:selectedClass===cl?'#1e2d4f':'white', color:selectedClass===cl?'white':'#6b7280', border:'1px solid '+(selectedClass===cl?'#1e2d4f':'#e5e9f2'), borderRadius:8, fontSize:12, fontWeight:500, cursor:'pointer', transition:'all .15s' }}>
-                {cl}
-              </button>
-            ))}
-          </div>
-          <button onClick={printPDF}
-            style={{ padding:'7px 14px', background:'#1e2d4f', color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-            Imprimer PDF
-          </button>
-        </div>
-        <div style={{ overflowX:'auto' }}>
-          <table style={{ width:'100%', borderCollapse:'collapse', minWidth:600 }}>
-            <thead>
-              <tr>
-                <th style={{ ...TH2, width:80 }}>Heure</th>
-                {jours.map(j => <th key={j} style={{ ...TH2, textAlign:'center' }}>{j}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(row => (
-                <tr key={row.h} style={{ borderBottom:'1px solid #f3f4f6' }}>
-                  <td style={{ padding:'8px 12px', fontSize:11, fontWeight:700, color:'#6b7280', background:'#f8fafc' }}>{row.h}</td>
-                  {row.ms.map((m,i) => {
-                    const col = MAT_COLORS[m] || {bg:'#f9fafb',tc:'#d1d5db'};
-                    return (
-                      <td key={i} style={{ padding:5 }}>
-                        {m !== '—' ? (
-                          <div style={{ background:col.bg, color:col.tc, padding:'7px 8px', borderRadius:7, fontSize:11, fontWeight:600, textAlign:'center' }}>{m}</div>
-                        ) : (
-                          <div style={{ height:34, borderRadius:7, border:'1px dashed #e5e9f2' }}></div>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-
 export default function FonctionnaireDashboard() {
   const { user, school, logout } = useAuthStore();
   const [page, setPage] = useState('dashboard');
@@ -233,6 +304,7 @@ export default function FonctionnaireDashboard() {
   const [selectedMsg, setSelectedMsg] = useState(null);
   const [certStudent, setCertStudent] = useState('');
   const [dirName, setDirName] = useState('Ahmed Benali');
+  const [edtClass, setEdtClass] = useState('6eme Excellence');
 
   useEffect(() => {
     api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
@@ -377,87 +449,75 @@ export default function FonctionnaireDashboard() {
 
           {page === 'dashboard' && (
             <div>
-              <div style={{ marginBottom:20 }}>
-                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Bonjour, {user ? user.firstName : ''} !</h2>
-                <p style={{ fontSize:12, color:'#6b7280' }}>{today}</p>
+              <div style={{ marginBottom:20, display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Bonjour, {user ? user.firstName : ''} !</h2>
+                  <p style={{ fontSize:12, color:'#6b7280' }}>{today}</p>
+                </div>
+                <div style={{ display:'flex', gap:8 }}>
+                  <button onClick={() => setPage('inscriptions')} style={{ padding:'8px 16px', background:'#1e2d4f', color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer' }}>+ Inscrire un eleve</button>
+                  <button onClick={() => setPage('paiements')} style={{ padding:'8px 16px', background:'#22c55e', color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer' }}>+ Paiement</button>
+                </div>
               </div>
 
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
                 {[
-                  { label:'Eleves inscrits', value:students.length, color:'#2563eb', sub:'Annee 2025-2026' },
-                  { label:'Paiements en attente', value:pending.length, color:'#dc2626', red:true, sub:pending.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD' },
-                  { label:'Regles ce mois', value:paid.length, color:'#16a34a', sub:paid.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD' },
-                  { label:'Messages non lus', value:messages.filter(m=>!m.read).length, color:'#d97706', sub:'De la direction' },
+                  { label:'Eleves inscrits', value:students.length, color:'#2563eb', bg:'#eff6ff', sub:'Annee 2025-2026', icon:'👥', trend:'+3 ce mois' },
+                  { label:'Paiements en attente', value:pending.length, color:'#dc2626', bg:'#fef2f2', sub:pending.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD dus', icon:'⚠️', trend:'Urgent' },
+                  { label:'Regles ce mois', value:paid.length, color:'#16a34a', bg:'#f0fdf4', sub:paid.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD', icon:'✅', trend:recouvrement+'% recouvrement' },
+                  { label:'Messages non lus', value:messages.filter(m=>!m.read).length, color:'#d97706', bg:'#fffbeb', sub:'De la direction', icon:'💬', trend:"Aujourd'hui" },
                 ].map((s,i) => (
-                  <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px' }}>
-                    <div style={{ fontSize:10, fontWeight:600, letterSpacing:'.07em', textTransform:'uppercase', color:'#6b7280', marginBottom:12 }}>{s.label}</div>
-                    <div style={{ fontSize:32, fontWeight:700, color:s.red?'#ef4444':'#111827' }}>{s.value}</div>
+                  <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px', cursor:'pointer' }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
+                      <div style={{ fontSize:10, fontWeight:600, letterSpacing:'.07em', textTransform:'uppercase', color:'#6b7280' }}>{s.label}</div>
+                      <div style={{ width:32, height:32, borderRadius:8, background:s.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>{s.icon}</div>
+                    </div>
+                    <div style={{ fontSize:32, fontWeight:700, color:s.color === '#dc2626' && pending.length > 0 ? '#ef4444' : s.color === '#dc2626' ? '#111827' : '#111827' }}>{s.value}</div>
                     <div style={{ fontSize:11, color:s.color, marginTop:6, fontWeight:500 }}>{s.sub}</div>
+                    <div style={{ fontSize:10, color:'#9ca3af', marginTop:4 }}>{s.trend}</div>
                   </div>
                 ))}
               </div>
 
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:14, marginBottom:14 }}>
                 <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:16 }}>Repartition des paiements</div>
-                  <div style={{ display:'flex', gap:16, alignItems:'center' }}>
-                    <div style={{ position:'relative', flexShrink:0 }}>
-                      <DonutChart paid={paid.length} total={payments.length} />
-                      <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', pointerEvents:'none' }}>
-                        <div style={{ fontSize:16, fontWeight:700 }}>{recouvrement}%</div>
-                        <div style={{ fontSize:9, color:'#6b7280' }}>regle</div>
-                      </div>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+                    <div style={{ fontSize:13, fontWeight:600 }}>Recouvrement paiements — 2025-2026</div>
+                    <div style={{ display:'flex', gap:12, fontSize:11 }}>
+                      <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:10, borderRadius:2, background:'#3b82f6', display:'inline-block' }}></span>Regle</span>
+                      <span style={{ display:'flex', alignItems:'center', gap:4 }}><span style={{ width:10, height:10, borderRadius:2, background:'#fbbf24', display:'inline-block' }}></span>Objectif 80%</span>
                     </div>
-                    <div style={{ flex:1 }}>
-                      {[
-                        { label:'Payes', value:paid.length, color:'#16a34a', bg:'#dcfce7' },
-                        { label:'En attente', value:pending.length, color:'#dc2626', bg:'#fee2e2' },
-                        { label:'Total', value:payments.length, color:'#2563eb', bg:'#dbeafe' },
-                      ].map(item => (
-                        <div key={item.label} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 12px', borderRadius:8, background:item.bg, marginBottom:8 }}>
-                          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                            <div style={{ width:8, height:8, borderRadius:'50%', background:item.color }}></div>
-                            <span style={{ fontSize:12, color:'#374151' }}>{item.label}</span>
-                          </div>
-                          <span style={{ fontSize:14, fontWeight:700, color:item.color }}>{item.value}</span>
-                        </div>
-                      ))}
-                      <div style={{ marginTop:4, background:'#f0fdf4', borderRadius:8, padding:'8px 12px' }}>
-                        <div style={{ fontSize:11, color:'#6b7280' }}>Total encaisse</div>
-                        <div style={{ fontSize:16, fontWeight:700, color:'#15803d' }}>{paid.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')} MAD</div>
-                      </div>
+                  </div>
+                  <DashLineChart paid={paid} payments={payments} />
+                </div>
+                <div style={C}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:12 }}>Recouvrement global</div>
+                  <DashDonutChart paid={paid.length} total={payments.length} recouvrement={recouvrement} />
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:12 }}>
+                    <div style={{ background:'#f0fdf4', borderRadius:8, padding:'10px 12px', textAlign:'center' }}>
+                      <div style={{ fontSize:18, fontWeight:700, color:'#16a34a' }}>{paid.length}</div>
+                      <div style={{ fontSize:10, color:'#6b7280' }}>Payes</div>
+                    </div>
+                    <div style={{ background:'#fef2f2', borderRadius:8, padding:'10px 12px', textAlign:'center' }}>
+                      <div style={{ fontSize:18, fontWeight:700, color:'#dc2626' }}>{pending.length}</div>
+                      <div style={{ fontSize:10, color:'#6b7280' }}>En attente</div>
                     </div>
                   </div>
                 </div>
+              </div>
 
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:14, marginBottom:14 }}>
                 <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:16 }}>Presences cette semaine</div>
-                  <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:100, marginBottom:12 }}>
-                    {[
-                      { day:'Lun', pct:96, color:'#3b82f6' },
-                      { day:'Mar', pct:94, color:'#3b82f6' },
-                      { day:'Mer', pct:98, color:'#22c55e' },
-                      { day:'Jeu', pct:92, color:'#f59e0b' },
-                      { day:'Ven', pct:95, color:'#3b82f6' },
-                      { day:'Sam', pct:88, color:'#ef4444' },
-                    ].map(b => (
-                      <div key={b.day} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
-                        <div style={{ fontSize:9, fontWeight:600, color:b.color }}>{b.pct}%</div>
-                        <div style={{ width:'100%', background:b.color, borderRadius:'3px 3px 0 0', height:Math.round(b.pct/100*80)+'px' }}></div>
-                        <div style={{ fontSize:10, color:'#9ca3af' }}>{b.day}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ display:'flex', gap:8 }}>
-                    <div style={{ flex:1, background:'#f0fdf4', borderRadius:8, padding:'8px 12px', textAlign:'center' }}>
-                      <div style={{ fontSize:18, fontWeight:700, color:'#16a34a' }}>94%</div>
-                      <div style={{ fontSize:11, color:'#6b7280' }}>Moy. semaine</div>
-                    </div>
-                    <div style={{ flex:1, background:'#fef2f2', borderRadius:8, padding:'8px 12px', textAlign:'center' }}>
-                      <div style={{ fontSize:18, fontWeight:700, color:'#dc2626' }}>{Math.round(students.length * 0.06)}</div>
-                      <div style={{ fontSize:11, color:'#6b7280' }}>Absents moy.</div>
-                    </div>
-                  </div>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Presences cette semaine</div>
+                  <DashBarChart />
+                </div>
+                <div style={C}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Inscriptions par niveau</div>
+                  <DashLevelChart students={students} />
+                </div>
+                <div style={C}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Modes de paiement</div>
+                  <DashModeChart payments={payments} />
                 </div>
               </div>
 
@@ -465,45 +525,54 @@ export default function FonctionnaireDashboard() {
                 <div style={C}>
                   <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Actions rapides</div>
                   {[
-                    { lbl:'Inscrire un eleve', p:'inscriptions', bg:'#eff6ff', color:'#2563eb', desc:'Formulaire 5 etapes' },
-                    { lbl:'Enregistrer paiement', p:'paiements', bg:'#f0fdf4', color:'#16a34a', desc:'Especes / Virement / CMI' },
-                    { lbl:'Envoyer message WA', p:'whatsapp', bg:'#f0fdf4', color:'#16a34a', desc:'Templates professionnels' },
-                    { lbl:'Generer certificat', p:'certificats', bg:'#fdf4ff', color:'#7c3aed', desc:'PDF avec signature' },
-                    { lbl:'Messages internes', p:'messages', bg:'#fffbeb', color:'#d97706', desc:messages.filter(m=>!m.read).length+' non lus' },
+                    { lbl:'Inscrire un eleve', p:'inscriptions', bg:'#eff6ff', color:'#2563eb', desc:'Formulaire 5 etapes', icon:'📝' },
+                    { lbl:'Enregistrer paiement', p:'paiements', bg:'#f0fdf4', color:'#16a34a', desc:'Especes / Virement / CM2', icon:'💰' },
+                    { lbl:'Envoyer message WA', p:'whatsapp', bg:'#f0fff4', color:'#15803d', desc:'Templates professionnels', icon:'💬' },
+                    { lbl:'Generer certificat', p:'certificats', bg:'#fdf4ff', color:'#7c3aed', desc:'PDF avec signature', icon:'🎓' },
+                    { lbl:'Messages internes', p:'messages', bg:'#fffbeb', color:'#d97706', desc:messages.filter(m=>!m.read).length+' non lus', icon:'📨' },
                   ].map(a => (
                     <button key={a.p} onClick={() => setPage(a.p)}
-                      style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 14px', borderRadius:9, border:'none', cursor:'pointer', background:a.bg, width:'100%', marginBottom:8, textAlign:'left' }}>
+                      style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 14px', border:'1px solid #f3f4f6', borderRadius:9, cursor:'pointer', width:'100%', background:'white', marginBottom:8, textAlign:'left' }}>
+                      <div style={{ width:34, height:34, borderRadius:8, background:a.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>{a.icon}</div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:600, color:a.color }}>{a.lbl}</div>
                         <div style={{ fontSize:11, color:'#9ca3af', marginTop:1 }}>{a.desc}</div>
                       </div>
-                      <span style={{ color:a.color }}>→</span>
+                      <span style={{ color:a.color, fontSize:16 }}>→</span>
                     </button>
                   ))}
                 </div>
                 <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Paiements urgents</div>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                    <div style={{ fontSize:13, fontWeight:600 }}>Paiements urgents</div>
+                    {pending.length > 0 && <span style={{ fontSize:11, fontWeight:600, color:'#dc2626', background:'#fef2f2', padding:'2px 8px', borderRadius:20 }}>{pending.length} en attente</span>}
+                  </div>
                   {pending.length === 0 ? (
                     <div style={{ textAlign:'center', padding:32, color:'#6b7280' }}>
-                      <div style={{ fontSize:24, marginBottom:8 }}>✓</div>
-                      <div>Tous les paiements sont regles</div>
+                      <div style={{ fontSize:28, marginBottom:8 }}>✓</div>
+                      <div style={{ fontWeight:500, color:'#16a34a' }}>Tous les paiements sont regles</div>
                     </div>
-                  ) : pending.slice(0,4).map(p => (
+                  ) : pending.slice(0,5).map(p => (
                     <div key={p.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid #f3f4f6' }}>
-                      <div>
-                        <div style={{ fontSize:13, fontWeight:500 }}>{p.student ? p.student.firstName+' '+p.student.lastName : '—'}</div>
-                        <div style={{ fontSize:11, color:'#dc2626', fontWeight:600 }}>{(p.amount||0).toLocaleString('fr-FR')} MAD · {p.month}</div>
+                      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                        <div style={{ width:32, height:32, borderRadius:'50%', background:'#fef2f2', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#dc2626' }}>
+                          {p.student ? p.student.firstName?.[0] : '?'}{p.student ? p.student.lastName?.[0] : ''}
+                        </div>
+                        <div>
+                          <div style={{ fontSize:13, fontWeight:500 }}>{p.student ? p.student.firstName+' '+p.student.lastName : 'Eleve'}</div>
+                          <div style={{ fontSize:11, color:'#dc2626', fontWeight:600 }}>{(p.amount||0).toLocaleString('fr-FR')} MAD · {p.month||'Avril 2026'}</div>
+                        </div>
                       </div>
                       <div style={{ display:'flex', gap:6 }}>
-                        <button onClick={() => sendWA(p.student ? p.student.parentPhone : '', 'Bonjour, les frais sont en attente. '+(school?school.name:''))}
-                          style={{ padding:'4px 10px', background:'#f0fdf4', color:'#16a34a', border:'1px solid #86efac', borderRadius:6, fontSize:11, cursor:'pointer' }}>WA</button>
+                        <button onClick={() => sendWA(p.student ? p.student.parentPhone : '', 'Bonjour, les frais de scolarite sont en attente. Merci de regulariser.')}
+                          style={{ padding:'5px 10px', background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0', borderRadius:6, fontSize:11, cursor:'pointer' }}>WA</button>
                         <button onClick={() => markPaid(p.id)}
-                          style={{ padding:'4px 10px', background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer' }}>✓</button>
+                          style={{ padding:'5px 10px', background:'#dcfce7', color:'#16a34a', border:'1px solid #86efac', borderRadius:6, fontSize:11, cursor:'pointer' }}>✓</button>
                       </div>
                     </div>
                   ))}
-                  {pending.length > 4 && (
-                    <button onClick={() => setPage('paiements')} style={{ width:'100%', marginTop:10, padding:'8px', background:'#fef2f2', color:'#dc2626', border:'1px solid #fecaca', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer' }}>
+                  {pending.length > 5 && (
+                    <button onClick={() => setPage('paiements')} style={{ width:'100%', marginTop:10, padding:'8px', background:'#f8fafc', border:'none', borderRadius:8, fontSize:12, color:'#6b7280', cursor:'pointer' }}>
                       Voir tous ({pending.length}) →
                     </button>
                   )}
@@ -1390,364 +1459,183 @@ export default function FonctionnaireDashboard() {
             </div>
           )}
 
-          {page === 'medical' && (
+          {page === 'edt' && (
             <div>
               <div style={{ marginBottom:20 }}>
-                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Fiche medicale</h2>
-                <p style={{ fontSize:12, color:'#6b7280' }}>Informations medicales des eleves — confidentielles</p>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Emploi du temps</h2>
+                <p style={{ fontSize:12, color:'#6b7280' }}>Horaires par classe — Annee 2025-2026</p>
               </div>
-              <div style={{ ...C, marginBottom:14 }}>
-                <div style={{ fontSize:13, fontWeight:600, marginBottom:12 }}>Selectionner un eleve</div>
-                <select onChange={e => { const s = students.find(x=>x.id===e.target.value); setSelectedMsg(s||null); }} style={{ ...INP, maxWidth:400 }}>
-                  <option value="">Choisir un eleve...</option>
-                  {students.map(s=><option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>)}
-                </select>
-              </div>
-              {selectedMsg && (
-                <div style={C}>
-                  <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:20, paddingBottom:16, borderBottom:'1px solid #e5e9f2' }}>
-                    <div style={{ width:48, height:48, borderRadius:'50%', background:'#fee2e2', color:'#dc2626', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:700 }}>{selectedMsg.firstName[0]}{selectedMsg.lastName[0]}</div>
-                    <div>
-                      <div style={{ fontSize:16, fontWeight:700, color:'#111827' }}>{selectedMsg.firstName} {selectedMsg.lastName}</div>
-                      <div style={{ fontSize:12, color:'#6b7280' }}>{selectedMsg.massar}</div>
-                    </div>
-                  </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                    <div>
-                      <div style={{ fontSize:13, fontWeight:600, color:'#111827', marginBottom:14 }}>Informations medicales</div>
-                      {[
-                        { lbl:'Groupe sanguin', placeholder:'ex: A+, O-, B+', type:'select', opts:['A+','A-','B+','B-','AB+','AB-','O+','O-'] },
-                        { lbl:'Assurance maladie', placeholder:'ex: AMO-2024-147', type:'text' },
-                        { lbl:'Medecin traitant', placeholder:'ex: Dr. Karim Idrissi', type:'text' },
-                        { lbl:'Tel medecin', placeholder:'ex: +212 5 22 XX XX XX', type:'text' },
-                      ].map(f => (
-                        <div key={f.lbl} style={{ marginBottom:12 }}>
-                          <label style={LBL}>{f.lbl}</label>
-                          {f.type==='select' ? (
-                            <select style={INP}><option value="">Selectionner...</option>{f.opts.map(o=><option key={o}>{o}</option>)}</select>
-                          ) : (
-                            <input style={INP} placeholder={f.placeholder} />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <div style={{ fontSize:13, fontWeight:600, color:'#111827', marginBottom:14 }}>Allergies & conditions</div>
-                      <div style={{ marginBottom:12 }}>
-                        <label style={LBL}>Allergies connues</label>
-                        <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:8 }}>
-                          {['Arachides','Penicilline','Gluten','Lactose','Oeufs','Fruits de mer'].map(a => (
-                            <label key={a} style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 10px', border:'1px solid #e5e9f2', borderRadius:20, cursor:'pointer', fontSize:12 }}>
-                              <input type="checkbox" style={{ accentColor:'#dc2626' }} /> {a}
-                            </label>
-                          ))}
-                        </div>
-                        <input style={INP} placeholder="Autres allergies..." />
-                      </div>
-                      <div style={{ marginBottom:12 }}>
-                        <label style={LBL}>Conditions medicales</label>
-                        <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginBottom:8 }}>
-                          {['Asthme','Diabete','Epilepsie','Hypertension'].map(a => (
-                            <label key={a} style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 10px', border:'1px solid #e5e9f2', borderRadius:20, cursor:'pointer', fontSize:12 }}>
-                              <input type="checkbox" style={{ accentColor:'#f59e0b' }} /> {a}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                      <div style={{ marginBottom:12 }}>
-                        <label style={LBL}>Medicaments</label>
-                        <input style={INP} placeholder="ex: Ventoline si crise d asthme" />
-                      </div>
-                      <div>
-                        <label style={LBL}>Observations</label>
-                        <textarea style={{ ...INP, resize:'vertical', minHeight:80 }} placeholder="Notes medicales importantes..." />
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ marginTop:16, paddingTop:16, borderTop:'1px solid #e5e9f2' }}>
-                    <div style={{ fontSize:13, fontWeight:600, color:'#111827', marginBottom:12 }}>Contacts urgence</div>
-                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-                      <div><label style={LBL}>Nom contact 1</label><input style={INP} placeholder="Nom et prenom" /></div>
-                      <div><label style={LBL}>Tel contact 1</label><input style={INP} placeholder="+212 6 XX XX XX XX" /></div>
-                      <div><label style={LBL}>Nom contact 2</label><input style={INP} placeholder="Nom et prenom" /></div>
-                      <div><label style={LBL}>Tel contact 2</label><input style={INP} placeholder="+212 6 XX XX XX XX" /></div>
-                    </div>
-                  </div>
-                  <button onClick={() => showT('Fiche medicale sauvegardee pour ' + selectedMsg.firstName)}
-                    style={{ marginTop:16, background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-                    Sauvegarder la fiche
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {page === 'cantine' && (
-            <div>
-              <div style={{ marginBottom:20 }}>
-                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Cantine scolaire</h2>
-                <p style={{ fontSize:12, color:'#6b7280' }}>Presence dejeuner et menu de la semaine</p>
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:20 }}>
-                {[
-                  { label:'Inscrits cantine', value:Math.round(students.length*0.6), color:'#2563eb' },
-                  { label:'Presents aujourd hui', value:Math.round(students.length*0.55), color:'#16a34a' },
-                  { label:'Absents cantine', value:Math.round(students.length*0.05), color:'#dc2626' },
-                ].map((s,i) => (
-                  <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px' }}>
-                    <div style={{ fontSize:10, fontWeight:600, letterSpacing:'.07em', textTransform:'uppercase', color:'#6b7280', marginBottom:12 }}>{s.label}</div>
-                    <div style={{ fontSize:28, fontWeight:700, color:s.color }}>{s.value}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-                <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Menu de la semaine</div>
-                  {['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].map((j,i) => (
-                    <div key={j} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 0', borderBottom:'1px solid #f3f4f6' }}>
-                      <div style={{ width:70, fontSize:12, fontWeight:600, color:'#374151' }}>{j}</div>
-                      <input style={{ flex:1, padding:'7px 10px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:12, outline:'none' }}
-                        defaultValue={['Couscous aux legumes','Tajine poulet','Riz aux legumes','Spaghetti bolognaise','Harira + briouates'][i]} />
-                    </div>
-                  ))}
-                  <button onClick={() => showT('Menu sauvegarde et envoye aux parents WA')}
-                    style={{ marginTop:12, background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'9px 20px', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                    Sauvegarder & Notifier parents
-                  </button>
-                </div>
-                <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Presence cantine aujourd hui</div>
-                  <div style={{ display:'flex', gap:8, marginBottom:12 }}>
-                    <button onClick={() => showT('Tous marques presents a la cantine')}
-                      style={{ padding:'7px 14px', background:'#f0fdf4', color:'#16a34a', border:'1px solid #86efac', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                      Tous presents
-                    </button>
-                    <button onClick={() => showT('Liste exportee')}
-                      style={{ padding:'7px 14px', background:'#eff6ff', color:'#2563eb', border:'1px solid #bfdbfe', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                      Exporter liste
-                    </button>
-                  </div>
-                  {students.filter((_,i)=>i<6).map(s => (
-                    <div key={s.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'9px 0', borderBottom:'1px solid #f3f4f6' }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-                        <div style={{ width:26, height:26, borderRadius:'50%', background:'#eff6ff', color:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:600 }}>{s.firstName[0]}{s.lastName[0]}</div>
-                        <span style={{ fontSize:13 }}>{s.firstName} {s.lastName}</span>
-                      </div>
-                      <label style={{ display:'flex', alignItems:'center', gap:6, cursor:'pointer' }}>
-                        <input type="checkbox" defaultChecked style={{ accentColor:'#16a34a', width:15, height:15 }} />
-                        <span style={{ fontSize:12, color:'#16a34a', fontWeight:500 }}>Present</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {page === 'circulaires' && (
-            <div>
-              <div style={{ marginBottom:20 }}>
-                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Circulaires parents</h2>
-                <p style={{ fontSize:12, color:'#6b7280' }}>Envoyez des annonces officielles a tous les parents</p>
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:14 }}>
-                <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:16 }}>Nouvelle circulaire</div>
-                  <div style={{ marginBottom:12 }}>
-                    <label style={LBL}>Titre</label>
-                    <input style={INP} placeholder="ex: Reunion parents — Jeudi 25 avril" />
-                  </div>
-                  <div style={{ marginBottom:12 }}>
-                    <label style={LBL}>Destinataires</label>
-                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                      {['Tous les parents ('+students.length+')', 'Classe 6eme', 'Classe 5eme', 'Classe 4eme', 'Classe 3eme', 'Parents retard paiement'].map(d => (
-                        <label key={d} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 12px', border:'1px solid #e5e9f2', borderRadius:8, cursor:'pointer', fontSize:12 }}>
-                          <input type="checkbox" style={{ accentColor:'#1e2d4f' }} defaultChecked={d.includes('Tous')} />
-                          {d}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div style={{ marginBottom:12 }}>
-                    <label style={LBL}>Message</label>
-                    <textarea style={{ ...INP, resize:'vertical', minHeight:120 }}
-                      defaultValue={"Chers parents, nous vous informons que... Cordialement, L Administration"} />
-                  </div>
-                  <div style={{ marginBottom:16 }}>
-                    <label style={LBL}>Canal d envoi</label>
-                    <div style={{ display:'flex', gap:10 }}>
-                      {[{id:'wa', label:'WhatsApp', color:'#22c55e', bg:'#f0fdf4'}, {id:'sms', label:'SMS', color:'#2563eb', bg:'#eff6ff'}].map(ch => (
-                        <label key={ch.id} style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 14px', border:'1.5px solid '+ch.color, borderRadius:9, cursor:'pointer', background:ch.bg, fontSize:13, fontWeight:600, color:ch.color }}>
-                          <input type="checkbox" defaultChecked style={{ accentColor:ch.color }} />
-                          {ch.label}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <button onClick={() => showT('Circulaire envoyee a ' + students.length + ' parents')}
-                    style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-                    Envoyer la circulaire
-                  </button>
-                </div>
-                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                  <div style={C}>
-                    <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Historique des envois</div>
-                    {[
-                      { title:'Reunion parents S2', date:"Aujourd'hui 09:00", nb:students.length, ok:true },
-                      { title:'Delai paiement avril', date:'Hier 14:00', nb:Math.round(students.length*0.3), ok:true },
-                      { title:'Calendrier examens BAC', date:'Lundi 10:00', nb:students.length, ok:true },
-                    ].map((h,i) => (
-                      <div key={i} style={{ padding:'10px 0', borderBottom:'1px solid #f3f4f6' }}>
-                        <div style={{ fontSize:13, fontWeight:500, marginBottom:3 }}>{h.title}</div>
-                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                          <span style={{ fontSize:11, color:'#9ca3af' }}>{h.date}</span>
-                          <span style={{ fontSize:11, fontWeight:600, color:'#16a34a', background:'#dcfce7', padding:'2px 8px', borderRadius:20 }}>{h.nb} envoyes</span>
-                        </div>
-                      </div>
+              <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 }}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
+                  <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+                    {Object.keys(EDT_DATA).map(cl => (
+                      <button key={cl} onClick={() => setEdtClass(cl)}
+                        style={{ padding:'7px 14px', background:edtClass===cl?'#1e2d4f':'white', color:edtClass===cl?'white':'#6b7280', border:'1px solid '+(edtClass===cl?'#1e2d4f':'#e5e9f2'), borderRadius:8, fontSize:12, fontWeight:500, cursor:'pointer', transition:'all .15s' }}>
+                        {cl}
+                      </button>
                     ))}
                   </div>
-                  <div style={{ background:'#1e2d4f', borderRadius:12, padding:16 }}>
-                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', letterSpacing:'.07em', marginBottom:10 }}>Stats envois ce mois</div>
-                    <div style={{ fontSize:28, fontWeight:700, color:'white' }}>1 847</div>
-                    <div style={{ fontSize:12, color:'rgba(255,255,255,0.5)', marginTop:4 }}>messages envoyes</div>
-                    <div style={{ marginTop:12, display:'flex', justifyContent:'space-between' }}>
-                      <div style={{ textAlign:'center' }}>
-                        <div style={{ fontSize:18, fontWeight:700, color:'#22c55e' }}>91%</div>
-                        <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)' }}>Lu</div>
-                      </div>
-                      <div style={{ textAlign:'center' }}>
-                        <div style={{ fontSize:18, fontWeight:700, color:'#f59e0b' }}>9%</div>
-                        <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)' }}>Non lu</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {page === 'liste' && (
-            <div>
-              <div style={{ marginBottom:20 }}>
-                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Listes de classe</h2>
-                <p style={{ fontSize:12, color:'#6b7280' }}>Imprimez les listes officielles par classe</p>
-              </div>
-              <div style={C}>
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
-                  <span style={{ fontSize:13, fontWeight:600 }}>Liste complete — {students.length} eleves</span>
                   <button onClick={() => {
                     const schoolName = school ? school.name : 'Ecole Excellence';
-                    const rows = students.map((s,i) => '<tr><td>'+(i+1)+'</td><td>'+s.lastName.toUpperCase()+' '+s.firstName+'</td><td style="font-family:monospace">'+s.massar+'</td><td>'+(s.parentPhone||'—')+'</td><td>'+new Date(s.createdAt).toLocaleDateString('fr-FR')+'</td><td style="height:30px;border-bottom:1px solid #ddd"></td></tr>').join('');
-                    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Liste de classe</title>'
-                      + '<style>body{font-family:Arial,sans-serif;padding:30px;font-size:13px}'
-                      + 'h2{color:#1e2d4f;text-align:center}table{width:100%;border-collapse:collapse;margin-top:20px}'
-                      + 'th{background:#1e2d4f;color:white;padding:8px 10px;text-align:left;font-size:11px}'
-                      + 'td{padding:8px 10px;border-bottom:1px solid #e5e9f2}tr:nth-child(even){background:#f9fafb}'
-                      + '.header{text-align:center;margin-bottom:20px;border-bottom:2px solid #1e2d4f;padding-bottom:14px}'
-                      + '</style></head><body>'
-                      + '<div class="header"><div style="font-size:18px;font-weight:700;color:#1e2d4f">'+schoolName+'</div>'
-                      + '<div style="font-size:13px;color:#6b7280;margin-top:4px">Liste des eleves — Annee scolaire 2025-2026</div>'
-                      + '<div style="font-size:12px;color:#9ca3af;margin-top:2px">Imprime le '+new Date().toLocaleDateString('fr-FR')+'</div></div>'
-                      + '<table><thead><tr><th>N°</th><th>Nom et Prenom</th><th>Code Massar</th><th>Tel Parent</th><th>Date inscription</th><th>Signature</th></tr></thead><tbody>'+rows+'</tbody></table>'
-                      + '<div style="margin-top:30px;text-align:right;font-size:12px;color:#6b7280">Total: '+students.length+' eleves · '+schoolName+'</div>'
+                    const jours = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+                    const edtRows = EDT_DATA[edtClass] || EDT_DATA['6eme Excellence'];
+                    const tableRows = edtRows.map(row =>
+                      '<tr><td style="padding:8px 12px;color:#6b7280;font-size:12px;background:#f8fafc;font-weight:600">'+row.h+'</td>' +
+                      row.ms.map(m => {
+                        const col = MAT_COLORS[m] || {bg:'#f9fafb',tc:'#d1d5db'};
+                        return '<td style="padding:6px"><div style="background:'+col.bg+';color:'+col.tc+';padding:7px 8px;border-radius:6px;font-size:11px;font-weight:600;text-align:center">'+m+'</div></td>';
+                      }).join('') + '</tr>'
+                    ).join('');
+                    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>EDT '+edtClass+'</title>'
+                      + '<style>body{font-family:Arial,sans-serif;padding:30px}table{width:100%;border-collapse:collapse}th{background:#1e2d4f;color:white;padding:10px 12px;font-size:12px}td{border-bottom:1px solid #f3f4f6}</style>'
+                      + '</head><body>'
+                      + '<div style="text-align:center;margin-bottom:20px"><div style="font-size:18px;font-weight:700;color:#1e2d4f">'+schoolName+'</div>'
+                      + '<div style="font-size:14px;color:#6b7280;margin-top:4px">Emploi du temps — '+edtClass+' — 2025-2026</div></div>'
+                      + '<table><thead><tr><th>Heure</th>'+jours.map(j=>'<th>'+j+'</th>').join('')+'</tr></thead><tbody>'+tableRows+'</tbody></table>'
                       + '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="background:#1e2d4f;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Imprimer</button></div>'
                       + '</body></html>';
                     window.open(URL.createObjectURL(new Blob([html],{type:'text/html'})),'_blank');
                   }}
-                    style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'9px 18px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-                    Imprimer liste PDF
+                    style={{ padding:'7px 14px', background:'#1e2d4f', color:'white', border:'none', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer' }}>
+                    Imprimer PDF
                   </button>
                 </div>
-                <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                  <thead><tr>{['N°','Eleve','Code Massar','Tel Parent','Date inscription'].map(h=><th key={h} style={TH}>{h}</th>)}</tr></thead>
-                  <tbody>
-                    {students.map((s,i) => (
-                      <tr key={s.id}>
-                        <td style={{ ...TD, color:'#9ca3af', fontSize:11 }}>{i+1}</td>
-                        <td style={TD}><div style={{ display:'flex', alignItems:'center', gap:9 }}><div style={{ width:26, height:26, borderRadius:'50%', background:'#eff6ff', color:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:600 }}>{s.firstName[0]}{s.lastName[0]}</div><span style={{ fontWeight:500 }}>{s.lastName.toUpperCase()} {s.firstName}</span></div></td>
-                        <td style={{ ...TD, fontFamily:'monospace', fontSize:12 }}>{s.massar}</td>
-                        <td style={{ ...TD, fontSize:12, color:'#6b7280' }}>{s.parentPhone||'—'}</td>
-                        <td style={{ ...TD, fontSize:12, color:'#6b7280' }}>{new Date(s.createdAt).toLocaleDateString('fr-FR')}</td>
+                <div style={{ overflowX:'auto' }}>
+                  <table style={{ width:'100%', borderCollapse:'collapse', minWidth:600 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ padding:'10px 12px', textAlign:'left', fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', background:'#1e2d4f', width:80 }}>Heure</th>
+                        {['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].map(j => (
+                          <th key={j} style={{ padding:'10px 12px', textAlign:'center', fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.7)', background:'#1e2d4f' }}>{j}</th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {(EDT_DATA[edtClass] || EDT_DATA['6eme Excellence']).map(row => (
+                        <tr key={row.h} style={{ borderBottom:'1px solid #f3f4f6' }}>
+                          <td style={{ padding:'8px 12px', fontSize:11, fontWeight:700, color:'#6b7280', background:'#f8fafc' }}>{row.h}</td>
+                          {row.ms.map((m,i) => {
+                            const col = MAT_COLORS[m] || {bg:'#f9fafb',tc:'#d1d5db'};
+                            return (
+                              <td key={i} style={{ padding:5 }}>
+                                {m !== '—' ? (
+                                  <div style={{ background:col.bg, color:col.tc, padding:'7px 8px', borderRadius:7, fontSize:11, fontWeight:600, textAlign:'center' }}>{m}</div>
+                                ) : (
+                                  <div style={{ height:34, borderRadius:7, border:'1px dashed #e5e9f2' }}></div>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
 
-          {page === 'reductions' && (
+          {page === 'agenda' && (
             <div>
               <div style={{ marginBottom:20 }}>
-                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Reductions & frais speciaux</h2>
-                <p style={{ fontSize:12, color:'#6b7280' }}>Bourses, reductions fratrie, frais exceptionnels</p>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Agenda</h2>
+                <p style={{ fontSize:12, color:'#6b7280' }}>Evenements et rappels — Annee scolaire 2025-2026</p>
               </div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
                 <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:16 }}>Appliquer une reduction</div>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Ajouter un evenement</div>
                   <div style={{ marginBottom:12 }}>
-                    <label style={LBL}>Eleve</label>
+                    <label style={LBL}>Titre</label>
+                    <input style={INP} placeholder="ex: Conseil de classe 5eme B" />
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={LBL}>Date</label>
+                    <input type="date" style={INP} />
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={LBL}>Heure</label>
+                    <input type="time" style={INP} />
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <label style={LBL}>Type</label>
                     <select style={INP}>
-                      <option value="">Selectionner un eleve</option>
-                      {students.map(s=><option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>)}
+                      <option>Reunion</option>
+                      <option>Examen</option>
+                      <option>Evenement scolaire</option>
+                      <option>Conge</option>
+                      <option>Autre</option>
                     </select>
                   </div>
-                  <div style={{ marginBottom:12 }}>
-                    <label style={LBL}>Type de reduction</label>
-                    <select style={INP}>
-                      <option>Reduction fratrie (10%)</option>
-                      <option>Bourse sociale (50%)</option>
-                      <option>Bourse excellence (25%)</option>
-                      <option>Reduction personnalisee</option>
-                    </select>
+                  <div style={{ marginBottom:14 }}>
+                    <label style={LBL}>Description</label>
+                    <textarea style={{ ...INP, minHeight:70, resize:'vertical' }} placeholder="Details de l evenement..." />
                   </div>
-                  <div style={{ marginBottom:12 }}>
-                    <label style={LBL}>Montant reduction (MAD)</label>
-                    <input type="number" style={INP} placeholder="ex: 280" />
-                  </div>
-                  <div style={{ marginBottom:12 }}>
-                    <label style={LBL}>Motif</label>
-                    <textarea style={{ ...INP, minHeight:70, resize:'vertical' }} placeholder="Justification de la reduction..." />
-                  </div>
-                  <button onClick={() => showT('Reduction appliquee et notifiee au directeur')}
+                  <button onClick={() => showT('Evenement ajoute a l agenda')}
                     style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-                    Appliquer la reduction
+                    Ajouter
                   </button>
                 </div>
                 <div style={C}>
-                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Reductions en cours</div>
-                  {students.slice(0,4).map((s,i) => {
-                    const types = ['Fratrie -10%','Bourse sociale -50%','Excellence -25%','Fratrie -10%'];
-                    const montants = [280, 1400, 700, 280];
-                    return (
-                      <div key={s.id} style={{ padding:'10px 0', borderBottom:'1px solid #f3f4f6' }}>
-                        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-                          <div>
-                            <div style={{ fontSize:13, fontWeight:500 }}>{s.firstName} {s.lastName}</div>
-                            <div style={{ fontSize:11, color:'#6b7280', marginTop:2 }}>{types[i]}</div>
-                          </div>
-                          <div style={{ textAlign:'right' }}>
-                            <div style={{ fontSize:14, fontWeight:700, color:'#16a34a' }}>-{montants[i]} MAD</div>
-                            <div style={{ fontSize:10, color:'#9ca3af' }}>par mois</div>
-                          </div>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Prochains evenements</div>
+                  {[
+                    { date:'05 Mai 2026', heure:'10h00', titre:'Conseil de classe 6eme Excellence', type:'Reunion', color:'#dbeafe', tc:'#1d4ed8' },
+                    { date:'07 Mai 2026', heure:'08h30', titre:'Examens de mi-trimestre', type:'Examen', color:'#fee2e2', tc:'#dc2626' },
+                    { date:'12 Mai 2026', heure:'14h00', titre:'Reunion parents-professeurs', type:'Reunion', color:'#dbeafe', tc:'#1d4ed8' },
+                    { date:'15 Mai 2026', heure:'—', titre:'Fete de l etablissement', type:'Evenement scolaire', color:'#dcfce7', tc:'#15803d' },
+                    { date:'20 Mai 2026', heure:'09h00', titre:'Conseil pedagogique', type:'Reunion', color:'#dbeafe', tc:'#1d4ed8' },
+                    { date:'30 Mai 2026', heure:'—', titre:'Fin du 2eme trimestre', type:'Conge', color:'#fef3c7', tc:'#b45309' },
+                  ].map((ev, idx) => (
+                    <div key={idx} style={{ display:'flex', alignItems:'flex-start', gap:12, padding:'10px 0', borderBottom:'1px solid #f3f4f6' }}>
+                      <div style={{ background:'#f1f4f9', borderRadius:8, padding:'6px 10px', textAlign:'center', minWidth:50, flexShrink:0 }}>
+                        <div style={{ fontSize:16, fontWeight:700, color:'#111827' }}>{ev.date.split(' ')[0]}</div>
+                        <div style={{ fontSize:9, color:'#6b7280', textTransform:'uppercase' }}>{ev.date.split(' ')[1]}</div>
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:600, color:'#111827', marginBottom:3 }}>{ev.titre}</div>
+                        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                          <span style={{ fontSize:11, color:'#6b7280' }}>{ev.heure !== '—' ? ev.heure : 'Journee entiere'}</span>
+                          <span style={{ fontSize:10, fontWeight:600, background:ev.color, color:ev.tc, padding:'2px 8px', borderRadius:20 }}>{ev.type}</span>
                         </div>
+                      </div>
+                      <button onClick={() => showT('Evenement supprime')}
+                        style={{ fontSize:11, color:'#dc2626', background:'none', border:'none', cursor:'pointer', padding:4, flexShrink:0 }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={C}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                  <div style={{ fontSize:13, fontWeight:600 }}>Vue mensuelle — Mai 2026</div>
+                  <div style={{ display:'flex', gap:8 }}>
+                    <button onClick={() => showT('Mois precedent')} style={{ padding:'5px 12px', background:'white', border:'1px solid #e5e9f2', borderRadius:7, fontSize:12, cursor:'pointer' }}>← Precedent</button>
+                    <button onClick={() => showT('Mois suivant')} style={{ padding:'5px 12px', background:'white', border:'1px solid #e5e9f2', borderRadius:7, fontSize:12, cursor:'pointer' }}>Suivant →</button>
+                  </div>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:4 }}>
+                  {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(j => (
+                    <div key={j} style={{ textAlign:'center', fontSize:10, fontWeight:700, color:'#6b7280', textTransform:'uppercase', padding:'6px 0', letterSpacing:'.05em' }}>{j}</div>
+                  ))}
+                  {Array.from({length:3}).map((_,idx2) => (
+                    <div key={'empty'+idx2} style={{ height:60 }}></div>
+                  ))}
+                  {Array.from({length:31}).map((_,idx3) => {
+                    const day = idx3+1;
+                    const hasEvent = [5,7,12,15,20,30].includes(day);
+                    const isToday = day === 3;
+                    return (
+                      <div key={day}
+                        style={{ height:60, border:'1px solid #f3f4f6', borderRadius:8, padding:6, cursor:'pointer', background:isToday?'#eff6ff':hasEvent?'#f0fdf4':'white', position:'relative' }}>
+                        <div style={{ fontSize:12, fontWeight:isToday?700:400, color:isToday?'#2563eb':hasEvent?'#15803d':'#374151' }}>{day}</div>
+                        {hasEvent && <div style={{ width:6, height:6, borderRadius:'50%', background:'#22c55e', position:'absolute', bottom:6, right:6 }}></div>}
                       </div>
                     );
                   })}
-                  <div style={{ marginTop:12, background:'#f0fdf4', borderRadius:8, padding:'10px 12px', display:'flex', justifyContent:'space-between' }}>
-                    <span style={{ fontSize:12, color:'#6b7280' }}>Total reductions mois</span>
-                    <span style={{ fontSize:14, fontWeight:700, color:'#16a34a' }}>-2 660 MAD</span>
-                  </div>
                 </div>
               </div>
             </div>
           )}
 
-                              {page === 'edt' && (
-            <EdtPage school={school} showT={showT} />
-          )}
-
-{page === 'budget' && (
+          {page === 'budget' && (
             <div>
               <div style={{ marginBottom:20 }}>
                 <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Budget & depenses</h2>
@@ -2003,6 +1891,211 @@ export default function FonctionnaireDashboard() {
                     <span>Total masse salariale nette</span>
                     <span style={{ color:'#16a34a' }}>10 500 MAD</span>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {page === 'bulletins' && (
+            <div>
+              <div style={{ marginBottom:20 }}>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Bulletins PDF</h2>
+                <p style={{ fontSize:12, color:'#6b7280' }}>Generer et imprimer les bulletins de notes</p>
+              </div>
+              <div style={C}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+                  <span style={{ fontSize:13, fontWeight:600 }}>Eleves — {students.length} inscrits</span>
+                  <button onClick={() => showT('Tous les bulletins generes')} style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'9px 18px', fontSize:13, fontWeight:600, cursor:'pointer' }}>Generer tous</button>
+                </div>
+                <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                  <thead><tr>{['Eleve','Massar','Trimestre','Action'].map(h=><th key={h} style={TH}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {students.map((s,i) => (
+                      <tr key={s.id}>
+                        <td style={TD}><span style={{ fontWeight:500 }}>{s.lastName.toUpperCase()} {s.firstName}</span></td>
+                        <td style={{ ...TD, fontFamily:'monospace', fontSize:12 }}>{s.massar}</td>
+                        <td style={TD}>
+                          <select style={{ padding:'5px 10px', border:'1px solid #e5e9f2', borderRadius:6, fontSize:12 }}>
+                            <option>Trimestre 1</option><option>Trimestre 2</option><option>Trimestre 3</option>
+                          </select>
+                        </td>
+                        <td style={TD}>
+                          <button onClick={() => showT('Bulletin PDF genere pour '+s.firstName)} style={{ padding:'5px 12px', background:'#1e2d4f', color:'white', border:'none', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer' }}>Telecharger PDF</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {page === 'bibliotheque' && (
+            <div>
+              <div style={{ marginBottom:20 }}>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Bibliotheque</h2>
+                <p style={{ fontSize:12, color:'#6b7280' }}>Gestion des livres et emprunts</p>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
+                {[{label:'Livres total',val:'342',color:'#2563eb'},{label:'Empruntes',val:'87',color:'#d97706'},{label:'Disponibles',val:'255',color:'#16a34a'},{label:'En retard',val:'12',color:'#dc2626'}].map((s,i)=>(
+                  <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px' }}>
+                    <div style={{ fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'.07em', color:'#6b7280', marginBottom:8 }}>{s.label}</div>
+                    <div style={{ fontSize:28, fontWeight:700, color:s.color }}>{s.val}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={C}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                  <span style={{ fontSize:13, fontWeight:600 }}>Catalogue</span>
+                  <button onClick={() => showT('Livre ajoute')} style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'8px 16px', fontSize:12, fontWeight:600, cursor:'pointer' }}>+ Ajouter livre</button>
+                </div>
+                <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                  <thead><tr>{['Titre','Auteur','Categorie','Disponible','Action'].map(h=><th key={h} style={TH}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {[
+                      {titre:'Mathematiques 5eme',auteur:'Edition Nationale',cat:'Manuel',dispo:true},
+                      {titre:'Grammaire Francaise',auteur:'Larousse',cat:'Reference',dispo:true},
+                      {titre:'Histoire du Maroc',auteur:'Collectif',cat:'Histoire',dispo:false},
+                      {titre:'Sciences de la Vie',auteur:'Edition Scolaire',cat:'Manuel',dispo:true},
+                      {titre:'Anglais Niveau 3',auteur:'Oxford',cat:'Langue',dispo:false},
+                    ].map((l,i)=>(
+                      <tr key={i}>
+                        <td style={{ ...TD, fontWeight:500 }}>{l.titre}</td>
+                        <td style={{ ...TD, fontSize:12, color:'#6b7280' }}>{l.auteur}</td>
+                        <td style={TD}><span style={{ fontSize:11, background:'#f1f5f9', padding:'2px 8px', borderRadius:20 }}>{l.cat}</span></td>
+                        <td style={TD}><span style={{ fontSize:11, fontWeight:600, color:l.dispo?'#16a34a':'#dc2626' }}>{l.dispo?'Oui':'Emprunte'}</span></td>
+                        <td style={TD}><button onClick={()=>showT(l.dispo?'Emprunt enregistre':'Deja emprunte')} style={{ padding:'4px 10px', background:l.dispo?'#f0fdf4':'#f1f5f9', color:l.dispo?'#16a34a':'#9ca3af', border:'1px solid '+(l.dispo?'#86efac':'#e5e9f2'), borderRadius:6, fontSize:11, cursor:'pointer' }}>{l.dispo?'Emprunter':'Indisponible'}</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {page === 'transport' && (
+            <div>
+              <div style={{ marginBottom:20 }}>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Transport scolaire</h2>
+                <p style={{ fontSize:12, color:'#6b7280' }}>Gestion des circuits et des eleves transportes</p>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:14 }}>
+                {[{label:'Circuits actifs',val:'4',color:'#2563eb'},{label:'Eleves transportes',val:'68',color:'#16a34a'},{label:'Vehicules',val:'4',color:'#d97706'}].map((s,i)=>(
+                  <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px' }}>
+                    <div style={{ fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'.07em', color:'#6b7280', marginBottom:8 }}>{s.label}</div>
+                    <div style={{ fontSize:28, fontWeight:700, color:s.color }}>{s.val}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={C}>
+                <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Circuits de transport</div>
+                <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                  <thead><tr>{['Circuit','Chauffeur','Vehicule','Eleves','Depart','Arrivee','Statut'].map(h=><th key={h} style={TH}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {[
+                      {circuit:'Circuit Nord',chauffeur:'M. Hassan',vehicule:'Bus 01',eleves:18,depart:'07h30',arrivee:'17h00',actif:true},
+                      {circuit:'Circuit Sud',chauffeur:'M. Khalid',vehicule:'Bus 02',eleves:22,depart:'07h15',arrivee:'17h15',actif:true},
+                      {circuit:'Circuit Est',chauffeur:'M. Youssef',vehicule:'Bus 03',eleves:15,depart:'07h45',arrivee:'16h45',actif:true},
+                      {circuit:'Circuit Ouest',chauffeur:'M. Amine',vehicule:'Bus 04',eleves:13,depart:'07h30',arrivee:'17h00',actif:false},
+                    ].map((c,i)=>(
+                      <tr key={i}>
+                        <td style={{ ...TD, fontWeight:600 }}>{c.circuit}</td>
+                        <td style={TD}>{c.chauffeur}</td>
+                        <td style={TD}>{c.vehicule}</td>
+                        <td style={{ ...TD, fontWeight:600, color:'#2563eb' }}>{c.eleves}</td>
+                        <td style={{ ...TD, fontSize:12 }}>{c.depart}</td>
+                        <td style={{ ...TD, fontSize:12 }}>{c.arrivee}</td>
+                        <td style={TD}><span style={{ fontSize:11, fontWeight:600, color:c.actif?'#16a34a':'#dc2626', background:c.actif?'#dcfce7':'#fee2e2', padding:'3px 10px', borderRadius:20 }}>{c.actif?'Actif':'Inactif'}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {page === 'inventaire' && (
+            <div>
+              <div style={{ marginBottom:20 }}>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Inventaire</h2>
+                <p style={{ fontSize:12, color:'#6b7280' }}>Gestion du materiel et des equipements</p>
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
+                <div style={C}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Ajouter un article</div>
+                  <div style={{ marginBottom:12 }}><label style={LBL}>Designation</label><input style={INP} placeholder="ex: Tableau blanc 120x80" /></div>
+                  <div style={{ marginBottom:12 }}><label style={LBL}>Categorie</label>
+                    <select style={INP}><option>Mobilier</option><option>Informatique</option><option>Fournitures</option><option>Sport</option><option>Autre</option></select>
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
+                    <div><label style={LBL}>Quantite</label><input type="number" style={INP} placeholder="0" /></div>
+                    <div><label style={LBL}>Etat</label><select style={INP}><option>Bon</option><option>Moyen</option><option>Mauvais</option></select></div>
+                  </div>
+                  <button onClick={()=>showT('Article ajoute a l inventaire')} style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>Ajouter</button>
+                </div>
+                <div style={C}>
+                  <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Resume inventaire</div>
+                  {[{cat:'Mobilier',total:124,bon:98,pct:79},{cat:'Informatique',total:45,bon:38,pct:84},{cat:'Fournitures',total:312,bon:280,pct:90},{cat:'Sport',total:67,bon:52,pct:78}].map((c,i)=>(
+                    <div key={i} style={{ marginBottom:12 }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, marginBottom:4 }}>
+                        <span style={{ fontWeight:500 }}>{c.cat}</span>
+                        <span style={{ color:'#6b7280' }}>{c.bon}/{c.total} en bon etat</span>
+                      </div>
+                      <div style={{ height:8, background:'#f1f4f9', borderRadius:4 }}>
+                        <div style={{ height:8, background:c.pct>85?'#22c55e':'#f59e0b', borderRadius:4, width:c.pct+'%' }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={C}>
+                <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Articles recents</div>
+                <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                  <thead><tr>{['Designation','Categorie','Qte','Etat','Action'].map(h=><th key={h} style={TH}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {[
+                      {nom:'Ordinateur portable Dell',cat:'Informatique',qte:12,etat:'Bon'},
+                      {nom:'Bureau enseignant',cat:'Mobilier',qte:8,etat:'Bon'},
+                      {nom:'Tableau blanc',cat:'Mobilier',qte:15,etat:'Moyen'},
+                      {nom:'Ballon football',cat:'Sport',qte:6,etat:'Bon'},
+                      {nom:'Imprimante HP',cat:'Informatique',qte:3,etat:'Mauvais'},
+                    ].map((a,i)=>(
+                      <tr key={i}>
+                        <td style={{ ...TD, fontWeight:500 }}>{a.nom}</td>
+                        <td style={TD}><span style={{ fontSize:11, background:'#f1f5f9', padding:'2px 8px', borderRadius:20 }}>{a.cat}</span></td>
+                        <td style={{ ...TD, fontWeight:600 }}>{a.qte}</td>
+                        <td style={TD}><span style={{ fontSize:11, fontWeight:600, color:a.etat==='Bon'?'#16a34a':a.etat==='Moyen'?'#d97706':'#dc2626' }}>{a.etat}</span></td>
+                        <td style={TD}><button onClick={()=>showT('Article modifie')} style={{ padding:'4px 10px', background:'#f1f5f9', border:'1px solid #e5e9f2', borderRadius:6, fontSize:11, cursor:'pointer' }}>Modifier</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {page === 'qrcode' && (
+            <div>
+              <div style={{ marginBottom:20 }}>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>QR Code eleves</h2>
+                <p style={{ fontSize:12, color:'#6b7280' }}>Generer les QR codes d identification pour chaque eleve</p>
+              </div>
+              <div style={C}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
+                  <span style={{ fontSize:13, fontWeight:600 }}>{students.length} eleves inscrits</span>
+                  <button onClick={()=>showT('Tous les QR codes imprimes')} style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'9px 18px', fontSize:13, fontWeight:600, cursor:'pointer' }}>Imprimer tous</button>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14 }}>
+                  {students.map(s=>(
+                    <div key={s.id} style={{ border:'1px solid #e5e9f2', borderRadius:10, padding:16, textAlign:'center' }}>
+                      <div style={{ width:80, height:80, background:'#f1f4f9', borderRadius:8, margin:'0 auto 10px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, color:'#6b7280', border:'2px dashed #e5e9f2' }}>
+                        <div>QR<br/>{s.massar?.slice(-4)||'----'}</div>
+                      </div>
+                      <div style={{ fontSize:12, fontWeight:600, marginBottom:2 }}>{s.firstName} {s.lastName}</div>
+                      <div style={{ fontSize:10, color:'#6b7280', fontFamily:'monospace', marginBottom:8 }}>{s.massar}</div>
+                      <button onClick={()=>showT('QR Code imprime pour '+s.firstName)} style={{ width:'100%', padding:'6px 0', background:'#1e2d4f', color:'white', border:'none', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer' }}>Imprimer</button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
