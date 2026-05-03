@@ -1,3 +1,4 @@
+import CRM from './CRM';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
@@ -38,6 +39,8 @@ const MENUS = [
   { sec:'Agenda & DR' },
   { id:'agenda', lbl:'Agenda & RDV' },
   { id:'qrcode', lbl:'QR Code eleves' },
+  { sec:'CRM' },
+  { id:'crm', lbl:'Prospects CRM' },
   { sec:'Administration' },
   { id:'edt', lbl:'Emploi du temps' },
   { id:'budget', lbl:'Budget & depenses' },
@@ -1884,6 +1887,10 @@ export default function FonctionnaireDashboard() {
                 </div>
               </div>
             </div>
+          )}
+
+          {page === 'crm' && (
+            <CRM showT={showT} />
           )}
 
           {page === 'rh' && (

@@ -26,6 +26,85 @@ const ANNONCES = [
   { title:'Formation LuxEdu disponible', from:'Direction', time:'Lundi 09:00', type:'Info', tc:'b-b', body:'Formation courte sur LuxEdu disponible sur demande. Pour toute question technique, contactez le directeur.' },
 ];
 
+
+function DevoirsSection({ students, subject, showT }) {
+  const [devoirs, setDevoirs] = useState([
+    { id:'1', title:'Exercices page 45-47', subject:'Mathematiques', classe:'6eme Excellence', dueDate:'2026-05-10', description:'Faire les exercices 1 a 15 page 45. Correction en classe jeudi.', statut:'ACTIF' },
+    { id:'2', title:'Redaction sur les saisons', subject:'Francais', classe:'5eme A', dueDate:'2026-05-08', description:'Redaction de 15 lignes minimum sur la saison preferee.', statut:'ACTIF' },
+    { id:'3', title:'Revisions chapitre 3', subject:'Mathematiques', classe:'4eme A', dueDate:'2026-05-06', description:'Revoir toutes les formules du chapitre 3 pour le controle.', statut:'RENDU' },
+  ]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title:'', description:'', classe:'6eme Excellence', dueDate:'' });
+
+  const add = () => {
+    if (!form.title || !form.dueDate) return;
+    const d = { id: Date.now().toString(), subject: subject||'Mathematiques', statut:'ACTIF', ...form };
+    setDevoirs([d, ...devoirs]);
+    setForm({ title:'', description:'', classe:'6eme Excellence', dueDate:'' });
+    setShowForm(false);
+    showT && showT('Devoir publie — visible sur le portail parents');
+  };
+
+  const INP = { width:'100%', padding:'8px 10px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:13, outline:'none', boxSizing:'border-box', background:'white' };
+
+  return (
+    <div>
+      {showForm && (
+        <div style={{ background:'white', border:'1px solid #bfdbfe', borderRadius:12, padding:20, marginBottom:16, background:'#eff6ff' }}>
+          <div style={{ fontSize:13, fontWeight:600, color:'var(--navy)', marginBottom:14 }}>Nouveau devoir</div>
+          <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr 1fr', gap:10, marginBottom:10 }}>
+            <div><label style={{ fontSize:11, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Titre du devoir</label>
+              <input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="ex: Exercices page 45-47" style={INP} /></div>
+            <div><label style={{ fontSize:11, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Classe</label>
+              <select value={form.classe} onChange={e=>setForm({...form,classe:e.target.value})} style={INP}>
+                {['6eme Excellence','5eme A','5eme B','4eme A','3eme Bac'].map(c=><option key={c}>{c}</option>)}
+              </select></div>
+            <div><label style={{ fontSize:11, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Date limite</label>
+              <input type="date" value={form.dueDate} onChange={e=>setForm({...form,dueDate:e.target.value})} style={INP} /></div>
+          </div>
+          <div style={{ marginBottom:12 }}><label style={{ fontSize:11, fontWeight:600, color:'#374151', display:'block', marginBottom:5 }}>Description / Instructions</label>
+            <textarea value={form.description} onChange={e=>setForm({...form,description:e.target.value})} rows={3}
+              placeholder="Detaillez les instructions pour les eleves et parents..."
+              style={{ ...INP, resize:'vertical' }} /></div>
+          <div style={{ display:'flex', gap:8 }}>
+            <button onClick={add} className="btn btn-primary">Publier le devoir</button>
+            <button onClick={()=>setShowForm(false)} className="btn btn-out">Annuler</button>
+          </div>
+        </div>
+      )}
+      {!showForm && (
+        <button onClick={()=>setShowForm(true)} className="btn btn-primary" style={{ marginBottom:16 }}>+ Nouveau devoir</button>
+      )}
+      <div style={{ display:'grid', gap:12 }}>
+        {devoirs.map(d => (
+          <div key={d.id} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:18, borderLeft:'3px solid '+(d.statut==='RENDU'?'#22c55e':'#3b82f6') }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:8 }}>
+              <div>
+                <div style={{ fontSize:14, fontWeight:600, color:'var(--navy)', marginBottom:3 }}>{d.title}</div>
+                <div style={{ display:'flex', gap:8, fontSize:11 }}>
+                  <span style={{ background:'#eff6ff', color:'#2563eb', padding:'2px 8px', borderRadius:20, fontWeight:500 }}>{d.classe}</span>
+                  <span style={{ background:'#f5f3ff', color:'#7c3aed', padding:'2px 8px', borderRadius:20, fontWeight:500 }}>{d.subject}</span>
+                  <span style={{ color:'#6b7280' }}>Date limite: {new Date(d.dueDate).toLocaleDateString('fr-FR')}</span>
+                </div>
+              </div>
+              <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                <span style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:20, background:d.statut==='RENDU'?'#dcfce7':'#dbeafe', color:d.statut==='RENDU'?'#16a34a':'#2563eb' }}>{d.statut}</span>
+                <button onClick={()=>setDevoirs(devoirs.map(x=>x.id===d.id?{...x,statut:x.statut==='ACTIF'?'RENDU':'ACTIF'}:x))}
+                  style={{ padding:'4px 10px', border:'1px solid #e5e9f2', borderRadius:6, fontSize:11, cursor:'pointer', background:'white', color:'#374151' }}>
+                  {d.statut==='ACTIF'?'Marquer rendu':'Reactiver'}
+                </button>
+                <button onClick={()=>setDevoirs(devoirs.filter(x=>x.id!==d.id))}
+                  style={{ padding:'4px 8px', border:'1px solid #fecaca', borderRadius:6, fontSize:11, cursor:'pointer', background:'#fef2f2', color:'#dc2626' }}>✕</button>
+              </div>
+            </div>
+            <p style={{ fontSize:12, color:'#6b7280', margin:0, lineHeight:1.6 }}>{d.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function TeacherDashboard() {
   const { user, school, logout } = useAuthStore();
   const [page, setPage] = useState('dashboard');
@@ -214,6 +293,7 @@ export default function TeacherDashboard() {
     { sec:'Communication' },
     { id:'messages', lbl:'Messages', badge:2 },
     { id:'annonces', lbl:'Annonces' },
+    { id:'devoirs', lbl:'Devoirs en ligne' },
     { sec:'Outils Maroc' },
     { id:'tawjih', lbl:'Tawjih BAC' },
     { id:'massar', lbl:'Saisie Massar' },
@@ -892,6 +972,20 @@ export default function TeacherDashboard() {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {page === 'devoirs' && (
+            <div>
+              <div style={{ marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize:22, fontWeight:700, color:'var(--navy)', marginBottom:3 }}>Devoirs en ligne</h2>
+                  <p style={{ fontSize:12, color:'var(--g2)' }}>Publiez les devoirs — les parents les voient sur le portail</p>
+                </div>
+                <button onClick={() => setShowDevoirForm && setShowDevoirForm(true)}
+                  className="btn btn-primary">+ Nouveau devoir</button>
+              </div>
+              <DevoirsSection students={students} subject={subject} showT={showToast} />
             </div>
           )}
 

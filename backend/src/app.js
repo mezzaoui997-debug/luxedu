@@ -14,4 +14,7 @@ app.use('/api/payments', require('./routes/payments'));
 app.use('/api/bulletin', require('./routes/bulletin'));
 app.use('/api/whatsapp', require('./routes/whatsapp'));
 app.use('/api/certificat', require('./routes/certificat'));
+app.use('/api/parent', require('./routes/parent'));
+app.use('/api/homework', require('./routes/homework'));
+app.use('/api/prospects', require('./routes/prospects'));
 module.exports = app;

@@ -18,6 +18,7 @@ import Certificats from './pages/Certificats';
 import Layout from './components/Layout';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
+import ParentPortal from './pages/ParentPortal';
 
 function ComingSoon({ title }) {
   return (
@@ -66,6 +67,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/parent" element={<ParentPortal />} />
         <Route path="/*" element={<RoleRoute />} />
       </Routes>
     </BrowserRouter>
