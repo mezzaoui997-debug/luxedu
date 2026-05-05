@@ -18,6 +18,7 @@ import Certificats from './pages/Certificats';
 import Layout from './components/Layout';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
+import LandingPage from './pages/LandingPage';
 import ParentPortal from './pages/ParentPortal';
 
 function ComingSoon({ title }) {
@@ -66,8 +67,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/parent" element={<ParentPortal />} />
+        <Route path="/app/*" element={<RoleRoute />} />
         <Route path="/*" element={<RoleRoute />} />
       </Routes>
     </BrowserRouter>
