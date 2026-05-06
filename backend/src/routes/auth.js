@@ -37,6 +37,9 @@ router.post('/demo-seed', async (req, res) => {
       const exists = await prisma.user.findUnique({ where: { email: u.email } });
       if (!exists) {
         await prisma.user.create({ data: { ...u, password: hash, schoolId: school.id } });
+      } else {
+        // Always update password to ensure demo works
+        await prisma.user.update({ where: { email: u.email }, data: { password: hash } });
       }
     }
     res.json({ ok: true, message: 'Demo accounts ready' });
