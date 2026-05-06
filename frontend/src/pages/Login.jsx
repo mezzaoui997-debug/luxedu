@@ -42,11 +42,20 @@ export default function Login() {
     doLogin(email, password, role);
   };
 
-  const handleDemo = () => {
-    const selected = ROLES.find(r => r.id === role);
-    setEmail(selected.demo);
-    setPassword('password123');
-    doLogin(selected.demo, 'password123', role);
+  const handleDemo = async () => {
+    setLoading(true); setError('');
+    try {
+      // Ensure demo accounts exist
+      await api.post('/auth/demo-seed').catch(() => {});
+      const selected = ROLES.find(r => r.id === role);
+      setEmail(selected.demo);
+      setPassword('password123');
+      const r = await api.post('/auth/login', { email: selected.demo, password: 'password123', role });
+      setAuth(r.data.token, r.data.user, r.data.school);
+      navigate('/app');
+    } catch {
+      setError('Compte de démonstration indisponible. Contactez le support.');
+    } finally { setLoading(false); }
   };
 
   const inputFocus = (e) => { e.target.style.borderColor = '#1B2C5E'; };
