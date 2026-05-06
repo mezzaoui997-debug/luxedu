@@ -10,10 +10,10 @@ const ROLES = [
 ];
 
 const FEATS = [
-  ['WhatsApp',  'Communication automatisée avec les parents'],
-  ['Massar MEN','Export format Ministère Éducation Nationale'],
-  ['Analytics', 'Tableaux de bord en temps réel'],
-  ['Android',   'Application mobile sur Play Store'],
+  ['WhatsApp',   'Communication automatisée avec les parents'],
+  ['Massar MEN', 'Export format Ministère Éducation Nationale'],
+  ['Analytics',  'Tableaux de bord en temps réel'],
+  ['Android',    'Application mobile sur Play Store'],
 ];
 
 export default function Login() {
@@ -23,11 +23,11 @@ export default function Login() {
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
   const navigate                = useNavigate();
-  const { setAuth }             = useAuthStore();
+  const { login }               = useAuthStore(); // ← correct method name
 
   const doAuth = async (em, pw) => {
     const r = await api.post('/auth/login', { email: em, password: pw });
-    setAuth(r.data.token, r.data.user, r.data.school);
+    login(r.data.token, r.data.user, r.data.school); // ← correct call
     navigate('/app');
   };
 
@@ -57,42 +57,43 @@ export default function Login() {
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     }}>
 
-      {/* ══════════ LEFT PANEL ══════════ */}
+      {/* ══════════ LEFT ══════════ */}
       <div style={{
         width: '46%', minHeight: '100vh',
-        background: '#1B2C5E',
+        background: 'linear-gradient(160deg, #1B2C5E 0%, #0F1D42 100%)',
         display: 'flex', flexDirection: 'column',
         padding: '60px 64px',
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* bg circles */}
-        <div style={{ position:'absolute', top:-200, right:-200, width:500, height:500, borderRadius:'50%', background:'rgba(255,255,255,0.025)', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', bottom:-150, left:-100, width:400, height:400, borderRadius:'50%', background:'rgba(255,255,255,0.02)', pointerEvents:'none' }} />
+        {/* bg shapes */}
+        <div style={{ position:'absolute', top:-200, right:-200, width:500, height:500, borderRadius:'50%', background:'rgba(255,255,255,0.03)', pointerEvents:'none' }} />
+        <div style={{ position:'absolute', bottom:-150, left:-80, width:380, height:380, borderRadius:'50%', background:'rgba(255,255,255,0.02)', pointerEvents:'none' }} />
 
-        {/* LOGO — large, white filter on dark bg */}
-        <div style={{ marginBottom:60 }}>
+        {/* LOGO — white transparent version, large */}
+        <div style={{ marginBottom: 56 }}>
           <img
-            src="/luxedu-logo.png"
+            src="/luxedu-logo-white.png"
             alt="LuxEdu"
             style={{
-              width: 100, height: 100,
+              width: 110, height: 110,
               objectFit: 'contain',
               display: 'block',
-              marginBottom: 18,
-              /* White background logo on dark bg: multiply removes white */
-              mixBlendMode: 'screen',
-              filter: 'brightness(10)',
+              marginBottom: 16,
+              opacity: 0.95,
+            }}
+            onError={e => {
+              // fallback: show text only
+              e.target.style.display = 'none';
             }}
           />
           <div style={{
             fontFamily: "'Georgia', serif",
-            fontSize: 28, fontWeight: 700, color: '#FFFFFF',
-            letterSpacing: '-0.5px', lineHeight: 1,
+            fontSize: 28, fontWeight: 700,
+            color: '#FFFFFF', letterSpacing: '-0.4px', lineHeight: 1,
           }}>LuxEdu</div>
           <div style={{
             fontSize: 10, fontWeight: 600, letterSpacing: '0.18em',
-            color: 'rgba(255,255,255,0.4)', marginTop: 6,
-            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.38)', marginTop: 6, textTransform: 'uppercase',
           }}>Plateforme de Gestion Scolaire</div>
         </div>
 
@@ -100,31 +101,33 @@ export default function Login() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <h2 style={{
             fontFamily: "'Georgia', serif",
-            fontSize: 38, fontWeight: 700, color: '#FFFFFF',
-            lineHeight: 1.2, letterSpacing: '-0.8px', marginBottom: 20,
+            fontSize: 38, fontWeight: 700,
+            color: '#FFFFFF', lineHeight: 1.22,
+            letterSpacing: '-0.8px',
             margin: '0 0 20px 0',
           }}>
             Le logiciel de gestion<br />
             scolaire conçu pour<br />
-            <span style={{ color: '#A8C5E8' }}>les écoles du Maroc.</span>
+            <span style={{ color: '#93C5FD' }}>les écoles du Maroc.</span>
           </h2>
+
           <p style={{
             fontSize: 15, color: 'rgba(255,255,255,0.5)',
-            lineHeight: 1.75, marginBottom: 48,
+            lineHeight: 1.75, margin: '0 0 48px 0',
             maxWidth: 360, fontWeight: 400,
           }}>
             Présences, paiements, notes et communication parents
             centralisés dans une seule plateforme professionnelle.
           </p>
 
-          {/* Feature tags */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Feature badges */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {FEATS.map(([tag, text]) => (
               <div key={tag} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                 <span style={{
-                  fontSize: 10, fontWeight: 700, letterSpacing: '0.06em',
-                  color: '#1B2C5E', background: '#A8C5E8',
-                  padding: '4px 12px', borderRadius: 5,
+                  fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
+                  color: '#1B2C5E', background: '#93C5FD',
+                  padding: '4px 10px', borderRadius: 5,
                   flexShrink: 0, minWidth: 82, textAlign: 'center',
                 }}>{tag}</span>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>{text}</span>
@@ -133,67 +136,59 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Bottom */}
-        <div style={{
-          paddingTop: 32, marginTop: 40,
-          borderTop: '1px solid rgba(255,255,255,0.08)',
-        }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.04em' }}>
+        {/* Footer */}
+        <div style={{ paddingTop: 32, marginTop: 40, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.04em' }}>
             © 2026 LuxEdu · Plateforme SaaS · Maroc
           </span>
         </div>
       </div>
 
-      {/* ══════════ RIGHT PANEL ══════════ */}
+      {/* ══════════ RIGHT ══════════ */}
       <div style={{
-        flex: 1,
-        background: '#F1F5F9',
+        flex: 1, background: '#F1F5F9',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '40px',
       }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
 
-          {/* Card */}
           <div style={{
-            background: '#FFFFFF',
-            borderRadius: 20,
+            background: '#FFFFFF', borderRadius: 20,
             padding: '44px 40px',
-            boxShadow: '0 4px 24px rgba(15,23,42,0.08), 0 0 0 1px rgba(15,23,42,0.04)',
+            boxShadow: '0 4px 24px rgba(15,23,42,0.09), 0 0 0 1px rgba(15,23,42,0.04)',
           }}>
-
             {/* Header */}
             <div style={{ marginBottom: 30 }}>
               <h1 style={{
                 fontFamily: "'Georgia', serif",
                 fontSize: 26, fontWeight: 700, color: '#0F172A',
-                letterSpacing: '-0.6px', marginBottom: 6, margin: '0 0 6px 0',
+                letterSpacing: '-0.5px', margin: '0 0 6px 0',
               }}>Connexion</h1>
-              <p style={{ fontSize: 14, color: '#64748B', fontWeight: 400, margin: 0 }}>
+              <p style={{ fontSize: 14, color: '#64748B', margin: 0 }}>
                 Sélectionnez votre espace et connectez-vous
               </p>
             </div>
 
-            {/* Role selector */}
+            {/* Role tabs */}
             <div style={{
               background: '#F1F5F9', borderRadius: 12, padding: 5,
-              display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 4,
-              marginBottom: 28,
+              display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 4, marginBottom: 28,
             }}>
               {ROLES.map(r => (
                 <button key={r.id} onClick={() => { setRole(r.id); setError(''); }} style={{
                   padding: '10px 6px', border: 'none', borderRadius: 9,
                   fontSize: 13, fontWeight: role === r.id ? 700 : 500,
-                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all .18s',
+                  cursor: 'pointer', fontFamily: 'inherit', transition: 'all .15s',
                   background: role === r.id ? '#1B2C5E' : 'transparent',
                   color: role === r.id ? '#FFFFFF' : '#64748B',
-                  boxShadow: role === r.id ? '0 2px 8px rgba(27,44,94,0.25)' : 'none',
+                  boxShadow: role === r.id ? '0 2px 8px rgba(27,44,94,0.28)' : 'none',
                 }}>
                   {r.label}
                 </button>
               ))}
             </div>
 
-            {/* Form */}
+            {/* Fields */}
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: 18 }}>
                 <label style={{
@@ -254,8 +249,7 @@ export default function Login() {
                 color: '#FFFFFF', border: 'none', borderRadius: 10,
                 fontSize: 15, fontWeight: 700,
                 cursor: loading ? 'default' : 'pointer',
-                letterSpacing: '0.01em', fontFamily: 'inherit',
-                transition: 'all .2s',
+                fontFamily: 'inherit', transition: 'all .2s',
                 boxShadow: loading ? 'none' : '0 4px 14px rgba(27,44,94,0.3)',
               }}>
                 {loading ? 'Connexion...' : 'Accéder à mon espace'}
@@ -265,11 +259,11 @@ export default function Login() {
             {/* Divider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '22px 0' }}>
               <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
-              <span style={{ fontSize: 12, color: '#CBD5E1', fontWeight: 500 }}>ou</span>
+              <span style={{ fontSize: 12, color: '#CBD5E1' }}>ou</span>
               <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
             </div>
 
-            {/* Demo button */}
+            {/* Demo */}
             <button onClick={handleDemo} disabled={loading} style={{
               width: '100%', padding: '13px',
               background: 'transparent', color: '#475569',
