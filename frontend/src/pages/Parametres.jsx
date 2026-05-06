@@ -11,11 +11,11 @@ const THEMES = [
 ];
 
 export default function Parametres() {
-  const { school, user } = useAuthStore();
+  const { school, user, setSchoolLogo, schoolLogo } = useAuthStore();
   const [toast, setToast] = useState('');
   const [activeTab, setActiveTab] = useState('ecole');
   const [selectedTheme, setSelectedTheme] = useState('navy');
-  const [logoPreview, setLogoPreview] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(schoolLogo || null);
   const [form, setForm] = useState({
     name: school?.name || 'Ecole Excellence Casablanca',
     city: 'Casablanca',
@@ -47,7 +47,10 @@ export default function Parametres() {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => setLogoPreview(ev.target.result);
+    reader.onload = (ev) => {
+      setLogoPreview(ev.target.result);
+      setSchoolLogo(ev.target.result); // persist to store + localStorage
+    };
     reader.readAsDataURL(file);
   };
 

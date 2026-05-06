@@ -3,7 +3,7 @@ import api from '../api/axios';
 import useAuthStore from '../store/authStore';
 
 export default function Certificats() {
-  const { school, user } = useAuthStore();
+  const { school, schoolLogo, user } = useAuthStore();
   const [students, setStudents] = useState([]);
   const [selected, setSelected] = useState(null);
   const [dirName, setDirName] = useState(user?.firstName+' '+user?.lastName || 'Ahmed Benali');
