@@ -63,13 +63,20 @@ function RoleRoute() {
   return <DirectorPages />;
 }
 
+function HomeRoute() {
+  const { token } = useAuthStore();
+  if (token) return <Navigate to="/app" />;
+  return <LandingPage />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<HomeRoute />} />
         <Route path="/login" element={<Login />} />
         <Route path="/parent" element={<ParentPortal />} />
+        <Route path="/app" element={<RoleRoute />} />
         <Route path="/app/*" element={<RoleRoute />} />
         <Route path="/*" element={<RoleRoute />} />
       </Routes>
