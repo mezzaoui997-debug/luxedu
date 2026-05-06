@@ -1,3 +1,4 @@
+import { requestNotificationPermission, notifyAbsence, notifyPaymentDue } from '../utils/notifications';
 import CRM from './CRM';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Chart, registerables } from 'chart.js';
@@ -45,6 +46,7 @@ const MENUS = [
   { id:'edt', lbl:'Emploi du temps' },
   { id:'budget', lbl:'Budget & depenses' },
   { id:'rh', lbl:'RH Enseignants' },
+  { id:'conges', lbl:'Conges & Absences' },
 ];
 
 const TEMPLATES = [
@@ -319,6 +321,7 @@ export default function FonctionnaireDashboard() {
   useEffect(() => {
     api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
     api.get('/payments').then(r => setPayments(r.data)).catch(()=>{});
+    requestNotificationPermission();
   }, []);
 
   useEffect(() => {
@@ -2062,6 +2065,109 @@ export default function FonctionnaireDashboard() {
                     <span>Total masse salariale nette</span>
                     <span style={{ color:'#16a34a' }}>10 500 MAD</span>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {page === 'conges' && (
+            <div>
+              <div style={{ marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <div>
+                  <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Conges & Absences Staff</h2>
+                  <p style={{ fontSize:12, color:'#6b7280' }}>Gestion des demandes de conge et absences du personnel</p>
+                </div>
+                <button onClick={() => showT('Nouvelle demande de conge enregistree')}
+                  style={{ padding:'9px 20px', background:'#1e2d4f', color:'white', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                  + Nouvelle demande
+                </button>
+              </div>
+
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:18 }}>
+                {[
+                  { lbl:'Demandes en attente', val:'3', color:'#d97706', bg:'#fffbeb' },
+                  { lbl:'Approuvees ce mois', val:'5', color:'#16a34a', bg:'#f0fdf4' },
+                  { lbl:'Absences aujourd hui', val:'2', color:'#dc2626', bg:'#fef2f2' },
+                  { lbl:'Jours conges restants moy.', val:'18j', color:'#2563eb', bg:'#eff6ff' },
+                ].map((s,i) => (
+                  <div key={i} style={{ background:s.bg, border:'1px solid #e5e9f2', borderRadius:12, padding:'16px 18px' }}>
+                    <div style={{ fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'.07em', color:'#6b7280', marginBottom:8 }}>{s.lbl}</div>
+                    <div style={{ fontSize:28, fontWeight:700, color:s.color }}>{s.val}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ ...C, marginBottom:14 }}>
+                <div style={{ fontSize:13, fontWeight:600, marginBottom:14, display:'flex', justifyContent:'space-between' }}>
+                  <span>Demandes de conge en cours</span>
+                  <div style={{ display:'flex', gap:6 }}>
+                    {['Tous','En attente','Approuve','Refuse'].map(f => (
+                      <button key={f} style={{ padding:'4px 12px', border:'1px solid #e5e9f2', borderRadius:20, fontSize:11, background:'white', cursor:'pointer', color:'#374151' }}>{f}</button>
+                    ))}
+                  </div>
+                </div>
+                <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                  <thead><tr>{['Employe','Type','Du','Au','Jours','Motif','Statut','Action'].map(h=><th key={h} style={TH}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {[
+                      { nom:'Mme. Fatima Alami', type:'Conge annuel', du:'10 mai', au:'17 mai', jours:5, motif:'Vacances familiales', statut:'EN_ATTENTE' },
+                      { nom:'M. Karim Bennani', type:'Conge maladie', du:'05 mai', au:'07 mai', jours:3, motif:'Hospitalisation', statut:'APPROUVE' },
+                      { nom:'Mme. Sara Idrissi', type:'Conge personnel', du:'20 mai', au:'20 mai', jours:1, motif:'Demarche administrative', statut:'EN_ATTENTE' },
+                      { nom:'M. Omar Tazi', type:'Conge annuel', du:'01 juin', au:'15 juin', jours:11, motif:'Vacances', statut:'APPROUVE' },
+                      { nom:'Mme. Nadia Chraibi', type:'Absence injustifiee', du:'03 mai', au:'03 mai', jours:1, motif:'—', statut:'REFUSE' },
+                    ].map((r,i) => {
+                      const sc = { EN_ATTENTE:{ bg:'#fef3c7', color:'#d97706', lbl:'En attente' }, APPROUVE:{ bg:'#dcfce7', color:'#16a34a', lbl:'Approuve' }, REFUSE:{ bg:'#fee2e2', color:'#dc2626', lbl:'Refuse' } };
+                      const s = sc[r.statut];
+                      return (
+                        <tr key={i}>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6', fontSize:13, fontWeight:600, color:'#111827' }}>{r.nom}</td>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6', fontSize:12, color:'#374151' }}>{r.type}</td>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6', fontSize:12, color:'#374151' }}>{r.du}</td>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6', fontSize:12, color:'#374151' }}>{r.au}</td>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6', fontSize:12, fontWeight:600, color:'#111827', textAlign:'center' }}>{r.jours}j</td>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6', fontSize:12, color:'#6b7280' }}>{r.motif}</td>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6' }}>
+                            <span style={{ background:s.bg, color:s.color, fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:20 }}>{s.lbl}</span>
+                          </td>
+                          <td style={{ padding:'11px 10px', borderBottom:'1px solid #f3f4f6' }}>
+                            {r.statut === 'EN_ATTENTE' && (
+                              <div style={{ display:'flex', gap:4 }}>
+                                <button onClick={() => showT('Conge approuve pour ' + r.nom)}
+                                  style={{ padding:'4px 10px', background:'#dcfce7', color:'#16a34a', border:'1px solid #bbf7d0', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer' }}>✓</button>
+                                <button onClick={() => showT('Conge refuse pour ' + r.nom)}
+                                  style={{ padding:'4px 10px', background:'#fee2e2', color:'#dc2626', border:'1px solid #fecaca', borderRadius:6, fontSize:11, fontWeight:600, cursor:'pointer' }}>✗</button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ ...C }}>
+                <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Calendrier des absences — Mai 2026</div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:4, marginBottom:8 }}>
+                  {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d => (
+                    <div key={d} style={{ textAlign:'center', fontSize:10, fontWeight:600, color:'#6b7280', padding:'4px 0' }}>{d}</div>
+                  ))}
+                  {Array.from({length:35}, (_,i) => {
+                    const day = i - 2;
+                    const absent = [4,6,9,19].includes(day);
+                    const conge = [9,10,11,12,13,16,17].includes(day);
+                    return (
+                      <div key={i} style={{ textAlign:'center', padding:'6px 4px', borderRadius:6, fontSize:11, fontWeight:500,
+                        background: day < 1 || day > 31 ? 'transparent' : conge ? '#dbeafe' : absent ? '#fee2e2' : '#f9fafb',
+                        color: day < 1 || day > 31 ? 'transparent' : conge ? '#2563eb' : absent ? '#dc2626' : '#374151' }}>
+                        {day >= 1 && day <= 31 ? day : ''}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ display:'flex', gap:16, fontSize:11, color:'#6b7280' }}>
+                  <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:12, height:12, borderRadius:3, background:'#dbeafe', display:'inline-block' }}></span>Conge approuve</span>
+                  <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:12, height:12, borderRadius:3, background:'#fee2e2', display:'inline-block' }}></span>Absence</span>
                 </div>
               </div>
             </div>

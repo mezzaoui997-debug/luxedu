@@ -1,4 +1,4 @@
-const CACHE = 'luxedu-v1';
+const CACHE = 'luxedu-v2';
 const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
@@ -14,7 +14,30 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   if (e.request.url.includes('/api/')) return;
-  e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request).then(r => r || caches.match('/')))
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request).then(r => r || caches.match('/'))));
+});
+
+// Push notification handler
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : { title: 'LuxEdu', body: 'Nouvelle notification' };
+  e.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      vibrate: [200, 100, 200],
+      data: { url: data.url || '/' },
+      actions: [
+        { action: 'open', title: 'Ouvrir' },
+        { action: 'close', title: 'Fermer' }
+      ]
+    })
   );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  if (e.action === 'open' || !e.action) {
+    e.waitUntil(clients.openWindow(e.notification.data.url || '/'));
+  }
 });
