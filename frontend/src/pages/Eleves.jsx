@@ -3,9 +3,9 @@ import api from '../api/axios';
 
 const STEPS = ['Identite', 'Scolarite', 'Medical', 'Services', 'Confirmation'];
 const SERVICES = [
-  { id:'cantine', ic:'🍽️', lbl:'Cantine', price:180 },
-  { id:'transport', ic:'🚌', lbl:'Transport', price:250 },
-  { id:'garde', ic:'👧', lbl:'Garde', price:120 },
+  { id:'cantine', ic:'️', lbl:'Cantine', price:180 },
+  { id:'transport', ic:'', lbl:'Transport', price:250 },
+  { id:'garde', ic:'', lbl:'Garde', price:120 },
   { id:'sport', ic:'', lbl:'Sport', price:80 },
 ];
 
@@ -272,7 +272,7 @@ export default function Eleves() {
                   <div style={{ fontSize:12, color:'rgba(255,255,255,0.55)', marginTop:2 }}>Massar: {selectedStudent.massar} · Tel: {selectedStudent.parentPhone || '-'}</div>
                   <div style={{ display:'flex', gap:7, marginTop:10, flexWrap:'wrap' }}>
                     <span style={{ background: generalAvg && generalAvg < 10 ? 'var(--redl)' : 'rgba(255,255,255,0.15)', color: generalAvg && generalAvg < 10 ? 'var(--red)' : 'rgba(255,255,255,0.8)', fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:20 }}>
-                      {generalAvg && generalAvg < 10 ? '⚠ Eleve a risque' : 'Actif 2025-26'}
+                      {generalAvg && generalAvg < 10 ? '! Eleve a risque' : 'Actif 2025-26'}
                     </span>
                   </div>
                 </div>
@@ -292,7 +292,7 @@ export default function Eleves() {
 
               {generalAvg && parseFloat(generalAvg) < 10 && (
                 <div style={{ background:'var(--redl)', borderRadius:8, padding:'10px 13px', fontSize:12, color:'var(--red)', marginBottom:14 }}>
-                  <strong>⚠ Alerte IA :</strong> Moyenne generale en dessous de 10. Intervention recommandee.
+                  <strong>! Alerte IA :</strong> Moyenne generale en dessous de 10. Intervention recommandee.
                 </div>
               )}
 

@@ -851,7 +851,7 @@ export default function FonctionnaireDashboard() {
                   </div>
                   <div style={{ padding:12 }}>
                     <div style={{ background:'white', borderRadius:'8px 8px 8px 2px', padding:'9px 12px', fontSize:12, lineHeight:1.6, whiteSpace:'pre-wrap', maxWidth:'90%' }}>{waMsg||'Votre message apparaitra ici...'}</div>
-                    <div style={{ fontSize:10, color:'rgba(0,0,0,0.45)', marginTop:4 }}>Maintenant ✓✓</div>
+                    <div style={{ fontSize:10, color:'rgba(0,0,0,0.45)', marginTop:4 }}>Maintenant Lu</div>
                   </div>
                 </div>
               </div>

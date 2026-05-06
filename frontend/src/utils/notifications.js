@@ -15,13 +15,13 @@ export function sendLocalNotification(title, body, url = '/') {
 }
 
 export function notifyAbsence(studentName) {
-  sendLocalNotification('🚨 Absence signalée — LuxEdu', `${studentName} est absent(e) aujourd'hui.`);
+  sendLocalNotification(' Absence signalée — LuxEdu', `${studentName} est absent(e) aujourd'hui.`);
 }
 
 export function notifyPayment(studentName, amount) {
-  sendLocalNotification('💰 Paiement reçu — LuxEdu', `${amount} MAD reçu pour ${studentName}.`);
+  sendLocalNotification(' Paiement reçu — LuxEdu', `${amount} MAD reçu pour ${studentName}.`);
 }
 
 export function notifyPaymentDue(studentName, amount) {
-  sendLocalNotification('⚠️ Impayé urgent — LuxEdu', `${studentName} — ${amount} MAD en attente.`);
+  sendLocalNotification('!️ Impayé urgent — LuxEdu', `${studentName} — ${amount} MAD en attente.`);
 }

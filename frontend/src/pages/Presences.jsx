@@ -104,7 +104,7 @@ export default function Presences() {
 
       {counts.absent > 0 && (
         <div style={{ background:'var(--redl)', border:'1px solid #F09595', borderRadius:10, padding:'12px 16px', marginBottom:14, display:'flex', alignItems:'center', gap:11 }}>
-          <span style={{ fontSize:20 }}>⚠️</span>
+          <span style={{ fontSize:20 }}>!️</span>
           <div style={{ flex:1 }}>
             <div style={{ fontSize:13, fontWeight:700, color:'var(--red)' }}>{counts.absent} absence(s) non justifiee(s)</div>
             <div style={{ fontSize:12, color:'var(--g2)' }}>Les parents seront notifies automatiquement sur WhatsApp</div>

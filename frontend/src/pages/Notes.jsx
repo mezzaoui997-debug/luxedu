@@ -115,7 +115,7 @@ export default function Notes() {
           <div className="msub">eleves</div>
         </div>
         <div className="metric">
-          <div className="mic" style={{ background:'var(--redl)' }}>⚠️</div>
+          <div className="mic" style={{ background:'var(--redl)' }}>!️</div>
           <div className="mlbl">En dessous de 10</div>
           <div className="mval" style={{ color:'var(--red)' }}>
             {students.filter(s => grades[s.id]?.average != null && grades[s.id].average < 10).length}
@@ -178,7 +178,7 @@ export default function Notes() {
                 <div>
                   <div style={{ fontSize:13, fontWeight:700 }}>{s.firstName} {s.lastName}</div>
                   {avg != null && avg < 10 && s.parentPhone && (
-                    <div style={{ fontSize:10, color:'var(--red)' }}>⚠ Parent sera notifie WA</div>
+                    <div style={{ fontSize:10, color:'var(--red)' }}>! Parent sera notifie WA</div>
                   )}
                 </div>
               </div>

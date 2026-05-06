@@ -868,7 +868,7 @@ export default function TeacherDashboard() {
                           <div key={i} style={{ display:'flex', justifyContent:m.type==='out'?'flex-end':'flex-start' }}>
                             <div style={{ maxWidth:'80%' }}>
                               <div style={{ background:m.type==='out'?'#DCF8C6':'white', border:'1px solid var(--g1)', borderRadius:m.type==='out'?'10px 10px 2px 10px':'10px 10px 10px 2px', padding:'9px 12px', fontSize:13, lineHeight:1.5, color:'var(--g3)' }}>{m.text}</div>
-                              <div style={{ fontSize:10, color:'var(--g2)', marginTop:3, textAlign:m.type==='out'?'right':'left' }}>{m.time} {m.type==='out'?'Lu ✓✓':''}</div>
+                              <div style={{ fontSize:10, color:'var(--g2)', marginTop:3, textAlign:m.type==='out'?'right':'left' }}>{m.time} {m.type==='out'?'Lu Lu':''}</div>
                             </div>
                           </div>
                         ))}

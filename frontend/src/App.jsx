@@ -24,7 +24,7 @@ import ParentPortal from './pages/ParentPortal';
 function ComingSoon({ title }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'60vh', gap:16 }}>
-      <div style={{ fontSize:48 }}>🚧</div>
+      <div style={{ fontSize:48 }}></div>
       <div style={{ fontSize:18, fontWeight:700, color:'var(--navy)' }}>{title}</div>
       <div style={{ fontSize:13, color:'var(--g2)' }}>Cette section sera disponible prochainement</div>
     </div>
