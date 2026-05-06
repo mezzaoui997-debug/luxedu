@@ -41,10 +41,10 @@ export default function Rapports() {
   }, []);
 
   const TABS = [
-    { id:'paiements', lbl:'💰 Paiements', icon:'💰' },
-    { id:'presences', lbl:'✅ Presences', icon:'✅' },
-    { id:'notes', lbl:'📋 Notes', icon:'📋' },
-    { id:'recouvrement', lbl:'📊 Recouvrement', icon:'📊' },
+    { id:'paiements', lbl:'Paiements', icon:'' },
+    { id:'presences', lbl:'Presences', icon:'' },
+    { id:'notes', lbl:'Notes', icon:'' },
+    { id:'recouvrement', lbl:'Recouvrement', icon:'' },
   ];
 
   const exportPaiements = () => {
@@ -99,7 +99,7 @@ export default function Rapports() {
         </div>
         <div style={{ display:'flex', gap:8 }}>
           <button onClick={exportPaiements} style={{ padding:'9px 18px', background:'#16a34a', color:'white', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:6 }}>
-            📥 Export Excel
+            Exporter Excel
           </button>
         </div>
       </div>
@@ -107,10 +107,10 @@ export default function Rapports() {
       {/* KPI Cards */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:18 }}>
         {[
-          { lbl:'Total regle', val:totalPaid.toLocaleString('fr-FR')+' MAD', color:'#16a34a', bg:'#f0fdf4', icon:'💰' },
-          { lbl:'En attente', val:totalPending.toLocaleString('fr-FR')+' MAD', color:'#dc2626', bg:'#fef2f2', icon:'⚠️' },
-          { lbl:'Taux recouvrement', val:recouvrement+'%', color:'#2563eb', bg:'#eff6ff', icon:'📊' },
-          { lbl:'Moy. presence', val:'89%', color:'#d97706', bg:'#fffbeb', icon:'✅' },
+          { lbl:'Total regle', val:totalPaid.toLocaleString('fr-FR')+' MAD', color:'#16a34a', bg:'#f0fdf4', icon:'' },
+          { lbl:'En attente', val:totalPending.toLocaleString('fr-FR')+' MAD', color:'#dc2626', bg:'#fef2f2', icon:'' },
+          { lbl:'Taux recouvrement', val:recouvrement+'%', color:'#2563eb', bg:'#eff6ff', icon:'' },
+          { lbl:'Moy. presence', val:'89%', color:'#d97706', bg:'#fffbeb', icon:'' },
         ].map((s,i) => (
           <div key={i} style={{ background:s.bg, border:'1px solid #e5e9f2', borderRadius:12, padding:'16px 18px' }}>
             <div style={{ fontSize:20, marginBottom:6 }}>{s.icon}</div>
@@ -138,7 +138,7 @@ export default function Rapports() {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
             <div style={{ fontSize:13, fontWeight:600 }}>Rapport paiements — Avril 2026</div>
             <button onClick={exportPaiements} style={{ padding:'7px 14px', background:'#1e2d4f', color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
-              📥 Exporter Excel
+              Exporter Excel
             </button>
           </div>
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
@@ -175,7 +175,7 @@ export default function Rapports() {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
             <div style={{ fontSize:13, fontWeight:600 }}>Rapport présences — Mai 2026</div>
             <button onClick={exportPresences} style={{ padding:'7px 14px', background:'#1e2d4f', color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-              📥 Exporter Excel
+              Exporter Excel
             </button>
           </div>
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
@@ -215,7 +215,7 @@ export default function Rapports() {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
             <div style={{ fontSize:13, fontWeight:600 }}>Rapport notes — S1 vs S2</div>
             <button onClick={exportNotes} style={{ padding:'7px 14px', background:'#1e2d4f', color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-              📥 Exporter Excel
+              Exporter Excel
             </button>
           </div>
           <table style={{ width:'100%', borderCollapse:'collapse' }}>
@@ -285,7 +285,7 @@ export default function Rapports() {
                   .map(([m,v]) => ({ Mois:m, 'Recouvrement (%)':v }));
                 exportExcel(data, 'Recouvrement_2025-2026', 'Recouvrement');
               }} style={{ marginTop:10, width:'100%', padding:'8px', background:'#1e2d4f', color:'white', border:'none', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                📥 Exporter Excel
+                Exporter Excel
               </button>
             </div>
           </div>

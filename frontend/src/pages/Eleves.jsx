@@ -6,7 +6,7 @@ const SERVICES = [
   { id:'cantine', ic:'🍽️', lbl:'Cantine', price:180 },
   { id:'transport', ic:'🚌', lbl:'Transport', price:250 },
   { id:'garde', ic:'👧', lbl:'Garde', price:120 },
-  { id:'sport', ic:'⚽', lbl:'Sport', price:80 },
+  { id:'sport', ic:'', lbl:'Sport', price:80 },
 ];
 
 export default function Eleves() {
@@ -335,11 +335,11 @@ export default function Eleves() {
               </div>
 
               <div style={{ display:'flex', gap:8 }}>
-                <button className="btn btn-navy" style={{ flex:1 }} onClick={() => openBulletin(selectedStudent.id)}>📄 Bulletin PDF</button>
-                <button className="btn btn-gold" style={{ flex:1 }}>💬 Envoyer message</button>
+                <button className="btn btn-navy" style={{ flex:1 }} onClick={() => openBulletin(selectedStudent.id)}> Bulletin PDF</button>
+                <button className="btn btn-gold" style={{ flex:1 }}> Envoyer message</button>
                 <button className="btn btn-sm" style={{ background:'var(--redl)', color:'var(--red)', border:'1px solid #F09595', borderRadius:8, padding:'9px 14px', fontWeight:700, cursor:'pointer' }}
                   onClick={() => deleteStudent(selectedStudent.id, selectedStudent.firstName+' '+selectedStudent.lastName)}>
-                  🗑 Supprimer
+                   Supprimer
                 </button>
               </div>
             </div>

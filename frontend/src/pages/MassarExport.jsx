@@ -60,11 +60,11 @@ export default function MassarExport() {
           <div style={{ display:'flex', gap:8 }}>
             <a href="https://massarservice.men.gov.ma/moudaris" target="_blank" rel="noreferrer"
               style={{ background:'white', color:'#042C53', borderRadius:8, padding:'9px 16px', fontSize:12, fontWeight:700, textDecoration:'none', display:'inline-block' }}>
-              🖥️ Massar sur PC →
+              Massar sur PC →
             </a>
             <a href="https://play.google.com/store/apps/details?id=ma.gov.men.massar.professeur" target="_blank" rel="noreferrer"
               style={{ background:'#EF9F27', color:'#633806', borderRadius:8, padding:'9px 16px', fontSize:12, fontWeight:700, textDecoration:'none', display:'inline-block' }}>
-              📱 App Massar Moudaris
+              App Massar Moudaris
             </a>
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function MassarExport() {
       </div>
 
       <div style={{ background:'#EAF3DE', border:'1px solid #97C459', borderRadius:10, padding:'12px 16px', marginBottom:16, fontSize:12, color:'#3B6D11' }}>
-        <strong>💡 Comment utiliser :</strong> Ouvrez Massar Moudaris dans un autre onglet → selectionnez la meme matiere → copiez chaque note en cliquant dessus → collez dans Massar.
+        <strong>Comment utiliser :</strong> Ouvrez Massar Moudaris dans un autre onglet → selectionnez la meme matiere → copiez chaque note en cliquant dessus → collez dans Massar.
       </div>
 
       <div style={{ background:'white', borderRadius:10, border:'1px solid #E8E6E0', overflow:'hidden' }}>
@@ -123,7 +123,7 @@ export default function MassarExport() {
                       {validMassar && (
                         <button onClick={() => copy(s.massar, 'massar-'+s.id)}
                           style={{ background: copied==='massar-'+s.id?'#EAF3DE':'#F5F5F3', border:'none', borderRadius:5, padding:'2px 7px', fontSize:10, cursor:'pointer', color: copied==='massar-'+s.id?'#3B6D11':'#888780' }}>
-                          {copied==='massar-'+s.id ? '✓' : '📋'}
+                          {copied==='massar-'+s.id ? '✓' : ''}
                         </button>
                       )}
                     </div>

@@ -4,11 +4,11 @@ import useAuthStore from '../store/authStore';
 
 const SUBJECTS = ['Mathematiques','Francais','Arabe','Sciences','Anglais','Histoire-Geo','Islamique','Physique-Chimie','SVT','Informatique'];
 const FILIERES = [
-  { id:'SM', lbl:'Sciences Mathematiques', color:'#042C53', bg:'#E6F1FB', min:15, icon:'📐', matieres:['Mathematiques','Physique-Chimie','SVT'] },
-  { id:'PC', lbl:'Sciences Physiques', color:'#185FA5', bg:'#E6F1FB', min:13, icon:'⚗️', matieres:['Physique-Chimie','Mathematiques','SVT'] },
-  { id:'SVT', lbl:'Sciences de la Vie', color:'#3B6D11', bg:'#EAF3DE', min:12, icon:'🌿', matieres:['SVT','Physique-Chimie','Mathematiques'] },
-  { id:'ECO', lbl:'Sciences Economiques', color:'#854F0B', bg:'#FAEEDA', min:11, icon:'📈', matieres:['Mathematiques','Francais','Anglais'] },
-  { id:'LSH', lbl:'Lettres et Sciences Humaines', color:'#534AB7', bg:'#EEEDFE', min:10, icon:'📚', matieres:['Arabe','Francais','Histoire-Geo'] },
+  { id:'SM', lbl:'Sciences Mathematiques', color:'#042C53', bg:'#E6F1FB', min:15, icon:'', matieres:['Mathematiques','Physique-Chimie','SVT'] },
+  { id:'PC', lbl:'Sciences Physiques', color:'#185FA5', bg:'#E6F1FB', min:13, icon:'', matieres:['Physique-Chimie','Mathematiques','SVT'] },
+  { id:'SVT', lbl:'Sciences de la Vie', color:'#3B6D11', bg:'#EAF3DE', min:12, icon:'', matieres:['SVT','Physique-Chimie','Mathematiques'] },
+  { id:'ECO', lbl:'Sciences Economiques', color:'#854F0B', bg:'#FAEEDA', min:11, icon:'', matieres:['Mathematiques','Francais','Anglais'] },
+  { id:'LSH', lbl:'Lettres et Sciences Humaines', color:'#534AB7', bg:'#EEEDFE', min:10, icon:'', matieres:['Arabe','Francais','Histoire-Geo'] },
 ];
 const getMention = (avg) => {
   if (avg == null) return { label:'-', color:'#888780' };
@@ -315,7 +315,7 @@ export default function TeacherDashboard() {
     <div style={{ display:'flex', height:'100vh', background:'#EEF2F7' }}>
       {toast && (
         <div style={{ position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)', background:'#063828', color:'white', padding:'11px 20px', borderRadius:10, fontSize:13, fontWeight:600, zIndex:999, display:'flex', alignItems:'center', gap:9, boxShadow:'0 4px 20px rgba(0,0,0,0.2)', whiteSpace:'nowrap' }}>
-          ✓ {toast}
+          {toast}
         </div>
       )}
       {profileModal && selectedStudent && (
@@ -396,7 +396,7 @@ export default function TeacherDashboard() {
 
       <div style={{ width:230, background:'#063828', display:'flex', flexDirection:'column', flexShrink:0 }}>
         <div style={{ padding:'0 11px', height:62, display:'flex', alignItems:'center', gap:9, borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-          <div style={{ width:36, height:36, borderRadius:9, background:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>🏫</div>
+          <div style={{ width:36, height:36, borderRadius:9, background:'white', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}></div>
           <div style={{ overflow:'hidden', minWidth:0 }}>
             <div style={{ fontSize:13, fontWeight:700, color:'white', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{school?.name}</div>
             <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)' }}>Espace Enseignant</div>
@@ -541,7 +541,7 @@ export default function TeacherDashboard() {
               </div>
               {lowGrades.length > 0 && (
                 <div style={{ background:'linear-gradient(135deg,#063828 0%,#0F6E56 100%)', borderRadius:10, padding:'14px 18px', marginBottom:16, display:'flex', alignItems:'center', gap:14 }}>
-                  <span style={{ fontSize:24 }}>🤖</span>
+                  <span style={{ fontSize:24 }}></span>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:3 }}>Alerte IA — {lowGrades.length} eleve(s) en difficulte</div>
                     <div style={{ fontSize:12, color:'rgba(255,255,255,0.7)' }}>{lowGrades.map(s=>s.firstName).join(', ')} · Notes inferieures a 10</div>
@@ -606,12 +606,12 @@ export default function TeacherDashboard() {
                 <div className="card cp">
                   <div className="ct" style={{ marginBottom:12 }}>Actions rapides</div>
                   {[
-                    { ic:'✓', lbl:"Faire l'appel", p:'presences', color:'#0F6E56', bg:'#E1F5EE' },
-                    { ic:'📊', lbl:'Saisir les notes', p:'notes', color:'var(--amber)', bg:'var(--amberl)' },
-                    { ic:'📅', lbl:'Mon planning', p:'planning', color:'var(--blue)', bg:'var(--bl)' },
-                    { ic:'👥', lbl:'Mes eleves', p:'eleves', color:'var(--navy)', bg:'var(--g0)' },
-                    { ic:'🎓', lbl:'Tawjih BAC', p:'tawjih', color:'var(--purple)', bg:'var(--purpl)' },
-                    { ic:'🇲🇦', lbl:'Saisie Massar', p:'massar', color:'var(--red)', bg:'var(--redl)' },
+                    { ic:'', lbl:"Faire l'appel", p:'presences', color:'#0F6E56', bg:'#E1F5EE' },
+                    { ic:'', lbl:'Saisir les notes', p:'notes', color:'var(--amber)', bg:'var(--amberl)' },
+                    { ic:'', lbl:'Mon planning', p:'planning', color:'var(--blue)', bg:'var(--bl)' },
+                    { ic:'', lbl:'Mes eleves', p:'eleves', color:'var(--navy)', bg:'var(--g0)' },
+                    { ic:'', lbl:'Tawjih BAC', p:'tawjih', color:'var(--purple)', bg:'var(--purpl)' },
+                    { ic:'', lbl:'Saisie Massar', p:'massar', color:'var(--red)', bg:'var(--redl)' },
                   ].map(a => (
                     <button key={a.p} onClick={() => setPage(a.p)}
                       style={{ display:'flex', alignItems:'center', gap:9, padding:'8px 12px', borderRadius:9, border:'none', cursor:'pointer', background:a.bg, width:'100%', textAlign:'left', marginBottom:7 }}>
@@ -882,7 +882,7 @@ export default function TeacherDashboard() {
                     </>
                   ) : (
                     <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:10, color:'var(--g2)' }}>
-                      <div style={{ fontSize:32 }}>💬</div>
+                      <div style={{ fontSize:32 }}></div>
                       <div style={{ fontSize:14, fontWeight:700, color:'var(--navy)' }}>Selectionnez une conversation</div>
                     </div>
                   )}
@@ -912,7 +912,7 @@ export default function TeacherDashboard() {
             <div className="page-enter">
               <div className="ph"><h1>Tawjih — Orientation BAC Maroc</h1><p>SM · PC · SVT · ECO · LSH — Recommandations basees sur les notes</p></div>
               <div style={{ background:'linear-gradient(135deg,#063828 0%,#0F6E56 100%)', borderRadius:10, padding:'14px 18px', marginBottom:18, display:'flex', alignItems:'center', gap:14 }}>
-                <span style={{ fontSize:24 }}>🤖</span>
+                <span style={{ fontSize:24 }}></span>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:13, fontWeight:700, color:'white', marginBottom:3 }}>IA — Orientation automatique · {FILIERES.length} filieres BAC officielles</div>
                   <div style={{ fontSize:12, color:'rgba(255,255,255,0.7)' }}>Recommandations basees sur toutes les matieres · Coefficients MEN officiels</div>
@@ -1030,7 +1030,7 @@ export default function TeacherDashboard() {
                           <td>
                             <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                               <span style={{ fontFamily:'monospace', fontSize:12, fontWeight:700, color:valid?'var(--navy)':'var(--red)' }}>{s.massar}</span>
-                              {valid && <button onClick={() => copyVal(s.massar, 'm'+s.id)} style={{ background:copied==='m'+s.id?'var(--greenl)':'var(--g0)', border:'none', borderRadius:5, padding:'2px 6px', fontSize:10, cursor:'pointer' }}>{copied==='m'+s.id?'✓':'📋'}</button>}
+                              {valid && <button onClick={() => copyVal(s.massar, 'm'+s.id)} style={{ background:copied==='m'+s.id?'var(--greenl)':'var(--g0)', border:'none', borderRadius:5, padding:'2px 6px', fontSize:10, cursor:'pointer' }}>{copied==='m'+s.id?'✓':''}</button>}
                             </div>
                           </td>
                           <td style={{ fontWeight:700 }}>{s.firstName} {s.lastName}</td>

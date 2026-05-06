@@ -432,7 +432,7 @@ export default function FonctionnaireDashboard() {
     <div style={{ display:'flex', height:'100vh', background:'#f1f4f9' }}>
       {toast && (
         <div style={{ position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)', background:'#1e2d4f', color:'white', padding:'11px 20px', borderRadius:10, fontSize:13, fontWeight:600, zIndex:999, whiteSpace:'nowrap' }}>
-          ✓ {toast}
+          {toast}
         </div>
       )}
 
@@ -496,10 +496,10 @@ export default function FonctionnaireDashboard() {
 
               <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
                 {[
-                  { label:'Eleves inscrits', value:students.length, color:'#2563eb', bg:'#eff6ff', sub:'Annee 2025-2026', icon:'👥', trend:'+3 ce mois' },
-                  { label:'Paiements en attente', value:pending.length, color:'#dc2626', bg:'#fef2f2', sub:pending.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD dus', icon:'⚠️', trend:'Urgent' },
-                  { label:'Regles ce mois', value:paid.length, color:'#16a34a', bg:'#f0fdf4', sub:paid.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD', icon:'✅', trend:recouvrement+'% recouvrement' },
-                  { label:'Messages non lus', value:messages.filter(m=>!m.read).length, color:'#d97706', bg:'#fffbeb', sub:'De la direction', icon:'💬', trend:"Aujourd'hui" },
+                  { label:'Eleves inscrits', value:students.length, color:'#2563eb', bg:'#eff6ff', sub:'Annee 2025-2026', icon:'', trend:'+3 ce mois' },
+                  { label:'Paiements en attente', value:pending.length, color:'#dc2626', bg:'#fef2f2', sub:pending.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD dus', icon:'', trend:'Urgent' },
+                  { label:'Regles ce mois', value:paid.length, color:'#16a34a', bg:'#f0fdf4', sub:paid.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')+' MAD', icon:'', trend:recouvrement+'% recouvrement' },
+                  { label:'Messages non lus', value:messages.filter(m=>!m.read).length, color:'#d97706', bg:'#fffbeb', sub:'De la direction', icon:'', trend:"Aujourd'hui" },
                 ].map((s,i) => (
                   <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'18px 20px', cursor:'pointer' }}>
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
@@ -559,11 +559,11 @@ export default function FonctionnaireDashboard() {
                 <div style={C}>
                   <div style={{ fontSize:13, fontWeight:600, marginBottom:14 }}>Actions rapides</div>
                   {[
-                    { lbl:'Inscrire un eleve', p:'inscriptions', bg:'#eff6ff', color:'#2563eb', desc:'Formulaire 5 etapes', icon:'📝' },
-                    { lbl:'Enregistrer paiement', p:'paiements', bg:'#f0fdf4', color:'#16a34a', desc:'Especes / Virement / CM2', icon:'💰' },
-                    { lbl:'Envoyer message WA', p:'whatsapp', bg:'#f0fff4', color:'#15803d', desc:'Templates professionnels', icon:'💬' },
-                    { lbl:'Generer certificat', p:'certificats', bg:'#fdf4ff', color:'#7c3aed', desc:'PDF avec signature', icon:'🎓' },
-                    { lbl:'Messages internes', p:'messages', bg:'#fffbeb', color:'#d97706', desc:messages.filter(m=>!m.read).length+' non lus', icon:'📨' },
+                    { lbl:'Inscrire un eleve', p:'inscriptions', bg:'#eff6ff', color:'#2563eb', desc:'Formulaire 5 etapes', icon:'' },
+                    { lbl:'Enregistrer paiement', p:'paiements', bg:'#f0fdf4', color:'#16a34a', desc:'Especes / Virement / CM2', icon:'' },
+                    { lbl:'Envoyer message WA', p:'whatsapp', bg:'#f0fff4', color:'#15803d', desc:'Templates professionnels', icon:'' },
+                    { lbl:'Generer certificat', p:'certificats', bg:'#fdf4ff', color:'#7c3aed', desc:'PDF avec signature', icon:'' },
+                    { lbl:'Messages internes', p:'messages', bg:'#fffbeb', color:'#d97706', desc:messages.filter(m=>!m.read).length+' non lus', icon:'' },
                   ].map(a => (
                     <button key={a.p} onClick={() => setPage(a.p)}
                       style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 14px', border:'1px solid #f3f4f6', borderRadius:9, cursor:'pointer', width:'100%', background:'white', marginBottom:8, textAlign:'left' }}>

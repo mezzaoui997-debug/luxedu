@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import useAuthStore from '../store/authStore';
 const TEMPLATES = [
-  { id:'absence', ic:'📵', name:'Absence', desc:'Non justifiee', msg:"Bonjour {parent},\n\nVotre enfant {eleve} etait absent(e) aujourd'hui.\n\nMerci de nous contacter.\n\n{ecole}" },
-  { id:'note', ic:'📊', name:'Note faible', desc:'Alerte < 10', msg:"Bonjour {parent},\n\n{eleve} a obtenu une note insuffisante en {matiere}.\n\nNous recommandons un soutien scolaire.\n\n{ecole}" },
-  { id:'paiement', ic:'💰', name:'Paiement', desc:'Rappel retard', msg:"Bonjour {parent},\n\nLes frais de scolarite de {eleve} ({montant} MAD) sont en attente.\n\nMerci de regulariser.\n\n{ecole}" },
-  { id:'bulletin', ic:'📋', name:'Bulletin', desc:'Disponible', msg:"Bonjour {parent},\n\nLe bulletin de {eleve} est disponible sur LuxEdu.\n\n{ecole}" },
-  { id:'event', ic:'📅', name:'Evenement', desc:'Ecole', msg:"Bonjour {parent},\n\nNous vous informons d'un evenement a l'ecole le {date}.\n\n{ecole}" },
+  { id:'absence', ic:'', name:'Absence', desc:'Non justifiee', msg:"Bonjour {parent},\n\nVotre enfant {eleve} etait absent(e) aujourd'hui.\n\nMerci de nous contacter.\n\n{ecole}" },
+  { id:'note', ic:'', name:'Note faible', desc:'Alerte < 10', msg:"Bonjour {parent},\n\n{eleve} a obtenu une note insuffisante en {matiere}.\n\nNous recommandons un soutien scolaire.\n\n{ecole}" },
+  { id:'paiement', ic:'', name:'Paiement', desc:'Rappel retard', msg:"Bonjour {parent},\n\nLes frais de scolarite de {eleve} ({montant} MAD) sont en attente.\n\nMerci de regulariser.\n\n{ecole}" },
+  { id:'bulletin', ic:'', name:'Bulletin', desc:'Disponible', msg:"Bonjour {parent},\n\nLe bulletin de {eleve} est disponible sur LuxEdu.\n\n{ecole}" },
+  { id:'event', ic:'', name:'Evenement', desc:'Ecole', msg:"Bonjour {parent},\n\nNous vous informons d'un evenement a l'ecole le {date}.\n\n{ecole}" },
   { id:'custom', ic:'✏️', name:'Personnalise', desc:'Texte libre', msg:'' },
 ];
 export default function WhatsApp() {

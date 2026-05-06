@@ -25,7 +25,7 @@ function LoginParent({ onLogin }) {
     <div style={{ minHeight:'100vh', background:'#f1f4f9', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ background:'white', borderRadius:16, padding:32, width:'100%', maxWidth:400, boxShadow:'0 4px 24px rgba(0,0,0,0.08)' }}>
         <div style={{ textAlign:'center', marginBottom:28 }}>
-          <div style={{ width:56, height:56, background:'#1e2d4f', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', fontSize:24 }}>🎓</div>
+          <div style={{ width:56, height:56, background:'#1e2d4f', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', fontSize:24 }}></div>
           <h1 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:6 }}>Portail Parents</h1>
           <p style={{ fontSize:13, color:'#6b7280' }}>Suivez la scolarite de votre enfant</p>
         </div>
@@ -80,17 +80,17 @@ export default function ParentPortal() {
   const paidPay = data?.payments?.filter(p => p.status === 'PAID') || [];
 
   const TABS = [
-    { id:'accueil', lbl:'Accueil', icon:'🏠' },
-    { id:'notes', lbl:'Notes', icon:'📊' },
-    { id:'presences', lbl:'Presences', icon:'✅' },
-    { id:'paiements', lbl:'Paiements', icon:'💰' },
+    { id:'accueil', lbl:'Accueil', icon:'' },
+    { id:'notes', lbl:'Notes', icon:'' },
+    { id:'presences', lbl:'Presences', icon:'' },
+    { id:'paiements', lbl:'Paiements', icon:'' },
   ];
 
   return (
     <div style={{ minHeight:'100vh', background:'#f1f4f9', fontFamily:"'Inter',sans-serif" }}>
       <div style={{ background:'#1e2d4f', padding:'16px 20px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div>
-          <div style={{ fontSize:16, fontWeight:700, color:'white' }}>🎓 LuxEdu — Portail Parents</div>
+          <div style={{ fontSize:16, fontWeight:700, color:'white' }}> LuxEdu — Portail Parents</div>
           <div style={{ fontSize:12, color:'rgba(255,255,255,0.6)', marginTop:2 }}>{data?.school?.name || 'Ecole Excellence'}</div>
         </div>
         <button onClick={logout} style={{ background:'rgba(255,255,255,0.1)', color:'white', border:'none', borderRadius:8, padding:'7px 14px', fontSize:12, cursor:'pointer' }}>Deconnexion</button>
@@ -121,10 +121,10 @@ export default function ParentPortal() {
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
               {[
-                { lbl:'Taux presence', val:tauxPresence+'%', color:'#16a34a', bg:'#f0fdf4', icon:'✅' },
-                { lbl:'Absences', val:absents.length, color:'#dc2626', bg:'#fef2f2', icon:'⚠️' },
-                { lbl:'Paiements dus', val:pendingPay.length, color:'#d97706', bg:'#fffbeb', icon:'💰' },
-                { lbl:'Paiements OK', val:paidPay.length, color:'#2563eb', bg:'#eff6ff', icon:'✓' },
+                { lbl:'Taux presence', val:tauxPresence+'%', color:'#16a34a', bg:'#f0fdf4', icon:'' },
+                { lbl:'Absences', val:absents.length, color:'#dc2626', bg:'#fef2f2', icon:'' },
+                { lbl:'Paiements dus', val:pendingPay.length, color:'#d97706', bg:'#fffbeb', icon:'' },
+                { lbl:'Paiements OK', val:paidPay.length, color:'#2563eb', bg:'#eff6ff', icon:'' },
               ].map((s,i) => (
                 <div key={i} style={{ background:s.bg, borderRadius:12, padding:'14px 16px', border:'1px solid #e5e9f2' }}>
                   <div style={{ fontSize:20, marginBottom:6 }}>{s.icon}</div>
@@ -135,7 +135,7 @@ export default function ParentPortal() {
             </div>
             {pendingPay.length > 0 && (
               <div style={{ background:'#fef2f2', border:'1px solid #fecaca', borderRadius:10, padding:'12px 16px', marginBottom:14 }}>
-                <div style={{ fontSize:13, fontWeight:600, color:'#dc2626', marginBottom:4 }}>⚠️ Paiement en attente</div>
+                <div style={{ fontSize:13, fontWeight:600, color:'#dc2626', marginBottom:4 }}> Paiement en attente</div>
                 {pendingPay.map(p => (
                   <div key={p.id} style={{ fontSize:12, color:'#374151' }}>{p.amount?.toLocaleString('fr-FR')} MAD — {p.month}</div>
                 ))}
@@ -238,7 +238,7 @@ export default function ParentPortal() {
             <div style={{ fontSize:18, fontWeight:700, color:'#111827', marginBottom:16 }}>Situation financiere</div>
             {pendingPay.length > 0 && (
               <div style={{ background:'#fef2f2', border:'1px solid #fecaca', borderRadius:10, padding:'14px 16px', marginBottom:14 }}>
-                <div style={{ fontSize:13, fontWeight:600, color:'#dc2626' }}>⚠️ {pendingPay.length} paiement(s) en attente</div>
+                <div style={{ fontSize:13, fontWeight:600, color:'#dc2626' }}> {pendingPay.length} paiement(s) en attente</div>
                 <div style={{ fontSize:12, color:'#dc2626', marginTop:4 }}>{pendingPay.reduce((a,p)=>a+(p.amount||0),0).toLocaleString('fr-FR')} MAD a regulariser</div>
               </div>
             )}

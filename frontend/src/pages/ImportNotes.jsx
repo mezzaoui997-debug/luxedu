@@ -150,7 +150,7 @@ export default function ImportNotes() {
             onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor='var(--blue)'; e.currentTarget.style.background='var(--bl)'; }}
             onDragLeave={e => { e.currentTarget.style.borderColor='var(--g1)'; e.currentTarget.style.background='transparent'; }}
             onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor='var(--g1)'; e.currentTarget.style.background='transparent'; const f=e.dataTransfer.files[0]; if(f) handleFile({target:{files:[f]}}); }}>
-            <div style={{ fontSize:32, marginBottom:8 }}>📊</div>
+            <div style={{ fontSize:32, marginBottom:8 }}></div>
             <div style={{ fontSize:14, fontWeight:700, color:'var(--navy)', marginBottom:4 }}>Glissez votre fichier Excel ici</div>
             <div style={{ fontSize:12, color:'var(--g2)', marginBottom:14 }}>ou cliquez pour selectionner</div>
             <label className="btn btn-navy" style={{ cursor:'pointer' }}>

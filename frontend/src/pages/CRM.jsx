@@ -144,7 +144,7 @@ export default function CRM({ showT }) {
                       style={{ padding:'4px 8px', border:'1px solid #e5e9f2', borderRadius:6, fontSize:11, cursor:'pointer', outline:'none' }}>
                       {STATUTS.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
-                    <a href={'tel:'+p.phone} style={{ padding:'4px 10px', background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0', borderRadius:6, fontSize:11, textDecoration:'none', fontWeight:600 }}>📞</a>
+                    <a href={'tel:'+p.phone} style={{ padding:'4px 10px', background:'#f0fdf4', color:'#16a34a', border:'1px solid #bbf7d0', borderRadius:6, fontSize:11, textDecoration:'none', fontWeight:600 }}>Tel</a>
                   </div>
                 </td>
               </tr>

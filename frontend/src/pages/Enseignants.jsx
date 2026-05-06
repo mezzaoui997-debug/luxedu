@@ -42,9 +42,9 @@ export default function Enseignants() {
 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:16 }}>
         {[
-          { role:'DIRECTOR', label:'Directeur', ic:'👨‍💼', color:'var(--navy)', bg:'var(--bl)', desc:'Acces complet a tout le systeme' },
-          { role:'TEACHER', label:'Enseignants', ic:'👨‍🏫', color:'var(--blue)', bg:'var(--bl)', desc:'Notes, presences, eleves' },
-          { role:'FONCTIONNAIRE', label:'Fonctionnaires', ic:'📋', color:'var(--purple)', bg:'var(--purpl)', desc:'Inscriptions, paiements, certificats' },
+          { role:'DIRECTOR', label:'Directeur', ic:'', color:'var(--navy)', bg:'var(--bl)', desc:'Acces complet a tout le systeme' },
+          { role:'TEACHER', label:'Enseignants', ic:'', color:'var(--blue)', bg:'var(--bl)', desc:'Notes, presences, eleves' },
+          { role:'FONCTIONNAIRE', label:'Fonctionnaires', ic:'', color:'var(--purple)', bg:'var(--purpl)', desc:'Inscriptions, paiements, certificats' },
         ].map(r => (
           <div key={r.role} style={{ background:'white', border:'1px solid var(--g1)', borderRadius:10, padding:16 }}>
             <div style={{ fontSize:24, marginBottom:8 }}>{r.ic}</div>
@@ -105,7 +105,7 @@ export default function Enseignants() {
       <div className="card cp">
         {staff.length === 0 ? (
           <div style={{ padding:32, textAlign:'center', color:'var(--g2)' }}>
-            <div style={{ fontSize:32, marginBottom:8 }}>👥</div>
+            <div style={{ fontSize:32, marginBottom:8 }}></div>
             <div style={{ fontSize:14, fontWeight:700, color:'var(--navy)', marginBottom:4 }}>Aucun membre</div>
             <div style={{ fontSize:13 }}>Ajoutez des enseignants et fonctionnaires</div>
           </div>

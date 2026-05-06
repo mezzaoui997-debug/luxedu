@@ -3,9 +3,9 @@ import api from '../api/axios';
 import useAuthStore from '../store/authStore';
 
 const ROLES = [
-  { id:'DIRECTOR', ic:'🏫', lbl:'Directeur', demo:'directeur@excellence-casa.ma', pass:'luxedu2026' },
-  { id:'TEACHER', ic:'👨‍🏫', lbl:'Enseignant', demo:'prof.maths@excellence-casa.ma', pass:'prof2026' },
-  { id:'FONCTIONNAIRE', ic:'📋', lbl:'Fonctionnaire', demo:'fonctionnaire@excellence-casa.ma', pass:'fonct2026' },
+  { id:'DIRECTOR', lbl:'Directeur', demo:'directeur@excellence-casa.ma', pass:'luxedu2026' },
+  { id:'TEACHER', lbl:'Enseignant', demo:'prof.maths@excellence-casa.ma', pass:'prof2026' },
+  { id:'FONCTIONNAIRE', lbl:'Fonctionnaire', demo:'fonctionnaire@excellence-casa.ma', pass:'fonct2026' },
 ];
 
 const FEATURES = [

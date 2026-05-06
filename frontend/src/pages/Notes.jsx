@@ -99,7 +99,7 @@ export default function Notes() {
 
       <div className="metrics" style={{ gridTemplateColumns:'repeat(4,1fr)' }}>
         <div className="metric">
-          <div className="mic" style={{ background:'var(--bl)' }}>📊</div>
+          <div className="mic" style={{ background:'var(--bl)' }}></div>
           <div className="mlbl">Moyenne classe</div>
           <div className="mval" style={{ color: avg && avg < 10 ? 'var(--red)' : avg >= 14 ? 'var(--green)' : 'var(--navy)' }}>
             {avg || '-'}
@@ -107,7 +107,7 @@ export default function Notes() {
           <div className="msub">{subject}</div>
         </div>
         <div className="metric">
-          <div className="mic" style={{ background:'var(--greenl)' }}>🏆</div>
+          <div className="mic" style={{ background:'var(--greenl)' }}></div>
           <div className="mlbl">Au-dessus de 10</div>
           <div className="mval" style={{ color:'var(--green)' }}>
             {students.filter(s => grades[s.id]?.average >= 10).length}
@@ -123,7 +123,7 @@ export default function Notes() {
           <div className="msub">parents alertes WA</div>
         </div>
         <div className="metric">
-          <div className="mic" style={{ background:'var(--amberl)' }}>📝</div>
+          <div className="mic" style={{ background:'var(--amberl)' }}></div>
           <div className="mlbl">Notes saisies</div>
           <div className="mval">
             {students.filter(s => grades[s.id]?.average != null).length}

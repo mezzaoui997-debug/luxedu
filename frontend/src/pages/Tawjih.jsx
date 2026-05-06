@@ -214,7 +214,7 @@ export default function Tawjih() {
       </div>
 
       <div style={{ background:'linear-gradient(135deg, #042C53 0%, #0C447C 100%)', borderRadius:10, padding:'16px 20px', marginBottom:18, display:'flex', alignItems:'center', gap:16 }}>
-        <span style={{ fontSize:28 }}>🤖</span>
+        <span style={{ fontSize:28 }}></span>
         <div style={{ flex:1 }}>
           <div style={{ fontSize:14, fontWeight:700, color:'white', marginBottom:3 }}>IA — Orientation automatique avec coefficients MEN</div>
           <div style={{ fontSize:12, color:'rgba(255,255,255,0.7)' }}>
@@ -223,12 +223,12 @@ export default function Tawjih() {
         </div>
         <button onClick={exportCSV}
           style={{ background:'#EF9F27', color:'#633806', border:'none', borderRadius:8, padding:'9px 16px', fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0 }}>
-          📥 Export Excel Tawjih
+          Exporter Excel
         </button>
       </div>
 
       <div style={{ display:'flex', gap:8, marginBottom:16 }}>
-        {[['orientation','🎓 Orientation'],['import','📥 Import Excel Notes'],['stats','📊 Statistiques'],['massar','🇲🇦 Export Massar']].map(([id,lbl]) => (
+        {[['orientation','Orientation'],['import',' Import Excel Notes'],['stats',' Statistiques'],['massar','🇲🇦 Export Massar']].map(([id,lbl]) => (
           <button key={id} onClick={() => setTab(id)} className="btn btn-sm"
             style={{ background:tab===id?'var(--navy)':'white', color:tab===id?'white':'var(--g3)', border:'1px solid '+(tab===id?'var(--navy)':'var(--g1)') }}>
             {lbl}
@@ -338,7 +338,7 @@ export default function Tawjih() {
             </div>
 
             <div style={{ border:'2px dashed var(--g1)', borderRadius:10, padding:24, textAlign:'center', marginBottom:14 }}>
-              <div style={{ fontSize:28, marginBottom:8 }}>📊</div>
+              <div style={{ fontSize:28, marginBottom:8 }}></div>
               <div style={{ fontSize:13, fontWeight:700, color:'#042C53', marginBottom:8 }}>
                 {importFile ? importFile.name : 'Glissez votre fichier Excel ici'}
               </div>
@@ -462,7 +462,7 @@ export default function Tawjih() {
               </div>
               <button onClick={exportMassar}
                 style={{ background:'#042C53', color:'white', border:'none', borderRadius:8, padding:'10px 20px', fontSize:12, fontWeight:700, cursor:'pointer', width:'100%' }}>
-                📥 Exporter format Massar
+                 Exporter format Massar
               </button>
             </div>
 

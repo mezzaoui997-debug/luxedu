@@ -7,7 +7,7 @@ export default function Arabic() {
     <div className="page-enter" dir={ar?'rtl':'ltr'}>
       <div className="ph"><h1>{ar?'واجهة عربية — دعم RTL':'Support Arabe — الواجهة العربية'}</h1><p>{ar?'نظام إدارة مدرسي متكامل':'Interface bilingue FR/AR avec support complet RTL'}</p></div>
       <div style={{ background:'var(--navy)',borderRadius:10,padding:20,marginBottom:16 }}>
-        <div style={{ fontSize:14,fontWeight:700,color:'white',marginBottom:14 }}>🌐 {ar?'تفعيل اللغة العربية':'Activez la langue arabe'}</div>
+        <div style={{ fontSize:14,fontWeight:700,color:'white',marginBottom:14 }}> {ar?'تفعيل اللغة العربية':'Activez la langue arabe'}</div>
         <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',background:'rgba(255,255,255,0.08)',borderRadius:10,padding:'14px 16px',marginBottom:14 }}>
           <div><div style={{ fontSize:13,fontWeight:700,color:'white' }}>{ar?'الواجهة العربية (RTL)':'Interface arabe (RTL)'}</div><div style={{ fontSize:12,color:'rgba(255,255,255,0.5)',marginTop:2 }}>Bascule tout le systeme en arabe</div></div>
           <button onClick={()=>setAr(!ar)} style={{ width:46,height:26,borderRadius:13,border:'none',cursor:'pointer',background:ar?'#25D366':'rgba(255,255,255,0.2)',position:'relative',transition:'background .2s' }}>
