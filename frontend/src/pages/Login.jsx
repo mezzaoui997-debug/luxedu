@@ -1,133 +1,177 @@
 import { useState } from 'react';
-import api from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
+import api from '../api/axios';
 
 const ROLES = [
-  { id:'DIRECTOR', lbl:'Directeur', demo:'directeur@excellence-casa.ma', pass:'luxedu2026' },
-  { id:'TEACHER', lbl:'Enseignant', demo:'prof.maths@excellence-casa.ma', pass:'prof2026' },
-  { id:'FONCTIONNAIRE', lbl:'Fonctionnaire', demo:'fonctionnaire@excellence-casa.ma', pass:'fonct2026' },
+  { id: 'DIRECTOR',      label: 'Directeur',    demo: 'director@school.ma'      },
+  { id: 'TEACHER',       label: 'Enseignant',   demo: 'teacher@school.ma'       },
+  { id: 'FONCTIONNAIRE', label: 'Fonctionnaire',demo: 'fonctionnaire@school.ma' },
 ];
 
 const FEATURES = [
-  { tag:'WhatsApp', txt:'Seul logiciel avec WhatsApp natif integre' },
-  { tag:'PDF MEN', txt:'Bulletins conformes au Ministere Education' },
-  { tag:'IA', txt:'Alertes automatiques eleves a risque' },
-  { tag:'Massar', txt:'Export direct format Massar MEN' },
+  { tag: 'WhatsApp',  text: 'Communication automatisée avec les parents' },
+  { tag: 'Massar',    text: 'Export direct format Ministère Education' },
+  { tag: 'Analytics', text: 'Tableaux de bord en temps réel' },
+  { tag: 'Mobile',    text: 'Application Android disponible' },
 ];
 
 export default function Login() {
-  const [role, setRole] = useState('DIRECTOR');
-  const [email, setEmail] = useState('');
+  const [role, setRole]         = useState('DIRECTOR');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const login = useAuthStore(s => s.login);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
+  const navigate                = useNavigate();
+  const { setAuth }             = useAuthStore();
 
-  const handleSubmit = async (e) => {
+  const doLogin = async (em, pw, ro) => {
+    setLoading(true); setError('');
+    try {
+      const r = await api.post('/auth/login', { email: em, password: pw, role: ro });
+      setAuth(r.data.token, r.data.user, r.data.school);
+      navigate('/app');
+    } catch {
+      setError('Identifiants incorrects. Vérifiez votre email et mot de passe.');
+    } finally { setLoading(false); }
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const res = await api.post('/auth/login', { email, password });
-      login(res.data.token, res.data.user, res.data.school);
-      window.location.href = '/';
-    } catch {
-      setError('Email ou mot de passe incorrect');
-    } finally { setLoading(false); }
+    if (!email || !password) { setError('Veuillez remplir tous les champs.'); return; }
+    doLogin(email, password, role);
   };
 
-  const handleDemo = async () => {
-    const r = ROLES.find(r => r.id === role);
-    setLoading(true);
-    setError('');
-    try {
-      const res = await api.post('/auth/login', { email: r.demo, password: r.pass });
-      login(res.data.token, res.data.user, res.data.school);
-      window.location.href = '/';
-    } catch {
-      setEmail(r.demo);
-      setPassword(r.pass);
-      setError('Utilisez : ' + r.demo + ' / ' + r.pass);
-    } finally { setLoading(false); }
+  const handleDemo = () => {
+    const selected = ROLES.find(r => r.id === role);
+    setEmail(selected.demo);
+    setPassword('password123');
+    doLogin(selected.demo, 'password123', role);
   };
+
+  const inputFocus = (e) => { e.target.style.borderColor = '#1B2C5E'; };
+  const inputBlur  = (e) => { e.target.style.borderColor = '#E5E9F2'; };
 
   return (
-    <div style={{ display:'flex', height:'100vh', fontFamily:'-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif' }}>
-      <div style={{ flex:1, background:'#042C53', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:48 }}>
-        <div style={{ maxWidth:360, width:'100%' }}>
-          <div style={{ marginBottom:40 }}>
-            <div style={{ fontSize:42, fontWeight:700, color:'white', letterSpacing:'-1px', lineHeight:1 }}>
-              Lux<span style={{ fontWeight:200, color:'#EF9F27' }}>Edu</span>
-            </div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', letterSpacing:'0.15em', marginTop:8, textTransform:'uppercase' }}>
-              Plateforme de gestion scolaire — Maroc
-            </div>
-          </div>
+    <div style={{ display:'flex', minHeight:'100vh', fontFamily:"'Inter',-apple-system,BlinkMacSystemFont,sans-serif" }}>
 
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {FEATURES.map((f, i) => (
-              <div key={i} style={{ display:'flex', alignItems:'center', gap:14 }}>
-                <div style={{ width:48, height:26, borderRadius:5, background:'rgba(239,159,39,0.15)', border:'1px solid rgba(239,159,39,0.3)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <span style={{ fontSize:10, fontWeight:700, color:'#EF9F27', letterSpacing:'0.05em' }}>{f.tag}</span>
-                </div>
-                <div style={{ fontSize:13, color:'rgba(255,255,255,0.6)', lineHeight:1.4 }}>{f.txt}</div>
+      {/* ── LEFT PANEL ── */}
+      <div style={{ width:'44%', background:'#1B2C5E', display:'flex', flexDirection:'column', padding:'52px 60px', position:'relative', overflow:'hidden' }}>
+        {/* Decorative circles */}
+        <div style={{ position:'absolute', top:-120, right:-120, width:360, height:360, borderRadius:'50%', background:'rgba(255,255,255,0.03)', pointerEvents:'none' }} />
+        <div style={{ position:'absolute', bottom:-80, left:-80, width:240, height:240, borderRadius:'50%', background:'rgba(201,168,76,0.06)', pointerEvents:'none' }} />
+
+        {/* Logo */}
+        <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:72 }}>
+          <img src="/luxedu-logo.png" alt="LuxEdu" style={{ width:48, height:48, objectFit:'contain', filter:'brightness(0) invert(1)', opacity:0.9 }} />
+          <div>
+            <div style={{ fontFamily:"'Georgia',serif", fontSize:22, fontWeight:700, color:'#fff', letterSpacing:'-0.3px', lineHeight:1 }}>LuxEdu</div>
+            <div style={{ fontSize:9, fontWeight:600, letterSpacing:'0.14em', color:'rgba(255,255,255,0.4)', marginTop:4 }}>PLATEFORME DE GESTION SCOLAIRE</div>
+          </div>
+        </div>
+
+        {/* Headline */}
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:34, fontWeight:700, color:'#fff', lineHeight:1.2, letterSpacing:'-0.8px', marginBottom:20 }}>
+            Le logiciel de gestion<br />
+            scolaire conçu pour<br />
+            <span style={{ color:'#C9A84C' }}>les écoles du Maroc.</span>
+          </div>
+          <p style={{ fontSize:15, color:'rgba(255,255,255,0.5)', lineHeight:1.75, fontWeight:400, marginBottom:44, maxWidth:340 }}>
+            Présences, paiements, notes et communication parents — centralisés dans une seule plateforme professionnelle.
+          </p>
+          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+            {FEATURES.map(f => (
+              <div key={f.tag} style={{ display:'flex', alignItems:'center', gap:14 }}>
+                <span style={{ fontSize:10, fontWeight:700, letterSpacing:'0.08em', color:'#1B2C5E', background:'#C9A84C', padding:'3px 10px', borderRadius:4, flexShrink:0, minWidth:70, textAlign:'center' }}>{f.tag}</span>
+                <span style={{ fontSize:13, color:'rgba(255,255,255,0.65)', fontWeight:400 }}>{f.text}</span>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Footer */}
+        <div style={{ paddingTop:32, borderTop:'1px solid rgba(255,255,255,0.08)', marginTop:32 }}>
+          <span style={{ fontSize:11, color:'rgba(255,255,255,0.28)', letterSpacing:'0.03em' }}>LuxEdu · Plateforme SaaS · Maroc · 2026</span>
+        </div>
       </div>
 
-      <div style={{ width:460, background:'white', display:'flex', flexDirection:'column', justifyContent:'center', padding:'48px 44px', overflowY:'auto' }}>
-        <div style={{ marginBottom:28 }}>
-          <div style={{ fontSize:20, fontWeight:700, color:'#042C53', marginBottom:4 }}>Bienvenue sur LuxEdu</div>
-          <div style={{ fontSize:13, color:'#888780' }}>Choisissez votre espace et connectez-vous</div>
-        </div>
+      {/* ── RIGHT PANEL ── */}
+      <div style={{ flex:1, background:'#F7F9FC', display:'flex', alignItems:'center', justifyContent:'center', padding:'48px 40px' }}>
+        <div style={{ width:'100%', maxWidth:400 }}>
 
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, marginBottom:24 }}>
-          {ROLES.map(r => (
-            <div key={r.id} onClick={() => { setRole(r.id); setEmail(''); setPassword(''); setError(''); }}
-              style={{ border:'2px solid '+(role===r.id?'#042C53':'#E8E6E0'), borderRadius:10, padding:'12px 8px', textAlign:'center', cursor:'pointer',
-                background:role===r.id?'#F0F4F9':'white', transition:'all .15s' }}>
-              <div style={{ fontSize:22, marginBottom:5 }}>{r.ic}</div>
-              <div style={{ fontSize:12, fontWeight:700, color:role===r.id?'#042C53':'#888780' }}>{r.lbl}</div>
+          {/* Card */}
+          <div style={{ background:'#fff', borderRadius:16, padding:'40px 36px', boxShadow:'0 4px 32px rgba(0,0,0,0.08)', border:'1px solid #E5E9F2' }}>
+
+            <div style={{ marginBottom:28 }}>
+              <div style={{ fontSize:24, fontWeight:700, color:'#111827', letterSpacing:'-0.5px', marginBottom:6 }}>Connexion</div>
+              <div style={{ fontSize:14, color:'#6B7280', fontWeight:400 }}>Sélectionnez votre espace de travail</div>
             </div>
-          ))}
-        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom:13 }}>
-            <label style={{ display:'block', fontSize:10, fontWeight:700, color:'#888780', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              placeholder={ROLES.find(r => r.id===role)?.demo}
-              style={{ width:'100%', padding:'11px 13px', border:'1.5px solid #E8E6E0', borderRadius:8, fontSize:14, outline:'none', boxSizing:'border-box' }}
-              onFocus={e => e.target.style.borderColor='#042C53'}
-              onBlur={e => e.target.style.borderColor='#E8E6E0'} />
-          </div>
-          <div style={{ marginBottom:20 }}>
-            <label style={{ display:'block', fontSize:10, fontWeight:700, color:'#888780', marginBottom:5, textTransform:'uppercase', letterSpacing:'0.06em' }}>Mot de passe</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-              placeholder="••••••••"
-              style={{ width:'100%', padding:'11px 13px', border:'1.5px solid #E8E6E0', borderRadius:8, fontSize:14, outline:'none', boxSizing:'border-box' }}
-              onFocus={e => e.target.style.borderColor='#042C53'}
-              onBlur={e => e.target.style.borderColor='#E8E6E0'} />
-          </div>
-          {error && (
-            <div style={{ background:'#FEF2F2', color:'#A32D2D', padding:'9px 13px', borderRadius:8, fontSize:12, marginBottom:14, border:'1px solid #FECACA' }}>
-              {error}
+            {/* Role tabs */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:6, marginBottom:24, background:'#F3F4F6', borderRadius:10, padding:4 }}>
+              {ROLES.map(r => (
+                <button key={r.id} onClick={() => setRole(r.id)} style={{
+                  padding:'9px 4px', border:'none', borderRadius:8, fontSize:13, fontWeight:role===r.id?700:500,
+                  cursor:'pointer', fontFamily:'inherit', transition:'all .15s',
+                  background: role===r.id ? '#fff' : 'transparent',
+                  color: role===r.id ? '#1B2C5E' : '#6B7280',
+                  boxShadow: role===r.id ? '0 1px 6px rgba(0,0,0,0.1)' : 'none',
+                }}>
+                  {r.label}
+                </button>
+              ))}
             </div>
-          )}
-          <button type="submit" disabled={loading}
-            style={{ width:'100%', background:'#042C53', color:'white', border:'none', borderRadius:8, padding:13, fontSize:14, fontWeight:700, cursor:'pointer', marginBottom:10 }}>
-            {loading ? 'Connexion...' : 'Acceder a mon espace'}
-          </button>
-          <button type="button" onClick={handleDemo} disabled={loading}
-            style={{ width:'100%', background:'#F5F5F3', color:'#888780', border:'1px solid #E8E6E0', borderRadius:8, padding:11, fontSize:13, fontWeight:600, cursor:'pointer' }}>
-            Acces demonstration
-          </button>
-        </form>
 
-        <div style={{ marginTop:24, paddingTop:20, borderTop:'1px solid #E8E6E0', textAlign:'center' }}>
-          <div style={{ fontSize:11, color:'#C8C5BE' }}>LuxEdu · Plateforme SaaS · Maroc</div>
+            {/* Fields */}
+            <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:16 }}>
+              <div>
+                <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#374151', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:6 }}>Adresse e-mail</label>
+                <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+                  onFocus={inputFocus} onBlur={inputBlur}
+                  placeholder="votre@email.ma"
+                  style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #E5E9F2', borderRadius:8, fontSize:14, color:'#111827', background:'#FAFBFC', outline:'none', fontFamily:'inherit', boxSizing:'border-box', transition:'border-color .15s' }}
+                />
+              </div>
+              <div>
+                <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#374151', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:6 }}>Mot de passe</label>
+                <input type="password" value={password} onChange={e=>setPassword(e.target.value)}
+                  onFocus={inputFocus} onBlur={inputBlur}
+                  placeholder="••••••••"
+                  style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #E5E9F2', borderRadius:8, fontSize:14, color:'#111827', background:'#FAFBFC', outline:'none', fontFamily:'inherit', boxSizing:'border-box', transition:'border-color .15s' }}
+                />
+              </div>
+
+              {error && (
+                <div style={{ background:'#FEF2F2', border:'1px solid #FECACA', borderRadius:8, padding:'10px 14px', fontSize:13, color:'#DC2626', lineHeight:1.5 }}>
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" disabled={loading} style={{ width:'100%', padding:'13px', background: loading ? '#6B7280' : '#1B2C5E', color:'#fff', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor: loading ? 'default' : 'pointer', letterSpacing:'0.02em', fontFamily:'inherit', marginTop:4, transition:'background .2s' }}>
+                {loading ? 'Connexion en cours...' : 'Accéder à mon espace'}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div style={{ display:'flex', alignItems:'center', gap:12, margin:'20px 0' }}>
+              <div style={{ flex:1, height:1, background:'#E5E9F2' }} />
+              <span style={{ fontSize:12, color:'#9CA3AF' }}>ou</span>
+              <div style={{ flex:1, height:1, background:'#E5E9F2' }} />
+            </div>
+
+            <button onClick={handleDemo} disabled={loading} style={{ width:'100%', padding:'12px', background:'transparent', color:'#6B7280', border:'1.5px solid #E5E9F2', borderRadius:8, fontSize:14, fontWeight:500, cursor:'pointer', fontFamily:'inherit', transition:'all .15s' }}
+              onMouseEnter={e=>{ e.target.style.borderColor='#1B2C5E'; e.target.style.color='#1B2C5E'; }}
+              onMouseLeave={e=>{ e.target.style.borderColor='#E5E9F2'; e.target.style.color='#6B7280'; }}>
+              Accès démonstration
+            </button>
+          </div>
+
+          {/* Footer */}
+          <div style={{ marginTop:20, textAlign:'center', fontSize:12, color:'#9CA3AF', lineHeight:1.6 }}>
+            Une question ?{' '}
+            <a href="mailto:contact@luxedu.ma" style={{ color:'#1B2C5E', textDecoration:'none', fontWeight:600 }}>contact@luxedu.ma</a>
+          </div>
         </div>
       </div>
     </div>
