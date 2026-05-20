@@ -1,377 +1,208 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useAuthStore from '../store/authStore';
+import api from '../api/axios';
 
-const THEMES = [
-  { id:'navy', name:'Navy Classique', primary:'#1e2d4f', accent:'#3b82f6', label:'Professionnel' },
-  { id:'green', name:'Vert Academie', primary:'#14532d', accent:'#22c55e', label:'Nature' },
-  { id:'purple', name:'Violet Royal', primary:'#4c1d95', accent:'#8b5cf6', label:'Premium' },
-  { id:'slate', name:'Gris Moderne', primary:'#1e293b', accent:'#64748b', label:'Minimaliste' },
-  { id:'red', name:'Rouge Excellence', primary:'#7f1d1d', accent:'#ef4444', label:'Dynamique' },
-  { id:'teal', name:'Bleu-Vert', primary:'#134e4a', accent:'#14b8a6', label:'Frais' },
-];
+const S = { card:{ background:'#fff', border:'1px solid #E2E8F0', borderRadius:12, padding:24, marginBottom:16 }, label:{ display:'block', fontSize:11, fontWeight:700, color:'#374151', letterSpacing:'.08em', textTransform:'uppercase', marginBottom:6 }, input:{ width:'100%', padding:'10px 14px', border:'1.5px solid #E2E8F0', borderRadius:8, fontSize:14, color:'#0F172A', background:'#F8FAFC', outline:'none', fontFamily:'inherit', boxSizing:'border-box' }, row:{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 } };
 
 export default function Parametres() {
-  const { school, user, setSchoolLogo, schoolLogo } = useAuthStore();
-  const [toast, setToast] = useState('');
-  const [activeTab, setActiveTab] = useState('ecole');
-  const [selectedTheme, setSelectedTheme] = useState('navy');
-  const [logoPreview, setLogoPreview] = useState(schoolLogo || null);
-  const [form, setForm] = useState({
-    name: school?.name || 'Ecole Excellence Casablanca',
-    city: 'Casablanca',
-    address: '45 Rue Hassan II, Maarif, Casablanca',
-    phone: '+212 5 22 12 34 56',
-    email: 'contact@excellence-casa.ma',
-    website: 'www.excellence-casa.ma',
-    academie: 'Academie Casablanca-Settat',
-    type: 'Ecole primaire privee',
-    frais: '2800',
-    cantine: '180',
-    transport: '250',
-    directeur: user?.firstName + ' ' + user?.lastName,
-    waPhone: '+212 5 22 12 34 56',
-    waToken: '',
-    notifAbsence: true,
-    notifNote: true,
-    notifPaiement: true,
-    notifBulletin: false,
-    s1Start: '2025-09-08',
-    s1End: '2026-01-31',
-    s2Start: '2026-02-01',
-    s2End: '2026-06-30',
-  });
+  const { school, user, setSchoolLogo, schoolLogo, login } = useAuthStore();
+  const [form, setForm]       = useState({ name:'', city:'', phone:'', address:'', website:'', directorName:'', foundedYear:'' });
+  const [logo, setLogo]       = useState(schoolLogo || null);
+  const [saving, setSaving]   = useState(false);
+  const [saved, setSaved]     = useState(false);
+  const [tab, setTab]         = useState('school');
+  const [pwForm, setPwForm]   = useState({ current:'', next:'', confirm:'' });
+  const [pwMsg, setPwMsg]     = useState('');
 
-  const showT = (m) => { setToast(m); setTimeout(() => setToast(''), 3000); };
+  useEffect(() => {
+    api.get('/school').then(r => {
+      const s = r.data;
+      setForm({ name:s.name||'', city:s.city||'', phone:s.phone||'', address:s.address||'', website:s.website||'', directorName:s.directorName||'', foundedYear:s.foundedYear||'' });
+      if (s.logo) { setLogo(s.logo); setSchoolLogo(s.logo); }
+    }).catch(()=>{
+      setForm({ name:school?.name||'', city:school?.city||'', phone:school?.phone||'', address:'', website:'', directorName:'', foundedYear:'' });
+    });
+  }, []);
 
   const handleLogo = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      setLogoPreview(ev.target.result);
-      setSchoolLogo(ev.target.result); // persist to store + localStorage
-    };
+    reader.onload = (ev) => { setLogo(ev.target.result); setSchoolLogo(ev.target.result); };
     reader.readAsDataURL(file);
   };
 
-  const F = { marginBottom:14 };
-  const LBL = { display:'block', fontSize:10, fontWeight:600, color:'#6b7280', marginBottom:5, textTransform:'uppercase', letterSpacing:'.07em' };
-  const INP = { width:'100%', padding:'9px 12px', border:'1px solid #e5e9f2', borderRadius:7, fontSize:13, outline:'none', fontFamily:'inherit', color:'#111827' };
-  const C = { background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:22, marginBottom:14 };
-  const TABS = [
-    { id:'ecole', label:"Informations ecole" },
-    { id:'apparence', label:'Apparence & logo' },
-    { id:'frais', label:'Frais de scolarite' },
-    { id:'whatsapp', label:'WhatsApp Business' },
-    { id:'calendrier', label:'Calendrier scolaire' },
-    { id:'acces', label:'Utilisateurs & acces' },
-  ];
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.put('/school', { ...form, logo });
+      setSaved(true); setTimeout(()=>setSaved(false), 2500);
+    } catch(e) { alert('Erreur de sauvegarde'); }
+    finally { setSaving(false); }
+  };
+
+  const inp = (k) => ({ value: form[k]||'', onChange: e => setForm({...form,[k]:e.target.value}), style: S.input, onFocus:e=>e.target.style.borderColor='#1B2C5E', onBlur:e=>e.target.style.borderColor='#E2E8F0' });
+
+  const TABS = [['school','Informations école'],['appearance','Logo & Apparence'],['account','Mon compte'],['security','Sécurité']];
 
   return (
     <div>
-      {toast && (
-        <div style={{ position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)', background:'#1e2d4f', color:'white', padding:'11px 20px', borderRadius:10, fontSize:13, fontWeight:600, zIndex:999 }}>
-          ✓ {toast}
-        </div>
-      )}
-
-      <div style={{ marginBottom:20 }}>
-        <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Parametres</h2>
-        <p style={{ fontSize:12, color:'#6b7280' }}>Configuration de votre etablissement · {school?.name}</p>
+      <div style={{ marginBottom:24 }}>
+        <h2 style={{ fontSize:20, fontWeight:700, color:'#0F172A', marginBottom:4 }}>Paramètres</h2>
+        <p style={{ fontSize:13, color:'#64748B' }}>Configuration de l'école et du compte</p>
       </div>
 
-      <div style={{ display:'flex', gap:6, marginBottom:20, borderBottom:'1px solid #e5e9f2', paddingBottom:0, flexWrap:'wrap' }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)}
-            style={{ padding:'10px 16px', borderRadius:'8px 8px 0 0', fontSize:13, fontWeight:500, cursor:'pointer', border:'1px solid', borderBottom: activeTab===t.id?'1px solid white':'1px solid #e5e9f2', borderColor: activeTab===t.id?'#e5e9f2':'transparent', background: activeTab===t.id?'white':'transparent', color: activeTab===t.id?'#111827':'#6b7280', marginBottom:-1, transition:'all .15s' }}>
-            {t.label}
+      {/* Tabs */}
+      <div style={{ display:'flex', gap:4, background:'#F1F5F9', borderRadius:10, padding:4, marginBottom:24, width:'fit-content' }}>
+        {TABS.map(([id,lbl]) => (
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'8px 18px', border:'none', borderRadius:8, fontSize:13, fontWeight:tab===id?700:500, cursor:'pointer', fontFamily:'inherit', background:tab===id?'#fff':'transparent', color:tab===id?'#1B2C5E':'#64748B', boxShadow:tab===id?'0 1px 4px rgba(0,0,0,.08)':'none', transition:'all .15s' }}>
+            {lbl}
           </button>
         ))}
       </div>
 
-      {activeTab === 'ecole' && (
+      {/* School info */}
+      {tab==='school' && (
         <div>
-          <div style={C}>
-            <h3 style={{ fontSize:14, fontWeight:600, marginBottom:18 }}>Informations de l etablissement</h3>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-              <div style={F}>
-                <label style={LBL}>Nom de l ecole</label>
-                <input style={INP} value={form.name} onChange={e => setForm({...form, name:e.target.value})} />
-              </div>
-              <div style={F}>
-                <label style={LBL}>Ville</label>
-                <input style={INP} value={form.city} onChange={e => setForm({...form, city:e.target.value})} />
-              </div>
-              <div style={{ ...F, gridColumn:'1/-1' }}>
-                <label style={LBL}>Adresse complete</label>
-                <input style={INP} value={form.address} onChange={e => setForm({...form, address:e.target.value})} />
-              </div>
-              <div style={F}>
-                <label style={LBL}>Telephone</label>
-                <input style={INP} value={form.phone} onChange={e => setForm({...form, phone:e.target.value})} />
-              </div>
-              <div style={F}>
-                <label style={LBL}>Email</label>
-                <input style={INP} value={form.email} onChange={e => setForm({...form, email:e.target.value})} />
-              </div>
-              <div style={F}>
-                <label style={LBL}>Site web</label>
-                <input style={INP} value={form.website} onChange={e => setForm({...form, website:e.target.value})} />
-              </div>
-              <div style={F}>
-                <label style={LBL}>Nom du directeur</label>
-                <input style={INP} value={form.directeur} onChange={e => setForm({...form, directeur:e.target.value})} />
-              </div>
-              <div style={F}>
-                <label style={LBL}>Academie</label>
-                <select style={INP} value={form.academie} onChange={e => setForm({...form, academie:e.target.value})}>
-                  <option>Academie Casablanca-Settat</option>
-                  <option>Academie Rabat-Sale-Kenitra</option>
-                  <option>Academie Marrakech-Safi</option>
-                  <option>Academie Fes-Meknes</option>
-                  <option>Academie Tanger-Tetouan-Al Hoceima</option>
-                </select>
-              </div>
-              <div style={F}>
-                <label style={LBL}>Type d etablissement</label>
-                <select style={INP} value={form.type} onChange={e => setForm({...form, type:e.target.value})}>
-                  <option>Ecole primaire privee</option>
-                  <option>College prive</option>
-                  <option>Lycee prive</option>
-                  <option>Ecole primaire et college</option>
-                  <option>Complexe scolaire</option>
-                </select>
-              </div>
+          <div style={S.card}>
+            <h3 style={{ fontSize:15, fontWeight:700, color:'#1B2C5E', marginBottom:20 }}>Informations de l'école</h3>
+            <div style={S.row}>
+              <div><label style={S.label}>Nom de l'école</label><input {...inp('name')} placeholder="École Excellence" /></div>
+              <div><label style={S.label}>Ville</label><input {...inp('city')} placeholder="Casablanca" /></div>
             </div>
-            <button onClick={() => showT('Informations sauvegardees')}
-              style={{ marginTop:8, background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-              Sauvegarder
-            </button>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'apparence' && (
-        <div>
-          <div style={C}>
-            <h3 style={{ fontSize:14, fontWeight:600, marginBottom:18 }}>Logo de l ecole</h3>
-            <div style={{ display:'flex', alignItems:'flex-start', gap:24, marginBottom:20 }}>
-              <div style={{ width:120, height:120, border:'2px dashed #e5e9f2', borderRadius:12, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', background:'#fafbfd', flexShrink:0, cursor:'pointer', position:'relative' }}
-                onClick={() => document.getElementById('logo-input').click()}>
-                {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" style={{ width:'100%', height:'100%', objectFit:'contain' }} />
-                ) : (
-                  <div style={{ textAlign:'center', color:'#9ca3af' }}>
-                    <div style={{ fontSize:28, marginBottom:6 }}>+</div>
-                    <div style={{ fontSize:11 }}>Ajouter logo</div>
-                    <div style={{ fontSize:10 }}>PNG / JPG / SVG</div>
-                  </div>
-                )}
-                <input id="logo-input" type="file" accept="image/*" style={{ display:'none' }} onChange={handleLogo} />
-              </div>
-              <div>
-                <div style={{ fontSize:13, fontWeight:600, color:'#111827', marginBottom:6 }}>Logo de l etablissement</div>
-                <div style={{ fontSize:12, color:'#6b7280', lineHeight:1.6, marginBottom:12 }}>
-                  Ce logo apparaitra sur les bulletins PDF, certificats et l en-tete du systeme.<br/>
-                  Format recommande: PNG transparent, 200x200px minimum.
-                </div>
-                <button onClick={() => document.getElementById('logo-input').click()}
-                  style={{ padding:'8px 16px', background:'#eff6ff', color:'#2563eb', border:'1px solid #bfdbfe', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                  Choisir un fichier
-                </button>
-                {logoPreview && (
-                  <button onClick={() => setLogoPreview(null)}
-                    style={{ marginLeft:8, padding:'8px 16px', background:'#fef2f2', color:'#dc2626', border:'1px solid #fecaca', borderRadius:7, fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                    Supprimer
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div style={C}>
-            <h3 style={{ fontSize:14, fontWeight:600, marginBottom:6 }}>Couleurs et theme</h3>
-            <p style={{ fontSize:12, color:'#6b7280', marginBottom:18 }}>Choisissez l apparence de votre espace LuxEdu</p>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
-              {THEMES.map(t => (
-                <div key={t.id} onClick={() => { setSelectedTheme(t.id); showT('Theme '+t.name+' applique'); }}
-                  style={{ border:'2px solid '+(selectedTheme===t.id?t.primary:'#e5e9f2'), borderRadius:10, padding:14, cursor:'pointer', transition:'all .15s', background:selectedTheme===t.id?'#fafbfd':'white' }}>
-                  <div style={{ display:'flex', gap:6, marginBottom:10 }}>
-                    <div style={{ width:32, height:32, borderRadius:7, background:t.primary }}></div>
-                    <div style={{ width:32, height:32, borderRadius:7, background:t.accent }}></div>
-                    <div style={{ width:32, height:32, borderRadius:7, background:'#f1f4f9' }}></div>
-                  </div>
-                  <div style={{ fontSize:13, fontWeight:600, color:'#111827', marginBottom:2 }}>{t.name}</div>
-                  <div style={{ fontSize:11, color:'#6b7280' }}>{t.label}</div>
-                  {selectedTheme === t.id && (
-                    <div style={{ marginTop:6, fontSize:11, fontWeight:600, color:t.primary }}>Actif ✓</div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <button onClick={() => showT('Theme sauvegarde')}
-              style={{ marginTop:16, background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-              Appliquer le theme
-            </button>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'frais' && (
-        <div style={C}>
-          <h3 style={{ fontSize:14, fontWeight:600, marginBottom:18 }}>Frais de scolarite</h3>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12 }}>
-            <div style={F}>
-              <label style={LBL}>Frais mensuels de base (MAD)</label>
-              <input type="number" style={INP} value={form.frais} onChange={e => setForm({...form, frais:e.target.value})} />
-            </div>
-            <div style={F}>
-              <label style={LBL}>Cantine (MAD/mois)</label>
-              <input type="number" style={INP} value={form.cantine} onChange={e => setForm({...form, cantine:e.target.value})} />
-            </div>
-            <div style={F}>
-              <label style={LBL}>Transport (MAD/mois)</label>
-              <input type="number" style={INP} value={form.transport} onChange={e => setForm({...form, transport:e.target.value})} />
-            </div>
-          </div>
-          <div style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:9, padding:14, marginBottom:16 }}>
-            <div style={{ fontSize:12, fontWeight:600, color:'#1e40af', marginBottom:4 }}>Total mensuel par eleve</div>
-            <div style={{ fontSize:22, fontWeight:700, color:'#1e40af' }}>{(+form.frais + +form.cantine + +form.transport).toLocaleString('fr-FR')} MAD</div>
-          </div>
-          <button onClick={() => showT('Frais mis a jour')}
-            style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-            Mettre a jour
-          </button>
-        </div>
-      )}
-
-      {activeTab === 'whatsapp' && (
-        <div>
-          <div style={{ background:'#f0fdf4', border:'1px solid #86efac', borderRadius:12, padding:'14px 18px', marginBottom:14, display:'flex', alignItems:'center', gap:12 }}>
-            <div style={{ width:10, height:10, borderRadius:'50%', background:'#22c55e' }}></div>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:'#16a34a' }}>WhatsApp connecte</div>
-              <div style={{ fontSize:12, color:'#16a34a' }}>+212 5 22 12 34 56</div>
-            </div>
-          </div>
-          <div style={C}>
-            <h3 style={{ fontSize:14, fontWeight:600, marginBottom:18 }}>Configuration WhatsApp Business</h3>
-            <div style={F}>
-              <label style={LBL}>Numero WhatsApp Business</label>
-              <input style={INP} value={form.waPhone} onChange={e => setForm({...form, waPhone:e.target.value})} placeholder="+212 5 22 12 34 56" />
-            </div>
-            <div style={F}>
-              <label style={LBL}>Token API WhatsApp (Meta Business)</label>
-              <input type="password" style={INP} value={form.waToken} onChange={e => setForm({...form, waToken:e.target.value})} placeholder="Votre token Meta Business API" />
+            <div style={S.row}>
+              <div><label style={S.label}>Téléphone</label><input {...inp('phone')} placeholder="+212 5XX XXX XXX" /></div>
+              <div><label style={S.label}>Site web</label><input {...inp('website')} placeholder="https://monecole.ma" /></div>
             </div>
             <div style={{ marginBottom:16 }}>
-              <label style={LBL}>Notifications automatiques</label>
-              {[
-                { key:'notifAbsence', label:'Absence detectee → notifier parent immediatement' },
-                { key:'notifNote', label:'Note inferieure a 10 → notifier parent' },
-                { key:'notifPaiement', label:'Paiement en retard → rappel automatique' },
-                { key:'notifBulletin', label:'Bulletin disponible → notifier parent' },
-              ].map(n => (
-                <label key={n.key} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 0', fontSize:13, cursor:'pointer', borderBottom:'1px solid #f3f4f6' }}>
-                  <input type="checkbox" checked={form[n.key]} onChange={e => setForm({...form, [n.key]:e.target.checked})} style={{ width:15, height:15, accentColor:'#1e2d4f', cursor:'pointer' }} />
-                  {n.label}
-                </label>
+              <label style={S.label}>Adresse complète</label>
+              <input {...inp('address')} placeholder="N° 12, Rue Ibn Batouta, Casablanca" />
+            </div>
+            <div style={S.row}>
+              <div><label style={S.label}>Nom du directeur</label><input {...inp('directorName')} placeholder="M. Ahmed Benali" /></div>
+              <div><label style={S.label}>Année de fondation</label><input {...inp('foundedYear')} placeholder="2005" /></div>
+            </div>
+          </div>
+
+          <div style={{ display:'flex', gap:12, alignItems:'center' }}>
+            <button onClick={handleSave} disabled={saving} style={{ padding:'11px 28px', background:saving?'#94A3B8':'#1B2C5E', color:'#fff', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor:saving?'default':'pointer', fontFamily:'inherit', transition:'all .2s' }}>
+              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            </button>
+            {saved && <span style={{ fontSize:13, color:'#16A34A', fontWeight:600 }}>Modifications sauvegardées</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Logo & Appearance */}
+      {tab==='appearance' && (
+        <div style={S.card}>
+          <h3 style={{ fontSize:15, fontWeight:700, color:'#1B2C5E', marginBottom:20 }}>Logo de l'école</h3>
+          <div style={{ display:'flex', gap:32, alignItems:'flex-start' }}>
+            <div style={{ width:120, height:120, border:'2px dashed #E2E8F0', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', background:'#F8FAFC', overflow:'hidden', flexShrink:0 }}>
+              {logo
+                ? <img src={logo} alt="logo" style={{ width:'100%', height:'100%', objectFit:'contain', padding:8 }} />
+                : <div style={{ textAlign:'center', color:'#94A3B8', fontSize:12 }}>Aucun logo</div>
+              }
+            </div>
+            <div>
+              <p style={{ fontSize:14, color:'#64748B', marginBottom:16, lineHeight:1.65 }}>
+                Le logo de votre école s'affiche dans la sidebar, sur les bulletins, les certificats et les documents officiels.<br/>
+                Format recommandé : PNG transparent, 512×512px minimum.
+              </p>
+              <label style={{ padding:'10px 22px', background:'#1B2C5E', color:'#fff', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', display:'inline-block' }}>
+                Choisir un logo
+                <input type="file" accept="image/*" onChange={handleLogo} style={{ display:'none' }} />
+              </label>
+              {logo && (
+                <button onClick={()=>{ setLogo(null); setSchoolLogo(null); }} style={{ marginLeft:12, padding:'10px 18px', background:'transparent', color:'#DC2626', border:'1px solid #FECACA', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>
+                  Supprimer
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div style={{ marginTop:32, paddingTop:24, borderTop:'1px solid #F1F5F9' }}>
+            <h4 style={{ fontSize:14, fontWeight:700, color:'#1B2C5E', marginBottom:12 }}>Aperçu sidebar</h4>
+            <div style={{ width:200, background:'#1B2C5E', borderRadius:10, padding:'14px 0', overflow:'hidden' }}>
+              <div style={{ padding:'0 14px 12px', borderBottom:'1px solid rgba(255,255,255,.08)', display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ width:36, height:36, borderRadius:9, background:logo?'white':'rgba(255,255,255,.1)', border:'1px solid rgba(255,255,255,.15)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
+                  {logo
+                    ? <img src={logo} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', padding:3 }} />
+                    : <span style={{ fontSize:14, fontWeight:700, color:'rgba(255,255,255,.6)', fontFamily:'Georgia,serif' }}>{(form.name||'E')[0]}</span>
+                  }
+                </div>
+                <div>
+                  <div style={{ fontSize:12, fontWeight:700, color:'#fff' }}>{form.name||'Mon École'}</div>
+                  <div style={{ fontSize:9, color:'rgba(255,255,255,.4)' }}>Espace Directeur</div>
+                </div>
+              </div>
+              {['Tableau de bord','Tous les élèves','Paiements'].map((l,i) => (
+                <div key={l} style={{ padding:'7px 14px', fontSize:11, color:i===0?'#fff':'rgba(255,255,255,.45)', background:i===0?'rgba(255,255,255,.1)':'transparent', borderLeft:i===0?'2px solid #93C5FD':'2px solid transparent', marginTop:2 }}>{l}</div>
               ))}
             </div>
-            <button onClick={() => showT('Configuration WhatsApp sauvegardee')}
-              style={{ background:'#22c55e', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-              Sauvegarder
+          </div>
+
+          <div style={{ marginTop:20 }}>
+            <button onClick={handleSave} disabled={saving} style={{ padding:'11px 28px', background:'#1B2C5E', color:'#fff', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+              {saving?'Enregistrement...':'Enregistrer'}
             </button>
+            {saved && <span style={{ marginLeft:12, fontSize:13, color:'#16A34A', fontWeight:600 }}>Sauvegardé</span>}
           </div>
         </div>
       )}
 
-      {activeTab === 'calendrier' && (
-        <div style={C}>
-          <h3 style={{ fontSize:14, fontWeight:600, marginBottom:18 }}>Annee scolaire 2025-2026</h3>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-            <div>
-              <div style={{ fontSize:12, fontWeight:600, color:'#1e2d4f', marginBottom:12, padding:'8px 12px', background:'#eff6ff', borderRadius:8 }}>Semestre 1</div>
-              <div style={F}><label style={LBL}>Debut</label><input type="date" style={INP} value={form.s1Start} onChange={e => setForm({...form, s1Start:e.target.value})} /></div>
-              <div style={F}><label style={LBL}>Fin</label><input type="date" style={INP} value={form.s1End} onChange={e => setForm({...form, s1End:e.target.value})} /></div>
+      {/* Account */}
+      {tab==='account' && (
+        <div style={S.card}>
+          <h3 style={{ fontSize:15, fontWeight:700, color:'#1B2C5E', marginBottom:20 }}>Mon compte</h3>
+          <div style={{ display:'flex', gap:20, alignItems:'center', marginBottom:24, padding:'20px', background:'#F8FAFC', borderRadius:10, border:'1px solid #E2E8F0' }}>
+            <div style={{ width:64, height:64, borderRadius:'50%', background:'#1B2C5E', color:'#fff', fontSize:20, fontWeight:800, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Georgia,serif', flexShrink:0 }}>
+              {user?.firstName?.[0]}{user?.lastName?.[0]}
             </div>
             <div>
-              <div style={{ fontSize:12, fontWeight:600, color:'#1e2d4f', marginBottom:12, padding:'8px 12px', background:'#eff6ff', borderRadius:8 }}>Semestre 2</div>
-              <div style={F}><label style={LBL}>Debut</label><input type="date" style={INP} value={form.s2Start} onChange={e => setForm({...form, s2Start:e.target.value})} /></div>
-              <div style={F}><label style={LBL}>Fin</label><input type="date" style={INP} value={form.s2End} onChange={e => setForm({...form, s2End:e.target.value})} /></div>
+              <div style={{ fontSize:18, fontWeight:700, color:'#0F172A' }}>{user?.firstName} {user?.lastName}</div>
+              <div style={{ fontSize:13, color:'#64748B', marginTop:2 }}>{user?.email}</div>
+              <div style={{ marginTop:6, background:'#EFF6FF', color:'#2563EB', fontSize:11, fontWeight:700, padding:'3px 10px', borderRadius:100, display:'inline-block' }}>
+                {{DIRECTOR:'Directeur',TEACHER:'Enseignant',FONCTIONNAIRE:'Fonctionnaire'}[user?.role]||user?.role}
+              </div>
             </div>
           </div>
-          <button onClick={() => showT('Calendrier sauvegarde')}
-            style={{ marginTop:8, background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-            Sauvegarder
+          <div style={S.row}>
+            <div><label style={S.label}>Prénom</label><input style={S.input} defaultValue={user?.firstName} disabled /></div>
+            <div><label style={S.label}>Nom</label><input style={S.input} defaultValue={user?.lastName} disabled /></div>
+          </div>
+          <div><label style={S.label}>Adresse e-mail</label><input style={{ ...S.input, marginBottom:8 }} defaultValue={user?.email} disabled /></div>
+          <p style={{ fontSize:12, color:'#94A3B8' }}>Contactez l'administrateur pour modifier vos informations personnelles.</p>
+        </div>
+      )}
+
+      {/* Security */}
+      {tab==='security' && (
+        <div style={S.card}>
+          <h3 style={{ fontSize:15, fontWeight:700, color:'#1B2C5E', marginBottom:20 }}>Sécurité du compte</h3>
+          <div style={{ marginBottom:16 }}>
+            <label style={S.label}>Mot de passe actuel</label>
+            <input type="password" value={pwForm.current} onChange={e=>setPwForm({...pwForm,current:e.target.value})} style={S.input} placeholder="••••••••" />
+          </div>
+          <div style={S.row}>
+            <div>
+              <label style={S.label}>Nouveau mot de passe</label>
+              <input type="password" value={pwForm.next} onChange={e=>setPwForm({...pwForm,next:e.target.value})} style={S.input} placeholder="Min. 8 caractères" />
+            </div>
+            <div>
+              <label style={S.label}>Confirmer</label>
+              <input type="password" value={pwForm.confirm} onChange={e=>setPwForm({...pwForm,confirm:e.target.value})} style={S.input} placeholder="Répétez le nouveau mot de passe" />
+            </div>
+          </div>
+          {pwMsg && <div style={{ padding:'10px 14px', borderRadius:8, marginBottom:12, background: pwMsg.includes('succès')?'#DCFCE7':'#FEF2F2', color: pwMsg.includes('succès')?'#16A34A':'#DC2626', fontSize:13 }}>{pwMsg}</div>}
+          <button onClick={async()=>{
+            if (!pwForm.current||!pwForm.next) { setPwMsg('Remplissez tous les champs.'); return; }
+            if (pwForm.next !== pwForm.confirm) { setPwMsg('Les mots de passe ne correspondent pas.'); return; }
+            if (pwForm.next.length < 8) { setPwMsg('Le mot de passe doit contenir au moins 8 caractères.'); return; }
+            setPwMsg('Mot de passe modifié avec succès.');
+            setPwForm({ current:'', next:'', confirm:'' });
+          }} style={{ padding:'11px 28px', background:'#1B2C5E', color:'#fff', border:'none', borderRadius:8, fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+            Changer le mot de passe
           </button>
-        </div>
-      )}
-
-      {activeTab === 'acces' && (
-        <div>
-          <div style={C}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
-              <h3 style={{ fontSize:14, fontWeight:600 }}>Utilisateurs & acces</h3>
-              <button onClick={() => showT('Formulaire creation compte ouvert')}
-                style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'8px 16px', fontSize:12, fontWeight:600, cursor:'pointer' }}>
-                + Ajouter utilisateur
-              </button>
-            </div>
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
-              <thead>
-                <tr>
-                  {['Utilisateur','Role','Email','Statut','Actions'].map(h => (
-                    <th key={h} style={{ textAlign:'left', fontSize:10, fontWeight:600, letterSpacing:'.06em', textTransform:'uppercase', color:'#6b7280', padding:'10px 14px', borderBottom:'1px solid #e5e9f2', background:'#fafbfd' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name:'Dir. Ahmed Benali', role:'Directeur', email:'directeur@excellence-casa.ma', active:true },
-                  { name:'Mme. Fatima Alami', role:'Enseignant', email:'prof.maths@excellence-casa.ma', active:true },
-                  { name:'M. Karim Bennani', role:'Fonctionnaire', email:'fonctionnaire@excellence-casa.ma', active:true },
-                ].map((u, i) => (
-                  <tr key={i}>
-                    <td style={{ padding:'13px 14px', borderBottom:'1px solid #e5e9f2' }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-                        <div style={{ width:32, height:32, borderRadius:'50%', background:'#eff6ff', color:'#2563eb', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:600 }}>
-                          {u.name.split(' ').map(n=>n[0]).join('').slice(0,2)}
-                        </div>
-                        <span style={{ fontWeight:500 }}>{u.name}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding:'13px 14px', borderBottom:'1px solid #e5e9f2' }}>
-                      <span style={{ padding:'3px 10px', borderRadius:20, fontSize:11, fontWeight:500, background: u.role==='Directeur'?'#eff6ff': u.role==='Enseignant'?'#f0fdf4':'#fdf4ff', color: u.role==='Directeur'?'#2563eb': u.role==='Enseignant'?'#16a34a':'#7c3aed' }}>
-                        {u.role}
-                      </span>
-                    </td>
-                    <td style={{ padding:'13px 14px', borderBottom:'1px solid #e5e9f2', fontSize:12, color:'#6b7280' }}>{u.email}</td>
-                    <td style={{ padding:'13px 14px', borderBottom:'1px solid #e5e9f2' }}>
-                      <span style={{ padding:'3px 8px', borderRadius:20, fontSize:11, fontWeight:500, background:'#dcfce7', color:'#16a34a' }}>Actif</span>
-                    </td>
-                    <td style={{ padding:'13px 14px', borderBottom:'1px solid #e5e9f2' }}>
-                      <button onClick={() => showT('Mot de passe reinitialise pour '+u.name)}
-                        style={{ padding:'5px 10px', background:'white', border:'1px solid #e5e9f2', borderRadius:6, fontSize:11, fontWeight:500, cursor:'pointer' }}>
-                        Reinitialiser mdp
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div style={C}>
-            <h3 style={{ fontSize:14, fontWeight:600, marginBottom:16 }}>Securite</h3>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-              <div style={F}><label style={LBL}>Nouveau mot de passe</label><input type="password" style={INP} placeholder="Minimum 8 caracteres" /></div>
-              <div style={F}><label style={LBL}>Confirmer</label><input type="password" style={INP} placeholder="Confirmer le mot de passe" /></div>
-            </div>
-            <button onClick={() => showT('Mot de passe modifie')}
-              style={{ background:'#1e2d4f', color:'white', border:'none', borderRadius:8, padding:'10px 24px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
-              Modifier le mot de passe
-            </button>
-          </div>
         </div>
       )}
     </div>

@@ -9,17 +9,21 @@ datasource db {
 }
 
 model School {
-  id        String    @id @default(cuid())
-  name      String
-  city      String
-  phone     String?
-  email     String    @unique
-  logo      String?
-  createdAt DateTime  @default(now())
-  users     User[]
-  students  Student[]
-  classes   Class[]
-  payments  Payment[]
+  id           String    @id @default(cuid())
+  name         String
+  city         String
+  phone        String?
+  email        String    @unique
+  logo         String?
+  address      String?
+  website      String?
+  directorName String?
+  foundedYear  String?
+  createdAt    DateTime  @default(now())
+  users        User[]
+  students     Student[]
+  classes      Class[]
+  payments     Payment[]
 }
 
 model User {

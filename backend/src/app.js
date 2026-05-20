@@ -17,4 +17,6 @@ app.use('/api/certificat', require('./routes/certificat'));
 app.use('/api/parent', require('./routes/parent'));
 app.use('/api/homework', require('./routes/homework'));
 app.use('/api/prospects', require('./routes/prospects'));
+app.use('/api/school', require('./routes/school'));
+app.use('/api/notifications', require('./routes/notifications'));
 module.exports = app;

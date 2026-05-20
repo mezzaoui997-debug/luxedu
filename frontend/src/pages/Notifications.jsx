@@ -1,108 +1,116 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../api/axios';
 
-const ALL_NOTIFS = [
-  { id:1, type:'risk', title:'Eleve a risque — Note insuffisante', desc:'Youssef Benjelloun (4eme A) a une moyenne en baisse depuis 3 mois. Intervention pedagogique recommandee.', time:'Il y a 5 min', unread:true, priority:'high', action:'Voir le dossier' },
-  { id:2, type:'absence', title:'3 absences non justifiees aujourd hui', desc:'Youssef Benjelloun, Sara Moukhtari, Karim Alaoui sont absents. Parents non encore notifies.', time:'Il y a 20 min', unread:true, priority:'high', action:'Notifier parents WA' },
-  { id:3, type:'payment', title:'Paiement en retard — Famille Benjelloun', desc:'2 800 MAD dus depuis le 1er avril 2026. 12 jours de retard. Aucun rappel envoye aujourd hui.', time:'Il y a 2h', unread:true, priority:'medium', action:'Envoyer rappel WA' },
-  { id:4, type:'payment', title:'Paiement recu — Famille El Idrissi', desc:'2 920 MAD recus par virement bancaire. Recu genere et envoye sur WhatsApp.', time:"Aujourd'hui 09:15", unread:false, priority:'low', action:'Voir recu' },
-  { id:5, type:'risk', title:"Taux d'absence eleve — 3eme Bac", desc:"La classe 3eme Bac a un taux d'absence de 19% ce mois. C'est le niveau le plus eleve de l'ecole.", time:'Hier 17:00', unread:false, priority:'medium', action:'Voir la classe' },
-  { id:6, type:'system', title:'12 rappels WhatsApp envoyes automatiquement', desc:"Rappels paiements envoyes a 12 familles ce matin. Taux d'ouverture: 83%.", time:"Aujourd'hui 08:00", unread:false, priority:'low', action:'Voir details' },
-  { id:7, type:'system', title:'47 bulletins S1 telecharges par les parents', desc:'Les parents ont bien recu les bulletins du Semestre 1. Taux de telechargement: 94%.', time:'Hier 08:30', unread:false, priority:'low', action:'Voir rapport' },
-];
-
-const CFG = {
-  risk:    { bg:'#fef2f2', border:'#fecaca', dot:'#ef4444', label:'Risque' },
-  absence: { bg:'#fef2f2', border:'#fecaca', dot:'#ef4444', label:'Absence' },
-  payment: { bg:'#fffbeb', border:'#fde68a', dot:'#f59e0b', label:'Paiement' },
-  system:  { bg:'#eff6ff', border:'#bfdbfe', dot:'#3b82f6', label:'Systeme' },
+const TYPE_STYLE = {
+  payment: { bg:'#FFFBEB', border:'#FDE68A', color:'#D97706', label:'Paiement' },
+  absence: { bg:'#FEF2F2', border:'#FECACA', color:'#DC2626', label:'Absence' },
+  system:  { bg:'#F0FDF4', border:'#BBF7D0', color:'#16A34A', label:'Système' },
+  info:    { bg:'#EFF6FF', border:'#BFDBFE', color:'#2563EB', label:'Info' },
 };
 
-export default function Notifications() {
-  const [filter, setFilter] = useState('all');
-  const [notifs, setNotifs] = useState(ALL_NOTIFS);
-  const [toast, setToast] = useState('');
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60)   return 'À l\'instant';
+  if (diff < 3600) return `Il y a ${Math.floor(diff/60)} min`;
+  if (diff < 86400)return `Il y a ${Math.floor(diff/3600)} h`;
+  return `Il y a ${Math.floor(diff/86400)} j`;
+}
 
-  const showT = (m) => { setToast(m); setTimeout(() => setToast(''), 3000); };
-  const filtered = filter === 'all' ? notifs : notifs.filter(n => n.type === filter);
-  const unread = notifs.filter(n => n.unread).length;
+export default function Notifications() {
+  const [notifs, setNotifs]   = useState([]);
+  const [unread, setUnread]   = useState(0);
+  const [filter, setFilter]   = useState('all');
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    try {
+      const r = await api.get('/notifications');
+      setNotifs(r.data.notifications);
+      setUnread(r.data.unread);
+    } catch { 
+      setNotifs([
+        { id:'1', type:'payment', title:'Paiement en retard', message:'Youssef Benjelloun — 2 800 MAD — Avril 2026', read:false, createdAt: new Date(Date.now()-3600000).toISOString() },
+        { id:'2', type:'absence', title:'Absence signalée', message:'Omar Moussa absent aujourd\'hui — 5ème A', read:false, createdAt: new Date(Date.now()-7200000).toISOString() },
+        { id:'3', type:'system',  title:'Sauvegarde effectuée', message:'Données sauvegardées automatiquement', read:true, createdAt: new Date(Date.now()-86400000).toISOString() },
+        { id:'4', type:'payment', title:'Paiement reçu', message:'Kenza Alami — 2 800 MAD reçus', read:true, createdAt: new Date(Date.now()-172800000).toISOString() },
+      ]);
+      setUnread(2);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const markRead = async (id) => {
+    try { await api.put(`/notifications/${id}/read`); } catch {}
+    setNotifs(prev => prev.map(n => n.id===id ? {...n, read:true} : n));
+    setUnread(prev => Math.max(0, prev-1));
+  };
+
+  const markAllRead = async () => {
+    try { await api.put('/notifications/read-all'); } catch {}
+    setNotifs(prev => prev.map(n => ({...n, read:true})));
+    setUnread(0);
+  };
+
+  const filtered = filter === 'all' ? notifs : filter === 'unread' ? notifs.filter(n=>!n.read) : notifs.filter(n=>n.type===filter);
+  const C = { card:{ background:'#fff', border:'1px solid #E2E8F0', borderRadius:12, padding:24, marginBottom:16 } };
 
   return (
     <div>
-      {toast && (
-        <div style={{ position:'fixed', bottom:24, left:'50%', transform:'translateX(-50%)', background:'#1e2d4f', color:'white', padding:'11px 20px', borderRadius:10, fontSize:13, fontWeight:600, zIndex:999, whiteSpace:'nowrap' }}>
-          ✓ {toast}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
+        <div>
+          <h2 style={{ fontSize:20, fontWeight:700, color:'#0F172A', marginBottom:4 }}>
+            Notifications
+            {unread > 0 && <span style={{ marginLeft:10, background:'#EF4444', color:'#fff', fontSize:12, fontWeight:700, padding:'2px 8px', borderRadius:100 }}>{unread}</span>}
+          </h2>
+          <p style={{ fontSize:13, color:'#64748B' }}>{notifs.length} notifications · {unread} non lues</p>
         </div>
-      )}
-
-      <div style={{ marginBottom:20 }}>
-        <h2 style={{ fontSize:22, fontWeight:700, color:'#111827', marginBottom:3 }}>Notifications</h2>
-        <p style={{ fontSize:12, color:'#6b7280' }}>{unread} nouvelles alertes · Derniere mise a jour: maintenant</p>
+        {unread > 0 && (
+          <button onClick={markAllRead} style={{ padding:'9px 20px', background:'transparent', border:'1.5px solid #E2E8F0', borderRadius:8, fontSize:13, fontWeight:600, color:'#1B2C5E', cursor:'pointer', fontFamily:'inherit' }}>
+            Tout marquer comme lu
+          </button>
+        )}
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:20 }}>
-        {[
-          { label:'Non lues', value:unread, color:'#dc2626' },
-          { label:'Risque eleves', value:notifs.filter(n=>n.type==='risk').length, color:'#dc2626' },
-          { label:'Paiements', value:notifs.filter(n=>n.type==='payment').length, color:'#d97706' },
-          { label:'Absences', value:notifs.filter(n=>n.type==='absence').length, color:'#2563eb' },
-        ].map((s,i) => (
-          <div key={i} style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:'16px 20px' }}>
-            <div style={{ fontSize:10, fontWeight:600, letterSpacing:'.07em', textTransform:'uppercase', color:'#6b7280', marginBottom:10 }}>{s.label}</div>
-            <div style={{ fontSize:32, fontWeight:700, color:s.color }}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ display:'flex', gap:8, marginBottom:14, flexWrap:'wrap', alignItems:'center' }}>
-        {[['all','Tout ('+notifs.length+')'],['risk','Risque'],['payment','Paiements'],['absence','Absences'],['system','Systeme']].map(([f,l]) => (
-          <button key={f} onClick={() => setFilter(f)}
-            style={{ padding:'6px 14px', borderRadius:20, fontSize:12, fontWeight:500, cursor:'pointer', border:'1px solid '+(filter===f?'#1e2d4f':'#e5e9f2'), background:filter===f?'#1e2d4f':'white', color:filter===f?'white':'#6b7280' }}>
+      {/* Filter tabs */}
+      <div style={{ display:'flex', gap:4, background:'#F1F5F9', borderRadius:10, padding:4, marginBottom:20, width:'fit-content' }}>
+        {[['all','Toutes'],['unread','Non lues'],['payment','Paiements'],['absence','Absences'],['system','Système']].map(([k,l]) => (
+          <button key={k} onClick={()=>setFilter(k)} style={{ padding:'7px 16px', border:'none', borderRadius:8, fontSize:13, fontWeight:filter===k?700:500, cursor:'pointer', fontFamily:'inherit', background:filter===k?'#fff':'transparent', color:filter===k?'#1B2C5E':'#64748B', boxShadow:filter===k?'0 1px 4px rgba(0,0,0,.08)':'none', transition:'all .15s' }}>
             {l}
           </button>
         ))}
-        <button onClick={() => { setNotifs(p => p.map(n => ({...n,unread:false}))); showT('Toutes marquees comme lues'); }}
-          style={{ marginLeft:'auto', padding:'6px 14px', borderRadius:20, fontSize:12, fontWeight:500, cursor:'pointer', border:'1px solid #e5e9f2', background:'white', color:'#6b7280' }}>
-          Tout marquer comme lu
-        </button>
-        <button onClick={() => showT('Actions WhatsApp envoyees pour toutes les alertes urgentes')}
-          style={{ padding:'6px 14px', borderRadius:20, fontSize:12, fontWeight:600, cursor:'pointer', border:'none', background:'#22c55e', color:'white' }}>
-          Traiter toutes les alertes WA
-        </button>
       </div>
 
-      <div style={{ background:'white', border:'1px solid #e5e9f2', borderRadius:12, overflow:'hidden' }}>
-        {filtered.map((n, idx) => {
-          const cfg = CFG[n.type] || CFG.system;
-          return (
-            <div key={n.id} onClick={() => setNotifs(p => p.map(x => x.id===n.id?{...x,unread:false}:x))}
-              style={{ display:'flex', alignItems:'flex-start', gap:14, padding:'16px 20px', borderBottom: idx < filtered.length-1 ? '1px solid #f3f4f6' : 'none', cursor:'pointer', background:n.unread?'#fafbfd':'white', transition:'background .12s' }}
-              onMouseOver={e => e.currentTarget.style.background='#f9fafb'}
-              onMouseOut={e => e.currentTarget.style.background=n.unread?'#fafbfd':'white'}>
-              <div style={{ width:10, height:10, borderRadius:'50%', background:cfg.dot, marginTop:6, flexShrink:0 }}></div>
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:5, flexWrap:'wrap' }}>
-                  <span style={{ fontSize:13, fontWeight:n.unread?700:500, color:'#111827' }}>{n.title}</span>
-                  <span style={{ fontSize:10, fontWeight:600, padding:'2px 8px', borderRadius:20, background:cfg.bg, color:cfg.dot, border:'1px solid '+cfg.border, flexShrink:0 }}>{cfg.label}</span>
-                  {n.priority === 'high' && (
-                    <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:20, background:'#fee2e2', color:'#dc2626', flexShrink:0 }}>Urgent</span>
-                  )}
+      {loading ? (
+        <div style={{ textAlign:'center', padding:48, color:'#94A3B8' }}>Chargement...</div>
+      ) : filtered.length === 0 ? (
+        <div style={{ ...C.card, textAlign:'center', padding:48 }}>
+          <div style={{ fontSize:14, color:'#94A3B8' }}>Aucune notification</div>
+        </div>
+      ) : (
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {filtered.map(n => {
+            const ts = TYPE_STYLE[n.type] || TYPE_STYLE.info;
+            return (
+              <div key={n.id} onClick={() => !n.read && markRead(n.id)}
+                style={{ background: n.read ? '#fff' : '#FAFBFF', border:`1px solid ${n.read ? '#E2E8F0' : '#BFDBFE'}`, borderRadius:12, padding:'16px 20px', display:'flex', alignItems:'flex-start', gap:14, cursor: n.read ? 'default' : 'pointer', transition:'all .15s' }}>
+                {/* dot */}
+                <div style={{ width:8, height:8, borderRadius:'50%', background: n.read ? '#E2E8F0' : '#2563EB', flexShrink:0, marginTop:5 }} />
+                {/* type badge */}
+                <span style={{ fontSize:10, fontWeight:700, padding:'3px 9px', borderRadius:100, background:ts.bg, color:ts.color, border:`1px solid ${ts.border}`, flexShrink:0, marginTop:1 }}>{ts.label}</span>
+                {/* content */}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:14, fontWeight: n.read ? 500 : 700, color:'#0F172A', marginBottom:3 }}>{n.title}</div>
+                  <div style={{ fontSize:13, color:'#64748B' }}>{n.message}</div>
                 </div>
-                <div style={{ fontSize:12, color:'#6b7280', lineHeight:1.6, marginBottom:8 }}>{n.desc}</div>
-                <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                  <span style={{ fontSize:11, color:'#9ca3af' }}>{n.time}</span>
-                  <button onClick={e => { e.stopPropagation(); showT(n.action+' effectue'); }}
-                    style={{ fontSize:11, fontWeight:600, color:'#2563eb', background:'none', border:'none', cursor:'pointer', padding:0 }}>
-                    {n.action} →
-                  </button>
-                </div>
+                {/* time */}
+                <div style={{ fontSize:12, color:'#94A3B8', flexShrink:0, marginTop:1 }}>{timeAgo(n.createdAt)}</div>
               </div>
-              {n.unread && (
-                <div style={{ width:8, height:8, borderRadius:'50%', background:'#1e2d4f', flexShrink:0, marginTop:6 }}></div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
