@@ -1,3 +1,6 @@
+import RendezVous from './RendezVous';
+import Budget from './Budget';
+import Documents from './Documents';
 import { requestNotificationPermission, notifyAbsence, notifyPaymentDue } from '../utils/notifications';
 import CRM from './CRM';
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -47,6 +50,9 @@ const MENUS = [
   { id:'budget', lbl:'Budget & depenses' },
   { id:'rh', lbl:'RH Enseignants' },
   { id:'messages', lbl:'Messagerie', badge:'2' },
+  { id:'rendezvous', lbl:'Rendez-vous' },
+  { id:'budget', lbl:'Budget & Dépenses' },
+  { id:'documents', lbl:'Documents' },
   { id:'cahier', lbl:'Cahier de texte' },
   { id:'conges', lbl:'Conges & Absences' },
 ];
@@ -2077,6 +2083,15 @@ export default function FonctionnaireDashboard() {
           )}
           {page === 'cahier' && (
             <CahierTexte />
+          )}
+          {page === 'rendezvous' && (
+            <RendezVous />
+          )}
+          {page === 'budget' && (
+            <Budget />
+          )}
+          {page === 'documents' && (
+            <Documents />
           )}
           {page === 'conges' && (
             <div>

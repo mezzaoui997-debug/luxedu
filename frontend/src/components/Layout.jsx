@@ -17,6 +17,9 @@ const NAV = [
   { id: 'classes',     lbl: 'Classes'            },
   { id: 'enseignants', lbl: 'Équipe & Accès'     },
   { id: 'messages',    lbl: 'Messagerie',         badge:'2' },
+  { id: 'rendezvous',  lbl: 'Rendez-vous'         },
+  { id: 'budget',      lbl: 'Budget & Dépenses'   },
+  { id: 'documents',   lbl: 'Documents'           },
   { sec: 'Paramètres' },
   { id: 'parametres',  lbl: 'Paramètres'         },
 ];
@@ -34,6 +37,9 @@ const PAGE_TITLES = {
   parametres:  ['Paramètres',         "Configuration de l'école"],
   messages:    ['Messagerie interne',  'Communication entre équipes'],
   cahier:      ['Cahier de texte',     'Devoirs et leçons'],
+  rendezvous:  ['Rendez-vous parents',  'Entretiens parents-professeurs'],
+  budget:      ['Budget & Dépenses',   'Suivi financier de l\'établissement'],
+  documents:   ['Espace documentaire', 'Partage et archivage des documents'],
   rapports:    ['Rapports',           'Analyses et exports'],
   certificats: ['Certificats',        'Documents officiels'],
 };

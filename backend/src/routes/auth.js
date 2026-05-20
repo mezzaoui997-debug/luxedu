@@ -68,5 +68,11 @@ router.post('/demo-seed', async (req, res) => {
     }
 
     res.json({ ok: true, message: 'Demo accounts ready', school: school.name });
-  } catch (e) { res.status(500).json({ error: e.message }); }
+  } catch (e) {
+    console.error('Demo seed error:', e.message);
+    res.status(500).json({ 
+      error: e.message,
+      hint: 'If ENOTFOUND error: update DATABASE_URL in Railway to use PUBLIC URL (gondola.proxy.rlwy.net)'
+    }); 
+  }
 });
