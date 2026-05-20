@@ -46,6 +46,8 @@ const MENUS = [
   { id:'edt', lbl:'Emploi du temps' },
   { id:'budget', lbl:'Budget & depenses' },
   { id:'rh', lbl:'RH Enseignants' },
+  { id:'messages', lbl:'Messagerie', badge:'2' },
+  { id:'cahier', lbl:'Cahier de texte' },
   { id:'conges', lbl:'Conges & Absences' },
 ];
 
@@ -2070,6 +2072,12 @@ export default function FonctionnaireDashboard() {
             </div>
           )}
 
+          {page === 'messages' && (
+            <Messages />
+          )}
+          {page === 'cahier' && (
+            <CahierTexte />
+          )}
           {page === 'conges' && (
             <div>
               <div style={{ marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between' }}>

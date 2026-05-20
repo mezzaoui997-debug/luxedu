@@ -10,11 +10,13 @@ const NAV = [
   { id: 'bulletins',   lbl: 'Bulletins PDF'      },
   { id: 'certificats', lbl: 'Certificats'        },
   { id: 'presences',   lbl: 'Présences'          },
+  { id: 'cahier',      lbl: 'Cahier de texte'    },
   { sec: 'Finances' },
   { id: 'paiements',   lbl: 'Paiements',          badge: '!' },
   { sec: 'École' },
   { id: 'classes',     lbl: 'Classes'            },
   { id: 'enseignants', lbl: 'Équipe & Accès'     },
+  { id: 'messages',    lbl: 'Messagerie',         badge:'2' },
   { sec: 'Paramètres' },
   { id: 'parametres',  lbl: 'Paramètres'         },
 ];
@@ -30,6 +32,8 @@ const PAGE_TITLES = {
   classes:     ['Classes',            'Organisation pédagogique'],
   enseignants: ['Équipe & Accès',     'Personnel et comptes'],
   parametres:  ['Paramètres',         "Configuration de l'école"],
+  messages:    ['Messagerie interne',  'Communication entre équipes'],
+  cahier:      ['Cahier de texte',     'Devoirs et leçons'],
   rapports:    ['Rapports',           'Analyses et exports'],
   certificats: ['Certificats',        'Documents officiels'],
 };

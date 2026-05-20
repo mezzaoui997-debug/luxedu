@@ -19,4 +19,6 @@ app.use('/api/homework', require('./routes/homework'));
 app.use('/api/prospects', require('./routes/prospects'));
 app.use('/api/school', require('./routes/school'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/messages', require('./routes/messages'));
+app.use('/api/cahier', require('./routes/cahier'));
 module.exports = app;

@@ -18,6 +18,8 @@ import Certificats from './pages/Certificats';
 import Layout from './components/Layout';
 import useAuthStore from './store/authStore';
 import { useState } from 'react';
+import Messages from './pages/Messages';
+import CahierTexte from './pages/CahierTexte';
 import LandingPage from './pages/LandingPage';
 import ParentPortal from './pages/ParentPortal';
 

@@ -190,7 +190,7 @@ export default function LandingPage() {
             <Fade>
               <div style={{ display:'inline-flex', alignItems:'center', gap:8, background:'linear-gradient(135deg,#EFF6FF,#DBEAFE)', border:'1px solid #BFDBFE', borderRadius:100, padding:'6px 18px 6px 8px', fontSize:13, fontWeight:600, color:blue, marginBottom:28 }}>
                 <span style={{ background:blue, color:white, fontSize:10, fontWeight:700, letterSpacing:'.05em', padding:'3px 10px', borderRadius:100 }}>NOUVEAU</span>
-                Application Android disponible
+                Application Android disponible · Essai gratuit 30 jours
               </div>
             </Fade>
             <Fade delay={0.08}>
