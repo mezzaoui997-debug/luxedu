@@ -243,7 +243,7 @@ export default function LandingPage() {
                   <div style={{ display:'flex', gap:5 }}>
                     {['#FF5F57','#FEBC2E','#28C840'].map(c=><div key={c} style={{ width:10, height:10, borderRadius:'50%', background:c }}/>)}
                   </div>
-                  <div style={{ flex:1, background:white, border:`1px solid ${g200}`, borderRadius:5, padding:'4px 12px', fontSize:11, color:g400, fontFamily:'monospace' }}>app.luxedu.ma/dashboard</div>
+                  <div style={{ flex:1, background:white, border:`1px solid ${g200}`, borderRadius:5, padding:'4px 12px', fontSize:11, color:g400, fontFamily:'monospace' }}>app.luxeduschool.com/dashboard</div>
                 </div>
                 {/* app body */}
                 <div style={{ display:'flex', height:320 }}>
@@ -646,7 +646,7 @@ export default function LandingPage() {
               </p>
               <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
                 <Btn label="Demander une démo gratuite" variant="gold" onClick={goLogin} />
-                <Btn label="contact@luxedu.ma" variant="ghost" href="mailto:contact@luxedu.ma" />
+                <Btn label="contact@luxeduschool.com" variant="ghost" href="mailto:contact@luxeduschool.com" />
               </div>
             </div>
             {/* right photo */}

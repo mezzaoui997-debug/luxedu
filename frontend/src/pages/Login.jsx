@@ -139,7 +139,7 @@ export default function Login() {
         {/* Footer */}
         <div style={{ paddingTop: 32, marginTop: 40, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.04em' }}>
-            © 2026 LuxEdu · Plateforme SaaS · Maroc
+            © 2026 LuxEdu · luxeduschool.com · Maroc
           </span>
         </div>
       </div>
@@ -284,8 +284,8 @@ export default function Login() {
 
           <p style={{ marginTop: 24, textAlign: 'center', fontSize: 12, color: '#94A3B8', lineHeight: 1.6 }}>
             Une question ?{' '}
-            <a href="mailto:contact@luxedu.ma" style={{ color: '#1B2C5E', textDecoration: 'none', fontWeight: 600 }}>
-              contact@luxedu.ma
+            <a href="mailto:contact@luxeduschool.com" style={{ color: '#1B2C5E', textDecoration: 'none', fontWeight: 600 }}>
+              contact@luxeduschool.com
             </a>
           </p>
         </div>
