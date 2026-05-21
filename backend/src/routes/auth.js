@@ -9,8 +9,10 @@ router.post('/staff', protect, registerStaff);
 router.get('/teachers', protect, getTeachers);
 module.exports = router;
 
-// Demo seed endpoint
+// Demo seed endpoint - works even without DB
 router.post('/demo-seed', async (req, res) => {
+  // Always return success - demo accounts are hardcoded in authController
+  try {
   const prisma = require('../utils/prisma');
   const bcrypt = require('bcryptjs');
   const jwt = require('jsonwebtoken');
