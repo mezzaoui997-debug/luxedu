@@ -38,6 +38,11 @@ function ComingSoon({ title }) {
 
 function DirectorPages() {
   const [page, setPage] = useState('dashboard');
+  if (page === 'messages')   return <Layout page={page} setPage={setPage}><Messages /></Layout>;
+  if (page === 'rendezvous') return <Layout page={page} setPage={setPage}><RendezVous /></Layout>;
+  if (page === 'budget')     return <Layout page={page} setPage={setPage}><Budget /></Layout>;
+  if (page === 'documents')  return <Layout page={page} setPage={setPage}><Documents /></Layout>;
+  if (page === 'cahier')     return <Layout page={page} setPage={setPage}><CahierTexte /></Layout>;
   const pages = {
     dashboard: <Dashboard setPage={setPage} />,
     eleves: <Eleves />,
