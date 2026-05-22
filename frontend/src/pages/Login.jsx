@@ -25,9 +25,25 @@ export default function Login() {
   const navigate                = useNavigate();
   const { login }               = useAuthStore(); // ← correct method name
 
+  // Hardcoded demo accounts - work WITHOUT backend
+  const DEMO = {
+    'director@school.ma':     { id:'d1', firstName:'Ahmed',  lastName:'Benali', role:'DIRECTOR',      schoolId:'demo' },
+    'teacher@school.ma':      { id:'d2', firstName:'Sara',   lastName:'Alami',  role:'TEACHER',       schoolId:'demo' },
+    'fonctionnaire@school.ma':{ id:'d3', firstName:'Fatima', lastName:'Benali', role:'FONCTIONNAIRE', schoolId:'demo' },
+  };
+  const DEMO_SCHOOL = { id:'demo', name:'École Excellence Arrow', city:'Casablanca' };
+
   const doAuth = async (em, pw) => {
+    // Try demo accounts first - instant, no backend needed
+    if (DEMO[em] && pw === 'password123') {
+      const u = DEMO[em];
+      login('demo-token-' + u.role, { ...u, email: em }, DEMO_SCHOOL);
+      navigate('/app');
+      return;
+    }
+    // Try real backend
     const r = await api.post('/auth/login', { email: em, password: pw });
-    login(r.data.token, r.data.user, r.data.school); // ← correct call
+    login(r.data.token, r.data.user, r.data.school);
     navigate('/app');
   };
 
