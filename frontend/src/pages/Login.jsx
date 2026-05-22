@@ -57,7 +57,6 @@ export default function Login() {
   };
 
   const handleDemo = async () => {
-    console.log('Demo v2 - frontend bypass active');
     setLoading(true); setError('');
     try {
       await api.post('/auth/demo-seed').catch(() => {});
