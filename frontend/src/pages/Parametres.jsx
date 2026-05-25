@@ -56,11 +56,9 @@ export default function Parametres() {
   const handleTheme = (themeId) => {
     setTheme(themeId);
     localStorage.setItem('luxedu-theme', themeId);
-    const t = THEMES.find(t => t.id === themeId);
-    if (t) {
-      document.documentElement.style.setProperty('--sidebar-bg', t.primary);
-      document.documentElement.style.setProperty('--accent', t.accent);
-    }
+    // Dispatch event so Layout updates immediately
+    window.dispatchEvent(new Event('luxedu-theme-change'));
+    window.dispatchEvent(new StorageEvent('storage', { key:'luxedu-theme', newValue:themeId }));
   };
 
   const handleSave = async () => {

@@ -86,6 +86,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomeRoute />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/parent" element={<ParentPortal />} />
         <Route path="/app" element={<RoleRoute />} />

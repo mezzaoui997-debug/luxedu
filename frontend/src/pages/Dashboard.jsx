@@ -97,7 +97,28 @@ export default function Dashboard({ setPage }) {
   const [chartLoaded, setChartLoaded] = useState(false);
 
   useEffect(() => {
-    api.get('/students').then(r => setStudents(r.data)).catch(()=>{});
+    api.get('/students').then(r => {
+      if (r.data && r.data.length > 0) {
+        setStudents(r.data);
+      } else {
+        // Demo fallback
+        setStudents([
+          { id:'d1', firstName:'Youssef', lastName:'Benjelloun', massar:'B903751842', class:{ name:'6ème Excellence' }, payments:[{ status:'PENDING', amount:2800 }] },
+          { id:'d2', firstName:'Omar',    lastName:'Moussa',     massar:'G412252321', class:{ name:'6ème Excellence' }, payments:[{ status:'PAID', amount:2800 }] },
+          { id:'d3', firstName:'Kenza',   lastName:'Alami',      massar:'K234567891', class:{ name:'5ème A' },         payments:[{ status:'PAID', amount:2800 }] },
+          { id:'d4', firstName:'Sara',    lastName:'Ouazzani',   massar:'O345678912', class:{ name:'5ème A' },         payments:[{ status:'PENDING', amount:2800 }] },
+          { id:'d5', firstName:'Mehdi',   lastName:'Tazi',       massar:'T456789123', class:{ name:'4ème A' },         payments:[{ status:'PAID', amount:2800 }] },
+        ]);
+      }
+    }).catch(() => {
+      setStudents([
+        { id:'d1', firstName:'Youssef', lastName:'Benjelloun', massar:'B903751842', class:{ name:'6ème Excellence' }, payments:[{ status:'PENDING', amount:2800 }] },
+        { id:'d2', firstName:'Omar',    lastName:'Moussa',     massar:'G412252321', class:{ name:'6ème Excellence' }, payments:[{ status:'PAID', amount:2800 }] },
+        { id:'d3', firstName:'Kenza',   lastName:'Alami',      massar:'K234567891', class:{ name:'5ème A' },         payments:[{ status:'PAID', amount:2800 }] },
+        { id:'d4', firstName:'Sara',    lastName:'Ouazzani',   massar:'O345678912', class:{ name:'5ème A' },         payments:[{ status:'PENDING', amount:2800 }] },
+        { id:'d5', firstName:'Mehdi',   lastName:'Tazi',       massar:'T456789123', class:{ name:'4ème A' },         payments:[{ status:'PAID', amount:2800 }] },
+      ]);
+    });
     api.get('/payments').then(r => setPayments(r.data)).catch(()=>{});
     api.get('/attendance').then(r => setAttendance(r.data)).catch(()=>{});
     setChartLoaded(true);

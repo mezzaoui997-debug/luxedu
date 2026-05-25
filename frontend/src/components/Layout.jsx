@@ -47,6 +47,20 @@ const PAGE_TITLES = {
   certificats: ['Certificats',        'Documents officiels'],
 };
 
+
+const THEME_MAP = {
+  navy:   { primary:'#1B2C5E', accent:'#93C5FD' },
+  green:  { primary:'#065F46', accent:'#6EE7B7' },
+  purple: { primary:'#4C1D95', accent:'#C4B5FD' },
+  slate:  { primary:'#1E293B', accent:'#94A3B8' },
+  maroon: { primary:'#7F1D1D', accent:'#FCA5A5' },
+  teal:   { primary:'#134E4A', accent:'#5EEAD4' },
+};
+function getTheme() {
+  const t = THEME_MAP[localStorage.getItem('luxedu-theme')] || THEME_MAP.navy;
+  return t;
+}
+
 export default function Layout({ children, page, setPage }) {
   const { user, school, schoolLogo, logout } = useAuthStore();
 
@@ -68,8 +82,8 @@ export default function Layout({ children, page, setPage }) {
     setSidebarAccent(t.accent);
   }, []);
   const [title, subtitle] = PAGE_TITLES[page] || ['LuxEdu', ''];
-  const [sidebarBg, setSidebarBg] = useState(localStorage.getItem('luxedu-theme') === 'green' ? '#065F46' : localStorage.getItem('luxedu-theme') === 'purple' ? '#4C1D95' : localStorage.getItem('luxedu-theme') === 'slate' ? '#1E293B' : localStorage.getItem('luxedu-theme') === 'maroon' ? '#7F1D1D' : localStorage.getItem('luxedu-theme') === 'teal' ? '#134E4A' : '#1B2C5E');
-  const [sidebarAccent, setSidebarAccent] = useState(localStorage.getItem('luxedu-theme') === 'green' ? '#6EE7B7' : localStorage.getItem('luxedu-theme') === 'purple' ? '#C4B5FD' : localStorage.getItem('luxedu-theme') === 'slate' ? '#94A3B8' : localStorage.getItem('luxedu-theme') === 'maroon' ? '#FCA5A5' : localStorage.getItem('luxedu-theme') === 'teal' ? '#5EEAD4' : '#93C5FD');
+  const [sidebarBg, setSidebarBg] = useState(() => getTheme().primary);
+  const [sidebarAccent, setSidebarAccent] = useState(() => getTheme().accent);
   const roleLabel = { DIRECTOR:'Directeur', TEACHER:'Enseignant', FONCTIONNAIRE:'Fonctionnaire' }[user?.role] || 'Utilisateur';
 
   return (

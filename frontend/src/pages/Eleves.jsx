@@ -1,3 +1,11 @@
+const DEMO_STUDENTS = [
+  { id:'d1', firstName:'Youssef', lastName:'Benjelloun', massar:'B903751842', parentPhone:'0661234567', classId:'c1', class:{ name:'6ème Excellence' }, createdAt:'2025-09-01' },
+  { id:'d2', firstName:'Omar',    lastName:'Moussa',     massar:'G412252321', parentPhone:'0672345678', classId:'c1', class:{ name:'6ème Excellence' }, createdAt:'2025-09-01' },
+  { id:'d3', firstName:'Kenza',   lastName:'Alami',      massar:'K234567891', parentPhone:'0683456789', classId:'c2', class:{ name:'5ème A' },         createdAt:'2025-09-01' },
+  { id:'d4', firstName:'Sara',    lastName:'Ouazzani',   massar:'O345678912', parentPhone:'0694567890', classId:'c2', class:{ name:'5ème A' },         createdAt:'2025-09-01' },
+  { id:'d5', firstName:'Mehdi',   lastName:'Tazi',       massar:'T456789123', parentPhone:'0605678901', classId:'c3', class:{ name:'4ème A' },         createdAt:'2025-09-01' },
+];
+
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 
