@@ -55,7 +55,6 @@ const MENUS = [
   { id:'rendezvous', lbl:'Rendez-vous' },
   { id:'budget', lbl:'Budget & Dépenses' },
   { id:'documents', lbl:'Documents' },
-  { id:'cahier', lbl:'Cahier de texte' },
   { id:'conges', lbl:'Conges & Absences' },
 ];
 

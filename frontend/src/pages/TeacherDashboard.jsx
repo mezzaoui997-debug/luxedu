@@ -1,3 +1,4 @@
+import CahierTexte from './CahierTexte';
 import { useEffect, useState, useRef } from 'react';
 import api from '../api/axios';
 import useAuthStore from '../store/authStore';
@@ -294,6 +295,7 @@ export default function TeacherDashboard() {
     { id:'messages', lbl:'Messages', badge:2 },
     { id:'annonces', lbl:'Annonces' },
     { id:'devoirs', lbl:'Devoirs en ligne' },
+    { id:'cahier',  lbl:'Cahier de texte' },
     { sec:'Outils Maroc' },
     { id:'tawjih', lbl:'Tawjih BAC' },
     { id:'massar', lbl:'Saisie Massar' },
@@ -975,6 +977,9 @@ export default function TeacherDashboard() {
             </div>
           )}
 
+          {page === 'cahier' && (
+            <CahierTexte />
+          )}
           {page === 'devoirs' && (
             <div>
               <div style={{ marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
