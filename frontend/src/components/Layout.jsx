@@ -48,18 +48,14 @@ const PAGE_TITLES = {
 };
 
 
-const THEME_MAP = {
-  navy:   { primary:'#1B2C5E', accent:'#93C5FD' },
-  green:  { primary:'#065F46', accent:'#6EE7B7' },
-  purple: { primary:'#4C1D95', accent:'#C4B5FD' },
-  slate:  { primary:'#1E293B', accent:'#94A3B8' },
-  maroon: { primary:'#7F1D1D', accent:'#FCA5A5' },
-  teal:   { primary:'#134E4A', accent:'#5EEAD4' },
+const THEME_COLORS = {
+  navy:   '#1B2C5E', green:'#065F46', purple:'#4C1D95',
+  slate:  '#1E293B', maroon:'#7F1D1D', teal:'#134E4A',
 };
-function getTheme() {
-  const t = THEME_MAP[localStorage.getItem('luxedu-theme')] || THEME_MAP.navy;
-  return t;
-}
+const ACCENT_COLORS = {
+  navy:   '#93C5FD', green:'#6EE7B7', purple:'#C4B5FD',
+  slate:  '#94A3B8', maroon:'#FCA5A5', teal:'#5EEAD4',
+};
 
 export default function Layout({ children, page, setPage }) {
   const { user, school, schoolLogo, logout } = useAuthStore();
@@ -82,8 +78,10 @@ export default function Layout({ children, page, setPage }) {
     setSidebarAccent(t.accent);
   }, []);
   const [title, subtitle] = PAGE_TITLES[page] || ['LuxEdu', ''];
-  const [sidebarBg, setSidebarBg] = useState(() => getTheme().primary);
-  const [sidebarAccent, setSidebarAccent] = useState(() => getTheme().accent);
+  const getActiveBg = () => THEME_COLORS[localStorage.getItem('luxedu-theme')||'navy'] || '#1B2C5E';
+  const getActiveAccent = () => ACCENT_COLORS[localStorage.getItem('luxedu-theme')||'navy'] || '#93C5FD';
+  const [sidebarBg, setSidebarBg] = useState(getActiveBg);
+  const [sidebarAccent, setSidebarAccent] = useState(getActiveAccent);
   const roleLabel = { DIRECTOR:'Directeur', TEACHER:'Enseignant', FONCTIONNAIRE:'Fonctionnaire' }[user?.role] || 'Utilisateur';
 
   return (

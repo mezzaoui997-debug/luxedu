@@ -12,6 +12,15 @@ Chart.register(...registerables);
 import api from '../api/axios';
 import useAuthStore from '../store/authStore';
 
+
+const DEMO_ELEVES = [
+  { id:'d1', firstName:'Youssef', lastName:'Benjelloun', massar:'B903751842', classe:'6ème Excellence', moyenne:16.2, statut:'Bien' },
+  { id:'d2', firstName:'Omar',    lastName:'Moussa',     massar:'G412252321', classe:'6ème Excellence', moyenne:14.8, statut:'Bien' },
+  { id:'d3', firstName:'Kenza',   lastName:'Alami',      massar:'K234567891', classe:'5ème A',          moyenne:12.5, statut:'Passable' },
+  { id:'d4', firstName:'Sara',    lastName:'Ouazzani',   massar:'O345678912', classe:'5ème A',          moyenne:17.1, statut:'Très Bien' },
+  { id:'d5', firstName:'Mehdi',   lastName:'Tazi',       massar:'T456789123', classe:'4ème A',          moyenne:11.2, statut:'Passable' },
+];
+
 const C = { background:'white', border:'1px solid #e5e9f2', borderRadius:12, padding:20 };
 const TH = { textAlign:'left', fontSize:10, fontWeight:600, letterSpacing:'.06em', textTransform:'uppercase', color:'#6b7280', padding:'10px 14px', borderBottom:'1px solid #e5e9f2', background:'#fafbfd' };
 const TD = { padding:'13px 14px', borderBottom:'1px solid #e5e9f2', fontSize:13, verticalAlign:'middle' };
