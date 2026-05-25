@@ -22,6 +22,7 @@ import Messages from './pages/Messages';
 import RendezVous from './pages/RendezVous';
 import Budget from './pages/Budget';
 import Documents from './pages/Documents';
+import CRM from './pages/CRM';
 import CahierTexte from './pages/CahierTexte';
 import LandingPage from './pages/LandingPage';
 import ParentPortal from './pages/ParentPortal';
@@ -42,6 +43,7 @@ function DirectorPages() {
   if (page === 'rendezvous') return <Layout page={page} setPage={setPage}><RendezVous /></Layout>;
   if (page === 'budget')     return <Layout page={page} setPage={setPage}><Budget /></Layout>;
   if (page === 'documents')  return <Layout page={page} setPage={setPage}><Documents /></Layout>;
+  if (page === 'crm')        return <Layout page={page} setPage={setPage}><CRM /></Layout>;
   if (page === 'cahier')     return <Layout page={page} setPage={setPage}><CahierTexte /></Layout>;
   const pages = {
     dashboard: <Dashboard setPage={setPage} />,
