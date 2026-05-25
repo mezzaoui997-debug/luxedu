@@ -1,6 +1,8 @@
 import RendezVous from './RendezVous';
 import Budget from './Budget';
 import Documents from './Documents';
+import Messages from './Messages';
+import CahierTexte from './CahierTexte';
 import { requestNotificationPermission, notifyAbsence, notifyPaymentDue } from '../utils/notifications';
 import CRM from './CRM';
 import { useEffect, useState, useRef, useCallback } from 'react';
