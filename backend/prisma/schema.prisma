@@ -48,8 +48,10 @@ model Student {
   school      School       @relation(fields: [schoolId], references: [id])
   classId     String?
   class       Class?       @relation(fields: [classId], references: [id])
-  parentPhone String?
-  createdAt   DateTime     @default(now())
+  parentPhone     String?
+  studentCode     String?      @unique
+  studentPassword String?
+  createdAt       DateTime     @default(now())
   attendances Attendance[]
   grades      Grade[]
   payments    Payment[]
