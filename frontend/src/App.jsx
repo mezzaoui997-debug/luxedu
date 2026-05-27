@@ -26,6 +26,10 @@ import CRM from './pages/CRM';
 import CahierTexte from './pages/CahierTexte';
 import LandingPage from './pages/LandingPage';
 import ParentPortal from './pages/ParentPortal';
+import StudentPortal from './pages/StudentPortal';
+import StudentPortalDemo from './pages/StudentPortalDemo';
+import MobileApp from './pages/MobileApp';
+import Reclamations from './pages/Reclamations';
 
 function ComingSoon({ title }) {
   return (
@@ -45,6 +49,7 @@ function DirectorPages() {
   if (page === 'documents')  return <Layout page={page} setPage={setPage}><Documents /></Layout>;
   if (page === 'crm')        return <Layout page={page} setPage={setPage}><CRM /></Layout>;
   if (page === 'cahier')     return <Layout page={page} setPage={setPage}><CahierTexte /></Layout>;
+  if (page === 'reclamations') return <Layout page={page} setPage={setPage}><Reclamations /></Layout>;
   const pages = {
     dashboard: <Dashboard setPage={setPage} />,
     eleves: <Eleves />,
@@ -89,6 +94,10 @@ export default function App() {
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/parent" element={<ParentPortal />} />
+        <Route path="/etudiant" element={<StudentPortal />} />
+        <Route path="/etudiant-demo" element={<StudentPortalDemo />} />
+        <Route path="/mobile" element={<MobileApp />} />
+        <Route path="/etudiant/:code" element={<StudentPortal />} />
         <Route path="/app" element={<RoleRoute />} />
         <Route path="/app/*" element={<RoleRoute />} />
         <Route path="/*" element={<RoleRoute />} />

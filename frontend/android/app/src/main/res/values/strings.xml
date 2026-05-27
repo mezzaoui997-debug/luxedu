@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LuxEdu Parents</string>
+    <string name="title_activity_main">LuxEdu Parents</string>
+    <string name="package_name">com.luxedu.parents</string>
+    <string name="custom_url_scheme">com.luxedu.parents</string>
+</resources>

@@ -1,0 +1,17 @@
+{
+  "appId": "com.luxedu.app",
+  "appName": "LuxEdu",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "url": "https://luxeduschool.com/mobile",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#1e2d4f",
+      "showSpinner": false
+    }
+  }
+}
