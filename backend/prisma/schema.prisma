@@ -24,6 +24,7 @@ model School {
   students     Student[]
   classes      Class[]
   payments     Payment[]
+  reclamations   Reclamation[]
 }
 
 model User {
@@ -117,4 +118,18 @@ enum PaymentStatus {
   PENDING
   PAID
   LATE
+}
+
+model Reclamation {
+  id          String   @id @default(cuid())
+  sujet       String
+  message     String
+  statut      String   @default("en_attente")
+  reponse     String?
+  parentPhone String
+  studentId   String?
+  schoolId    String
+  school      School   @relation(fields: [schoolId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
