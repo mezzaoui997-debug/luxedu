@@ -35,3 +35,42 @@ router.get('/student/:id', async (req, res) => {
 });
 
 module.exports = router;
+
+// ── RECLAMATIONS ──────────────────────────────────────────────────────────────
+
+// Get reclamations for parent
+router.get('/reclamations/:studentId', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Non autorise' });
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    if (decoded.studentId !== req.params.studentId) return res.status(403).json({ error: 'Acces refuse' });
+    const reclamations = await prisma.reclamation.findMany({
+      where: { studentId: req.params.studentId },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(reclamations);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Create reclamation
+router.post('/reclamations', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: 'Non autorise' });
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const { sujet, message } = req.body;
+    const reclamation = await prisma.reclamation.create({
+      data: {
+        sujet,
+        message,
+        statut: 'en_attente',
+        studentId: decoded.studentId,
+        schoolId: decoded.schoolId,
+      }
+    });
+    res.status(201).json(reclamation);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});

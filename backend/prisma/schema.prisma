@@ -24,7 +24,7 @@ model School {
   students     Student[]
   classes      Class[]
   payments     Payment[]
-  reclamations   Reclamation[]
+  reclamations Reclamation[]
 }
 
 model User {
@@ -55,6 +55,7 @@ model Student {
   createdAt       DateTime     @default(now())
   attendances Attendance[]
   grades      Grade[]
+  reclamations Reclamation[]
   payments    Payment[]
 }
 
@@ -126,10 +127,11 @@ model Reclamation {
   message     String
   statut      String   @default("en_attente")
   reponse     String?
-  parentPhone String
+  parentPhone String?
   studentId   String?
   schoolId    String
   school      School   @relation(fields: [schoolId], references: [id])
+  student     Student? @relation(fields: [studentId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
