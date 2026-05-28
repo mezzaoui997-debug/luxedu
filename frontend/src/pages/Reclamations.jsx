@@ -21,6 +21,8 @@ const navy = '#1e2d4f';
 
 export default function Reclamations() {
   const [reclamations, setReclamations] = useState(DEMO_RECLAMATIONS);
+
+
   const { token } = useAuthStore();
 
   useEffect(() => {
