@@ -21,4 +21,6 @@ app.use('/api/school', require('./routes/school'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/cahier', require('./routes/cahier'));
+app.use('/api/reclamations', require('./routes/reclamations'));
+
 module.exports = app;
