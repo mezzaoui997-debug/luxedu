@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 const API = import.meta.env.VITE_API_URL || 'https://luxedu-production.up.railway.app';
 
+
 const navy = '#1e2d4f';
 const gold = '#C9963F';
 
@@ -279,7 +280,14 @@ export default function MobileApp() {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
           <img src="/luxedu-logo-white.png" alt="LuxEdu" style={{ height: 120, width: 'auto', filter: 'drop-shadow(0 8px 40px rgba(201,150,63,0.6))' }} onError={e => e.target.style.display = 'none'} />
         </div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', letterSpacing: '.08em', textTransform: 'uppercase', marginTop: 8 }}>Plateforme Scolaire Maroc</div>
+        <div style={{ marginTop: 12 }}>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '.2em', textTransform: 'uppercase' }}>PLATEFORME SCOLAIRE</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8 }}>
+          <div style={{ width: 32, height: 1, background: 'rgba(201,150,63,0.4)' }} />
+          <div style={{ fontSize: 12, color: gold, letterSpacing: '.15em', fontWeight: 600 }}>MAROC</div>
+          <div style={{ width: 32, height: 1, background: 'rgba(201,150,63,0.4)' }} />
+        </div>
+      </div>
       </div>
       <div style={{ flex: 1, padding: '28px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>Selectionnez votre espace</div>
@@ -310,7 +318,7 @@ export default function MobileApp() {
     const color = isS ? navy : '#059669';
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-        <div style={{ background: color, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ background: color, paddingTop: 52, paddingBottom: 14, paddingLeft: 20, paddingRight: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={() => { setScreen('home'); setError(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
           </button>
@@ -349,7 +357,7 @@ export default function MobileApp() {
 
     if (selectedDevoir) return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-        <div style={{ background: navy, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ background: navy, paddingTop: 52, paddingBottom: 14, paddingLeft: 20, paddingRight: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={() => setSelectedDevoir(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7" /></svg></button>
           <span style={{ color: 'white', fontWeight: 600, fontSize: 15 }}>Detail du devoir</span>
         </div>
@@ -379,7 +387,7 @@ export default function MobileApp() {
 
     if (selectedMatiere) return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-        <div style={{ background: navy, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ background: navy, paddingTop: 52, paddingBottom: 14, paddingLeft: 20, paddingRight: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={() => setSelectedMatiere(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7" /></svg></button>
           <span style={{ color: 'white', fontWeight: 600, fontSize: 15 }}>{selectedMatiere.matiere}</span>
         </div>
@@ -414,7 +422,7 @@ export default function MobileApp() {
 
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', paddingBottom: 72 }}>
-        <div style={{ background: navy, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ background: navy, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, paddingTop: 52, paddingBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <img src="/luxedu-logo-white.png" alt="LuxEdu" style={{ height: 32, width: 'auto' }} onError={e => e.target.style.display='none'} />
           </div>
@@ -734,7 +742,7 @@ export default function MobileApp() {
 
     return (
       <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', paddingBottom: 72 }}>
-        <div style={{ background: '#059669', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ background: '#059669', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 50, paddingTop: 52, paddingBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <img src="/luxedu-logo-white.png" alt="LuxEdu" style={{ height: 32, width: 'auto' }} onError={e => e.target.style.display='none'} />
           </div>

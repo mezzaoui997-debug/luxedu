@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import useAuthStore from '../store/authStore';
+
+const API = import.meta.env.VITE_API_URL || 'https://luxedu-production.up.railway.app';
+
 
 const DEMO_RECLAMATIONS = [
   { id: 1, parent: 'M. Rachidi Karim', eleve: 'Youssef Rachidi', sujet: 'Absence injustifiée', message: 'Mon fils était présent le 15 avril, il y a une erreur dans le système.', date: '2026-05-20', statut: 'en_attente', priorite: 'haute', reponse: null },
@@ -17,6 +21,14 @@ const navy = '#1e2d4f';
 
 export default function Reclamations() {
   const [reclamations, setReclamations] = useState(DEMO_RECLAMATIONS);
+  const { token } = useAuthStore();
+
+  useEffect(() => {
+    fetch(API + '/api/reclamations', { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data) && data.length > 0) setReclamations(data.map(r => ({ id: r.id, parent: r.parentPhone, eleve: r.studentId || 'Eleve', sujet: r.sujet, message: r.message, date: new Date(r.createdAt).toLocaleDateString('fr-FR'), statut: r.statut, priorite: 'normale', reponse: r.reponse }))); })
+      .catch(() => {});
+  }, [token]);
   const [selected, setSelected] = useState(null);
   const [reponse, setReponse] = useState('');
   const [filter, setFilter] = useState('toutes');
@@ -26,6 +38,7 @@ export default function Reclamations() {
 
   function handleReponse(id) {
     if (!reponse.trim()) return;
+    fetch(API + '/api/reclamations/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify({ statut: 'traitee', reponse }) }).catch(() => {});
     setReclamations(prev => prev.map(r => r.id === id ? { ...r, statut: 'traitee', reponse } : r));
     setSelected(prev => ({ ...prev, statut: 'traitee', reponse }));
     setReponse('');
