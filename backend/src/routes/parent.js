@@ -62,6 +62,7 @@ router.post('/reclamations', async (req, res) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
     const { sujet, message } = req.body;
+    const student = await prisma.student.findUnique({ where: { id: decoded.studentId }, select: { parentPhone: true } });
     const reclamation = await prisma.reclamation.create({
       data: {
         sujet,
@@ -69,6 +70,7 @@ router.post('/reclamations', async (req, res) => {
         statut: 'en_attente',
         studentId: decoded.studentId,
         schoolId: decoded.schoolId,
+        parentPhone: student?.parentPhone || '',
       }
     });
     res.status(201).json(reclamation);
