@@ -29,6 +29,7 @@ import ParentPortal from './pages/ParentPortal';
 import StudentPortal from './pages/StudentPortal';
 import StudentPortalDemo from './pages/StudentPortalDemo';
 import MobileApp from './pages/MobileApp';
+import DemoApp from './pages/DemoApp';
 import Reclamations from './pages/Reclamations';
 
 function ComingSoon({ title }) {
@@ -42,16 +43,22 @@ function ComingSoon({ title }) {
 }
 
 function DirectorPages() {
-  const [page, setPage] = useState('dashboard');
-  if (page === 'messages')   return <Layout page={page} setPage={setPage}><Messages /></Layout>;
-  if (page === 'rendezvous') return <Layout page={page} setPage={setPage}><RendezVous /></Layout>;
-  if (page === 'budget')     return <Layout page={page} setPage={setPage}><Budget /></Layout>;
-  if (page === 'documents')  return <Layout page={page} setPage={setPage}><Documents /></Layout>;
-  if (page === 'crm')        return <Layout page={page} setPage={setPage}><CRM /></Layout>;
-  if (page === 'cahier')     return <Layout page={page} setPage={setPage}><CahierTexte /></Layout>;
-  if (page === 'reclamations') return <Layout page={page} setPage={setPage}><Reclamations /></Layout>;
+  const [page, setPage] = useState(() => localStorage.getItem('luxedu_page') || 'dashboard');
+  const setPageWithPersist = (p) => {
+    if (p === 'etudiant-link') { window.open('/etudiant', '_blank'); return; }
+    if (p === 'mobile-link') { window.open('/mobile', '_blank'); return; }
+    localStorage.setItem('luxedu_page', p); setPage(p);
+  };
+  const setPage2 = setPageWithPersist;
+  if (page === 'messages')   return <Layout page={page} setPage={setPageWithPersist}><Messages /></Layout>;
+  if (page === 'rendezvous') return <Layout page={page} setPage={setPageWithPersist}><RendezVous /></Layout>;
+  if (page === 'budget')     return <Layout page={page} setPage={setPageWithPersist}><Budget /></Layout>;
+  if (page === 'documents')  return <Layout page={page} setPage={setPageWithPersist}><Documents /></Layout>;
+  if (page === 'crm')        return <Layout page={page} setPage={setPageWithPersist}><CRM /></Layout>;
+  if (page === 'cahier')     return <Layout page={page} setPage={setPageWithPersist}><CahierTexte /></Layout>;
+  if (page === 'reclamations') return <Layout page={page} setPage={setPageWithPersist}><Reclamations /></Layout>;
   const pages = {
-    dashboard: <Dashboard setPage={setPage} />,
+    dashboard: <Dashboard setPage={setPageWithPersist} />,
     eleves: <Eleves />,
     presences: <Presences />,
     notes: <Notes />,
@@ -66,7 +73,7 @@ function DirectorPages() {
     certificats: <Certificats />,
   };
   return (
-    <Layout page={page} setPage={setPage}>
+    <Layout page={page} setPage={setPageWithPersist}>
       {pages[page] || <ComingSoon title={page} />}
     </Layout>
   );
@@ -75,6 +82,8 @@ function DirectorPages() {
 function RoleRoute() {
   const { token, user } = useAuthStore();
   if (!token) return <Navigate to="/login" />;
+  // FONCTIONNAIRE gets teacher-level access
+  // FONCTIONNAIRE gets teacher-level access
   if (user?.role === 'TEACHER') return <TeacherDashboard />;
   if (user?.role === 'FONCTIONNAIRE') return <FonctionnaireDashboard />;
   return <DirectorPages />;
@@ -97,6 +106,8 @@ export default function App() {
         <Route path="/etudiant" element={<StudentPortal />} />
         <Route path="/etudiant-demo" element={<StudentPortalDemo />} />
         <Route path="/mobile" element={<MobileApp />} />
+        <Route path="/demo" element={<DemoApp />} />
+        <Route path="/demo" element={<DemoApp />} />
         <Route path="/etudiant/:code" element={<StudentPortal />} />
         <Route path="/app" element={<RoleRoute />} />
         <Route path="/app/*" element={<RoleRoute />} />

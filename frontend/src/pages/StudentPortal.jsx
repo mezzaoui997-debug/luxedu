@@ -107,6 +107,15 @@ export default function StudentPortal() {
           <h1 style={{ fontSize:24, fontWeight:700, color:navy, margin:0 }}>Espace Étudiant</h1>
           <p style={{ color:'#6b7280', fontSize:13, marginTop:6 }}>Connectez-vous avec votre code unique</p>
         </div>
+        <button type="button" onClick={() => { setCode('LUX-2026-001'); setPassword('1234'); }} style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:10, padding:'10px 16px', fontSize:13, color:'#2563eb', fontWeight:600, cursor:'pointer', width:'100%', marginBottom:8, textAlign:'left' }}>
+          Acces demonstration — LUX-2026-001
+        </button>
+        <button type="button" onClick={() => { setCode('LUX-2026-001'); setPassword('1234'); }} style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:10, padding:'10px 16px', fontSize:13, color:'#2563eb', fontWeight:600, cursor:'pointer', width:'100%', marginBottom:8, textAlign:'left' }}>
+          Acces demonstration — LUX-2026-001
+        </button>
+        <button type="button" onClick={() => { setCode('LUX-2026-001'); setPassword('1234'); }} style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:10, padding:'10px 16px', fontSize:13, color:'#2563eb', fontWeight:600, cursor:'pointer', width:'100%', marginBottom:8, textAlign:'left' }}>
+          Acces demonstration — LUX-2026-001
+        </button>
         <form onSubmit={handleLogin} style={{ display:'flex', flexDirection:'column', gap:16 }}>
           <div>
             <label style={{ fontSize:12, fontWeight:600, color:'#374151', display:'block', marginBottom:6 }}>CODE ÉTUDIANT</label>

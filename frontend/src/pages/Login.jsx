@@ -7,7 +7,8 @@ const ROLES = [
   { id: 'DIRECTOR',      label: 'Directeur',     email: 'director@school.ma'      },
   { id: 'TEACHER',       label: 'Enseignant',    email: 'teacher@school.ma'       },
   { id: 'FONCTIONNAIRE', label: 'Fonctionnaire', email: 'fonctionnaire@school.ma' },
-];
+  { id: 'ETUDIANT', label: 'Etudiant', email: '' },
+  ];
 
 const FEATS = [
   ['WhatsApp',   'Communication automatisée avec les parents'],
@@ -18,7 +19,8 @@ const FEATS = [
 
 export default function Login() {
   const [role,     setRole]     = useState('DIRECTOR');
-  const [email,    setEmail]    = useState('');
+  const handleRoleSelect = (r) => { if (r.id === 'ETUDIANT') { navigate('/etudiant'); return; } setRole(r.id); };
+    const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
@@ -59,11 +61,12 @@ export default function Login() {
   const handleDemo = async () => {
     setLoading(true); setError('');
     try {
-      await api.post('/auth/demo-seed').catch(() => {});
+      if (role === 'ETUDIANT') { navigate('/etudiant'); return; }
       const sel = ROLES.find(r => r.id === role);
+      if (!sel) { setError('Selectionnez un role.'); return; }
       await doAuth(sel.email, 'password123');
     } catch (err) {
-      setError('Démo indisponible. Réessayez dans quelques instants.');
+      setError('Demo indisponible.');
     } finally { setLoading(false); }
   };
 

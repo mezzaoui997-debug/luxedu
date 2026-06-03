@@ -20,16 +20,31 @@ const STATUT_CONFIG = {
 const navy = '#1e2d4f';
 
 export default function Reclamations() {
-  const [reclamations, setReclamations] = useState(DEMO_RECLAMATIONS);
+  const [reclamations, setReclamations] = useState([]);
 
 
   const { token } = useAuthStore();
 
   useEffect(() => {
+    if (!token || token.startsWith('demo-token')) return;
     fetch(API + '/api/reclamations', { headers: { Authorization: 'Bearer ' + token } })
       .then(r => r.json())
-      .then(data => { if (Array.isArray(data) && data.length > 0) setReclamations(data.map(r => ({ id: r.id, parent: r.parentPhone, eleve: r.studentId || 'Eleve', sujet: r.sujet, message: r.message, date: new Date(r.createdAt).toLocaleDateString('fr-FR'), statut: r.statut, priorite: 'normale', reponse: r.reponse }))); })
-      .catch(() => {});
+      .then(data => {
+        if (Array.isArray(data)) {
+          setReclamations(data.map(r => ({
+            id: r.id,
+            parent: r.parentName || r.parentPhone || 'Parent',
+            eleve: r.studentName || r.studentId || 'Eleve',
+            sujet: r.sujet,
+            message: r.message,
+            date: new Date(r.createdAt).toLocaleDateString('fr-FR'),
+            statut: r.statut,
+            priorite: r.priorite || 'normale',
+            reponse: r.reponse
+          })));
+        }
+      })
+      .catch(e => console.error('Reclamations fetch error:', e));
   }, [token]);
   const [selected, setSelected] = useState(null);
   const [reponse, setReponse] = useState('');

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const prisma = require('../utils/prisma');
 
 // Login étudiant avec code unique
@@ -26,7 +27,8 @@ router.post('/login', async (req, res) => {
     const valid = await bcrypt.compare(password, student.studentPassword);
     if (!valid) return res.status(401).json({ message: 'Mot de passe incorrect' });
 
-    res.json({ student: formatStudent(student) });
+    const token = jwt.sign({ studentId: student.id, schoolId: student.schoolId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+res.json({ token, student: formatStudent(student) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -42,7 +44,8 @@ router.post('/set-password', async (req, res) => {
       data: { studentPassword: hashed },
       include: { class: true, grades: { include: { subject: true } }, attendances: true, payments: true }
     });
-    res.json({ student: formatStudent(student) });
+    const token = jwt.sign({ studentId: student.id, schoolId: student.schoolId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+res.json({ token, student: formatStudent(student) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

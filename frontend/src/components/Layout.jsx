@@ -25,6 +25,7 @@ const NAV = [
   { id: 'documents',   lbl: 'Documents'           },
   { sec: 'Paramètres' },
   { id: 'parametres',  lbl: 'Paramètres'         },
+
 ];
 
 const PAGE_TITLES = {
