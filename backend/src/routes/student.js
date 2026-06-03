@@ -12,7 +12,7 @@ router.post('/login', async (req, res) => {
       where: { studentCode: code },
       include: {
         class: true,
-        grades: { include: { subject: true } },
+        grades: true,
         attendances: true,
         payments: true
       }
@@ -42,7 +42,7 @@ router.post('/set-password', async (req, res) => {
     const student = await prisma.student.update({
       where: { studentCode: code },
       data: { studentPassword: hashed },
-      include: { class: true, grades: { include: { subject: true } }, attendances: true, payments: true }
+      include: { class: true, grades: true, attendances: true, payments: true }
     });
     const token = jwt.sign({ studentId: student.id, schoolId: student.schoolId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 res.json({ token, student: formatStudent(student) });
