@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 const prisma = require('../utils/prisma');
 const bcrypt = require('bcryptjs');
 
@@ -7,7 +7,7 @@ router.post('/demo', async (req, res) => {
   const targetId = req.body.schoolId || 'cmo3ot7y700009lupl6zsfzbp';
   try {
     const school = await prisma.school.findUnique({ where: { id: targetId } });
-    if (!school) return res.status(404).json({ error: 'Not found', id: targetId });
+    if (!school) return res.status(404).json({ error: 'Not found' });
 
     await prisma.school.update({ where: { id: targetId }, data: { name: 'Ecole Excellence Casablanca' } });
 
@@ -34,8 +34,8 @@ router.post('/demo', async (req, res) => {
       const massar = String.fromCharCode(65 + (i % 26)) + String(900000000 + i).slice(1);
       if (!existSet.has(massar)) newStudents.push({
         firstName: F[i % F.length], lastName: L[Math.floor(i / F.length) % L.length],
-        massar, parentPhone: `+21266${String(1000000 + i).slice(1)}`,
-        studentCode: `LUX-2026-${String(i+1).padStart(3,'0')}`,
+        massar, parentPhone: '+21266' + String(1000000 + i).slice(1),
+        studentCode: 'LUX-2026-' + String(i+1).padStart(3,'0'),
         studentPassword: hash, schoolId: targetId, classId: classes[i % classes.length].id,
       });
     }
@@ -55,7 +55,6 @@ router.post('/demo', async (req, res) => {
     }
     if (payments.length) await prisma.payment.createMany({ data: payments, skipDuplicates: true });
 
-    // Attendance - no schoolId, no classId, no subject
     const existAtt = await prisma.attendance.findMany({ where: { studentId: { in: students.map(s => s.id) } }, select: { studentId: true } });
     const hasAtt = new Set(existAtt.map(a => a.studentId));
     const attendance = [];
@@ -69,7 +68,6 @@ router.post('/demo', async (req, res) => {
     }
     if (attendance.length) await prisma.attendance.createMany({ data: attendance, skipDuplicates: true });
 
-    // Grades - no schoolId, no examType, no value — use devoir1, devoir2, exam, average
     const existGrade = await prisma.grade.findMany({ where: { studentId: { in: students.map(s => s.id) } }, select: { studentId: true, subject: true } });
     const existGradeSet = new Set(existGrade.map(g => g.studentId + '|' + g.subject));
     const subjects = ['Mathematiques','Francais','Anglais','Physique-Chimie','SVT'];
@@ -80,7 +78,7 @@ router.post('/demo', async (req, res) => {
           const d1 = Math.round((11 + Math.random() * 8) * 2) / 2;
           const d2 = Math.round((11 + Math.random() * 8) * 2) / 2;
           const ex = Math.round((11 + Math.random() * 8) * 2) / 2;
-          grades.push({ studentId: s.id, subject: subj, devoir1: d1, devoir2: d2, exam: ex, average: Math.round((d1 + d2 + ex) / 3 * 2) / 2, semester: 2 });
+          grades.push({ studentId: s.id, subject: subj, devoir1: d1, devoir2: d2, exam: ex, average: Math.round((d1+d2+ex)/3*2)/2, semester: 2 });
         }
       }
     }
@@ -91,10 +89,9 @@ router.post('/demo', async (req, res) => {
       prisma.payment.count({ where: { schoolId: targetId, status: 'PAID' } }),
       prisma.payment.count({ where: { schoolId: targetId, status: 'PENDING' } }),
     ]);
-
-    res.json({ success: true, school: 'Ecole Excellence Casablanca', students: totalStu, paid: totalPaid, pending: totalPend, recouvrement: Math.round(totalPaid / (totalPaid + totalPend) * 100) + '%' });
+    res.json({ success: true, school: 'Ecole Excellence Casablanca', students: totalStu, paid: totalPaid, pending: totalPend, recouvrement: Math.round(totalPaid/(totalPaid+totalPend)*100)+'%' });
   } catch(e) {
-    res.status(500).json({ error: e.message.slice(0, 300) });
+    res.status(500).json({ error: e.message.slice(0,300) });
   }
 });
 
