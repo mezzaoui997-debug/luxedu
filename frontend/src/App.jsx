@@ -30,6 +30,7 @@ import StudentPortal from './pages/StudentPortal';
 import StudentPortalDemo from './pages/StudentPortalDemo';
 import MobileApp from './pages/MobileApp';
 import DemoApp from './pages/DemoApp';
+import DemoGate from './pages/DemoGate';
 import Reclamations from './pages/Reclamations';
 
 function ComingSoon({ title }) {
@@ -106,8 +107,8 @@ export default function App() {
         <Route path="/etudiant" element={<StudentPortal />} />
         <Route path="/etudiant-demo" element={<StudentPortalDemo />} />
         <Route path="/mobile" element={<MobileApp />} />
-        <Route path="/demo" element={<DemoApp />} />
-        <Route path="/demo" element={<DemoApp />} />
+        <Route path="/demo" element={<DemoGate />} />
+        <Route path="/demo" element={<DemoGate />} />
         <Route path="/etudiant/:code" element={<StudentPortal />} />
         <Route path="/app" element={<RoleRoute />} />
         <Route path="/app/*" element={<RoleRoute />} />
