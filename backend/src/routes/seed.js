@@ -64,14 +64,14 @@ router.post('/demo', async (req, res) => {
     for (let si = 0; si < students.length; si++) {
       const isPaidStudent = si < 37;
       for (const month of months) {
-        const exists = await prisma.payment.findFirst({ where: { studentId: students[si].id, description: month } });
+        const exists = await prisma.payment.findFirst({ where: { studentId: students[si].id, month: month } });
         if (!exists) {
           await prisma.payment.create({
             data: {
               studentId: students[si].id, schoolId: school.id,
-              amount: 1500, description: month,
+              amount: 1500, month: month,
               status: isPaidStudent ? 'PAID' : 'PENDING',
-              paymentDate: isPaidStudent ? new Date() : null,
+              paidAt: isPaidStudent ? new Date() : null,
             }
           });
           payCreated++;
