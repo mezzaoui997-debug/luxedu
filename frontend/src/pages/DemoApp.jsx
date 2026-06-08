@@ -4,11 +4,11 @@ import useAuthStore from "../store/authStore";
 
 const navy = "#0F1D42", blue = "#2563EB", gold = "#C9963F", green = "#059669", white = "#FFFFFF";
 
-const DEMO_SCHOOL = { id:"demo", name:"Ecole Excellence — Demo LuxEdu", city:"Casablanca" };
+const DEMO_SCHOOL = { id:"cmo3ot7y700009lupl6zsfzbp", name:"Ecole Excellence Casablanca", city:"Casablanca" };
 const DEMO_USERS = {
-  DIRECTOR:      { id:"d1", firstName:"Ahmed",  lastName:"Benali", role:"DIRECTOR",      schoolId:"demo", email:"directeur@demo.ma" },
-  TEACHER:       { id:"d2", firstName:"Sara",   lastName:"Alami",  role:"TEACHER",       schoolId:"demo", email:"enseignant@demo.ma" },
-  FONCTIONNAIRE: { id:"d3", firstName:"Fatima", lastName:"Benali", role:"FONCTIONNAIRE", schoolId:"demo", email:"fonctionnaire@demo.ma" },
+  DIRECTOR:      { id:"d1", firstName:"Ahmed",  lastName:"Benali", role:"DIRECTOR",      schoolId:"cmo3ot7y700009lupl6zsfzbp", email:"directeur@demo.ma" },
+  TEACHER:       { id:"d2", firstName:"Sara",   lastName:"Alami",  role:"TEACHER",       schoolId:"cmo3ot7y700009lupl6zsfzbp", email:"enseignant@demo.ma" },
+  FONCTIONNAIRE: { id:"d3", firstName:"Fatima", lastName:"Benali", role:"FONCTIONNAIRE", schoolId:"cmo3ot7y700009lupl6zsfzbp", email:"fonctionnaire@demo.ma" },
 };
 
 export default function DemoApp() {
@@ -16,15 +16,31 @@ export default function DemoApp() {
   const { login } = useAuthStore();
   const [loading, setLoading] = useState(null);
 
-  const handleERP = (role) => {
+  const handleERP = async (role) => {
     if (role === "MOBILE_PARENT") { navigate("/mobile"); return; }
     if (role === "MOBILE_STUDENT") { navigate("/etudiant"); return; }
     setLoading(role);
-    const user = DEMO_USERS[role];
-    setTimeout(() => {
-      login("demo-token-" + role, user, DEMO_SCHOOL);
-      navigate("/app");
-    }, 600);
+    try {
+      const CREDS = {
+        DIRECTOR: { email: "directeur@excellence-casa.ma", password: "password123" },
+        TEACHER: { email: "directeur@excellence-casa.ma", password: "password123" },
+        FONCTIONNAIRE: { email: "directeur@excellence-casa.ma", password: "password123" },
+      };
+      const res = await fetch("https://luxedu-production.up.railway.app/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(CREDS[role]),
+      });
+      const data = await res.json();
+      if (data.token) {
+        login(data.token, data.user, data.school);
+        window.location.href = "/app";
+      } else {
+        setLoading(null);
+      }
+    } catch(e) {
+      setLoading(null);
+    }
   };
 
   const spaces = [
