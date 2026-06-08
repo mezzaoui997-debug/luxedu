@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
-    "install": "cd frontend && npm install"
+    "install": "cd frontend && npm install",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.98.0"
   }
 }
