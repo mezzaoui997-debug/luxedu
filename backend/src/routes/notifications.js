@@ -19,25 +19,25 @@ const getNotifs = (schoolId) => {
 };
 
 router.get('/', protect, async (req, res) => {
-  const notifs = getNotifs(req.user.schoolId);
+  const notifs = getNotifs(req.schoolId);
   res.json({ notifications: notifs, unread: notifs.filter(n=>!n.read).length });
 });
 
 router.put('/:id/read', protect, async (req, res) => {
-  const notifs = getNotifs(req.user.schoolId);
+  const notifs = getNotifs(req.schoolId);
   const n = notifs.find(n => n.id === req.params.id);
   if (n) n.read = true;
   res.json({ ok: true });
 });
 
 router.put('/read-all', protect, async (req, res) => {
-  const notifs = getNotifs(req.user.schoolId);
+  const notifs = getNotifs(req.schoolId);
   notifs.forEach(n => n.read = true);
   res.json({ ok: true });
 });
 
 router.post('/', protect, async (req, res) => {
-  const notifs = getNotifs(req.user.schoolId);
+  const notifs = getNotifs(req.schoolId);
   const { type, title, message } = req.body;
   const newNotif = { id: Date.now().toString(), type, title, message, read: false, createdAt: new Date().toISOString() };
   notifs.unshift(newNotif);

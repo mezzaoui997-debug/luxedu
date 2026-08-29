@@ -27,7 +27,7 @@ router.post('/login', async (req, res) => {
     const valid = await bcrypt.compare(password, student.studentPassword);
     if (!valid) return res.status(401).json({ message: 'Mot de passe incorrect' });
 
-    const token = jwt.sign({ studentId: student.id, schoolId: student.schoolId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ studentId: student.id, schoolId: student.schoolId }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
 res.json({ token, student: formatStudent(student) });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -44,7 +44,7 @@ router.post('/set-password', async (req, res) => {
       data: { studentPassword: hashed },
       include: { class: true, grades: true, attendances: true, payments: true }
     });
-    const token = jwt.sign({ studentId: student.id, schoolId: student.schoolId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ studentId: student.id, schoolId: student.schoolId }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
 res.json({ token, student: formatStudent(student) });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -58,8 +58,21 @@ function formatStudent(s) {
     code: s.studentCode,
     niveau: s.class?.level,
     classe: s.class?.name,
-    notes: (s.grades || []).map(g => ({ matiere: g.subject?.name || 'Matière', valeur: g.value, type: g.type || 'Contrôle', date: g.createdAt?.toISOString?.()?.split('T')[0] })),
-    absences: (s.attendances || []).filter(a => a.status === 'ABSENT').map(a => ({ date: a.date?.toISOString?.()?.split('T')[0], justifiee: a.justified || false, heure: '1h' })),
+    notes: (s.grades || []).map(g => ({
+      matiere: g.subject || 'Matière',
+      valeur: g.average ?? g.exam ?? null,
+      devoir1: g.devoir1,
+      devoir2: g.devoir2,
+      exam: g.exam,
+      type: 'Contrôle',
+      date: g.createdAt?.toISOString?.()?.split('T')[0]
+    })),
+    absences: (s.attendances || []).filter(a => a.status === 'ABSENT').map(a => ({
+      date: a.date?.toISOString?.()?.split('T')[0],
+      justifiee: false,
+      heure: '1h',
+      note: a.note || ''
+    })),
     devoirs: [],
     paiements: s.payments || []
   };

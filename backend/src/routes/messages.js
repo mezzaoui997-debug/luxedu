@@ -17,14 +17,14 @@ const threads = (sid) => {
 
 // GET all messages for user
 router.get('/', protect, (req, res) => {
-  const msgs = threads(req.user.schoolId);
-  const unread = msgs.filter(m => !m.read && m.to !== req.user.role.toLowerCase()).length;
+  const msgs = threads(req.schoolId);
+  const unread = msgs.filter(m => !m.read && m.to !== req.role.toLowerCase()).length;
   res.json({ messages: msgs, unread });
 });
 
 // GET single message + mark read
 router.get('/:id', protect, (req, res) => {
-  const msgs = threads(req.user.schoolId);
+  const msgs = threads(req.schoolId);
   const msg = msgs.find(m => m.id === req.params.id);
   if (!msg) return res.status(404).json({ error: 'Not found' });
   msg.read = true;
@@ -33,13 +33,13 @@ router.get('/:id', protect, (req, res) => {
 
 // POST new message
 router.post('/', protect, (req, res) => {
-  const msgs = threads(req.user.schoolId);
+  const msgs = threads(req.schoolId);
   const { subject, body, to } = req.body;
   const msg = {
     id: Date.now().toString(),
     subject, body, to,
-    from: `${req.user.firstName} ${req.user.lastName}`,
-    fromRole: req.user.role,
+    from: `${req.firstName} ${req.lastName}`,
+    fromRole: req.role,
     read: false,
     createdAt: new Date().toISOString(),
     replies: [],
@@ -50,13 +50,13 @@ router.post('/', protect, (req, res) => {
 
 // POST reply
 router.post('/:id/reply', protect, (req, res) => {
-  const msgs = threads(req.user.schoolId);
+  const msgs = threads(req.schoolId);
   const msg = msgs.find(m => m.id === req.params.id);
   if (!msg) return res.status(404).json({ error: 'Not found' });
   const reply = {
     id: Date.now().toString(),
-    from: `${req.user.firstName} ${req.user.lastName}`,
-    fromRole: req.user.role,
+    from: `${req.firstName} ${req.lastName}`,
+    fromRole: req.role,
     body: req.body.body,
     createdAt: new Date().toISOString(),
   };
@@ -66,7 +66,7 @@ router.post('/:id/reply', protect, (req, res) => {
 
 // DELETE message
 router.delete('/:id', protect, (req, res) => {
-  const msgs = threads(req.user.schoolId);
+  const msgs = threads(req.schoolId);
   const idx = msgs.findIndex(m => m.id === req.params.id);
   if (idx >= 0) msgs.splice(idx, 1);
   res.json({ ok: true });

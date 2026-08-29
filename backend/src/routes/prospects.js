@@ -14,24 +14,24 @@ const getStore = (sid) => {
   return store[sid];
 };
 
-router.get('/', protect, (req,res) => res.json(getStore(req.user.schoolId)));
+router.get('/', protect, (req,res) => res.json(getStore(req.schoolId)));
 
 router.post('/', protect, (req,res) => {
-  const prospects = getStore(req.user.schoolId);
+  const prospects = getStore(req.schoolId);
   const p = { id: Date.now().toString(), ...req.body, status:'NOUVEAU', createdAt: new Date().toISOString().split('T')[0] };
   prospects.unshift(p);
   res.json(p);
 });
 
 router.put('/:id', protect, (req,res) => {
-  const prospects = getStore(req.user.schoolId);
+  const prospects = getStore(req.schoolId);
   const idx = prospects.findIndex(p=>p.id===req.params.id);
   if (idx >= 0) prospects[idx] = { ...prospects[idx], ...req.body };
   res.json(prospects[idx]);
 });
 
 router.delete('/:id', protect, (req,res) => {
-  const prospects = getStore(req.user.schoolId);
+  const prospects = getStore(req.schoolId);
   const idx = prospects.findIndex(p=>p.id===req.params.id);
   if (idx >= 0) prospects.splice(idx,1);
   res.json({ ok:true });

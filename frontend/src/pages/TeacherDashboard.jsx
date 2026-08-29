@@ -982,13 +982,9 @@ export default function TeacherDashboard() {
           )}
           {page === 'devoirs' && (
             <div>
-              <div style={{ marginBottom:20, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                <div>
-                  <h2 style={{ fontSize:22, fontWeight:700, color:'var(--navy)', marginBottom:3 }}>Devoirs en ligne</h2>
-                  <p style={{ fontSize:12, color:'var(--g2)' }}>Publiez les devoirs — les parents les voient sur le portail</p>
-                </div>
-                <button onClick={() => setShowDevoirForm && setShowDevoirForm(true)}
-                  className="btn btn-primary">+ Nouveau devoir</button>
+              <div style={{ marginBottom:20 }}>
+                <h2 style={{ fontSize:22, fontWeight:700, color:'var(--navy)', marginBottom:3 }}>Devoirs en ligne</h2>
+                <p style={{ fontSize:12, color:'var(--g2)' }}>Publiez les devoirs — les parents les voient sur le portail</p>
               </div>
               <DevoirsSection students={students} subject={subject} showT={showToast} />
             </div>

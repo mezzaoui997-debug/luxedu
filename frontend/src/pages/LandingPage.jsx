@@ -1,3 +1,4 @@
+import "../mobile.css";
 import { useState, useEffect } from "react";
 
 const navy = "#0F1D42", blue = "#2563EB", gold = "#C9963F", green = "#059669", white = "#FFFFFF";
@@ -83,7 +84,7 @@ function ContactForm() {
         <label style={lbl}>Nombre d eleves approximatif</label>
         <select style={{...inp, cursor:"pointer"}} value={form.eleves} onChange={e=>setForm({...form,eleves:e.target.value})}>
           <option value="" style={{background:"#0F1D42"}}>Selectionnez</option>
-          {["Moins de 100","100 a 200","200 a 400","400 a 600","Plus de 600"].map(o=><option key={o} value={o} style={{background:"#0F1D42"}}>{o} eleves</option>)}
+          {["Moins de 100","100 a 200","200 a 400","400 a 600","Plus de 600"].map(o=><option key={o} value={o} style={{background:"#0F1D42"}}>{o} élèves</option>)}
         </select>
       </div>
       <div style={{ marginBottom:28 }}>
@@ -91,9 +92,9 @@ function ContactForm() {
         <textarea style={{...inp, height:90, resize:"vertical"}} placeholder="Decrivez vos besoins..." value={form.message} onChange={e=>setForm({...form,message:e.target.value})} />
       </div>
       <button type="submit" disabled={loading} style={{ width:"100%", padding:"15px", borderRadius:10, background:loading?"#8B6914":gold, color:white, fontSize:16, fontWeight:700, cursor:loading?"not-allowed":"pointer", border:"none", fontFamily:"inherit", transition:"all .2s" }}>
-        {loading ? "Envoi en cours..." : "Envoyer ma demande de demonstration"}
+        {loading ? "Envoi en cours..." : "Envoyer ma demande de démonstration"}
       </button>
-      <p style={{ textAlign:"center", fontSize:13, color:"rgba(255,255,255,.3)", marginTop:14 }}>Reponse garantie sous 24h — Aucun engagement</p>
+      <p style={{ textAlign:"center", fontSize:13, color:"rgba(255,255,255,.3)", marginTop:14 }}>Réponse garantie sous 24h — Aucun engagement</p>
     </form>
   );
 }
@@ -117,13 +118,13 @@ export default function LandingPage() {
             <span style={{ fontSize:22, fontWeight:900, color:sc?navy:white, fontFamily:"Georgia,serif", letterSpacing:"-0.5px" }}>LuxEdu</span>
           </a>
           <div style={{ display:"flex", gap:4 }}>
-            {["Fonctionnalites","Tarifs","Demonstration"].map(l=>(
+            {["Fonctionnalités","Tarifs","Démonstration"].map(l=>(
               <a key={l} href="#" style={{ padding:"8px 16px", borderRadius:8, fontSize:14, fontWeight:500, color:sc?"#475569":"rgba(255,255,255,.7)", textDecoration:"none" }}>{l}</a>
             ))}
           </div>
           <div style={{ display:"flex", gap:10 }}>
-            <Btn variant="ghost" href="/login">Se connecter</Btn>
-            <Btn variant="gold" href="#contact">Demander une demo</Btn>
+            <span className="nav-cta-secondary"><Btn variant="ghost" href="/login">Se connecter</Btn></span>
+            <Btn variant="gold" href="#contact">Demander une démo</Btn>
           </div>
         </div>
       </nav>
@@ -131,7 +132,7 @@ export default function LandingPage() {
       {/* HERO */}
       <section style={{ minHeight:"100vh", background:`linear-gradient(140deg,#0a1628 0%,${navy} 45%,#162554 100%)`, position:"relative", display:"flex", alignItems:"center", overflow:"hidden", paddingTop:76 }}>
         <div style={{ position:"absolute", inset:0, backgroundImage:"radial-gradient(circle at 1px 1px,rgba(255,255,255,.04) 1px,transparent 0)", backgroundSize:"48px 48px" }} />
-        <div style={{ position:"absolute", top:"15%", right:"8%", width:600, height:600, borderRadius:"50%", background:"radial-gradient(circle,rgba(201,150,63,.1) 0%,transparent 65%)" }} />
+        <div className="hero-grid" style={{ position:"absolute", top:"15%", right:"8%", width:600, height:600, borderRadius:"50%", background:"radial-gradient(circle,rgba(201,150,63,.1) 0%,transparent 65%)" }} />
         <div style={{ maxWidth:1200, margin:"0 auto", padding:"60px 5%", display:"grid", gridTemplateColumns:"1fr 1fr", gap:80, alignItems:"center", width:"100%" }}>
           <div>
             <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(201,150,63,.15)", border:"1px solid rgba(201,150,63,.3)", borderRadius:100, padding:"6px 18px", marginBottom:28 }}>
@@ -139,17 +140,17 @@ export default function LandingPage() {
               <span style={{ fontSize:12, fontWeight:700, color:gold, letterSpacing:".1em", textTransform:"uppercase" }}>Plateforme ERP Scolaire — Maroc 2026</span>
             </div>
             <h1 style={{ fontSize:60, fontWeight:900, color:white, lineHeight:1.04, letterSpacing:"-2.5px", margin:"0 0 24px" }}>
-              La plateforme qui<br/><span style={{ color:gold }}>modernise</span><br/>votre ecole.
+              La plateforme qui<br/><span style={{ color:gold }}>modernise</span><br/>votre école.
             </h1>
             <p style={{ fontSize:18, color:"rgba(255,255,255,.58)", lineHeight:1.75, marginBottom:40, maxWidth:500 }}>
-              Presences, paiements, notes, bulletins, WhatsApp, orientation BAC et app mobile. Tout ce dont votre ecole a besoin, en une seule plateforme 100% marocaine.
+              Présences, paiements, notes, bulletins, WhatsApp, orientation BAC et app mobile. Tout ce dont votre école à besoin, en une seule plateforme 100% marocaine.
             </p>
-            <div style={{ display:"flex", gap:14, marginBottom:40 }}>
-              <Btn variant="gold" href="#contact">Demander une demonstration</Btn>
-              <Btn variant="ghost" href="/login">Voir la demo ERP</Btn>
+            <div className="hero-btns" style={{ display:"flex", gap:14, marginBottom:40 }}>
+              <Btn variant="gold" href="#contact">Demander une démonstration</Btn>
+              <Btn variant="ghost" href="/demo">Voir la démo ERP</Btn>
             </div>
             <div style={{ display:"flex", gap:0 }}>
-              {[["Deploiement 24h","#4ADE80"],["Code Massar MEN","#60A5FA"],["Sans engagement","#F59E0B"]].map(([t,c],i)=>(
+              {[["Déploiement 24h","#4ADE80"],["Code Massar MEN","#60A5FA"],["Sans engagement","#F59E0B"]].map(([t,c],i)=>(
                 <div key={t} style={{ display:"flex", alignItems:"center", gap:7, paddingRight:i<2?20:0, marginRight:i<2?20:0, borderRight:i<2?"1px solid rgba(255,255,255,.1)":"none" }}>
                   <div style={{ width:6, height:6, borderRadius:"50%", background:c }} />
                   <span style={{ fontSize:13, color:"rgba(255,255,255,.5)" }}>{t}</span>
@@ -164,7 +165,7 @@ export default function LandingPage() {
               <div style={{ fontSize:11, color:"#94a3b8" }}>vs mois dernier</div>
             </div>
             <div style={{ position:"absolute", bottom:50, left:-28, background:navy, borderRadius:14, padding:"14px 18px", boxShadow:"0 24px 64px rgba(0,0,0,.3)", zIndex:3, border:"1px solid rgba(255,255,255,.07)" }}>
-              <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", fontWeight:600, marginBottom:4 }}>WhatsApp envoyes</div>
+              <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", fontWeight:600, marginBottom:4 }}>WhatsApp envoyés</div>
               <div style={{ fontSize:22, fontWeight:800, color:gold }}>1 248</div>
               <div style={{ fontSize:11, color:"rgba(255,255,255,.25)" }}>ce mois — 0 MAD</div>
             </div>
@@ -186,14 +187,14 @@ export default function LandingPage() {
                 <div style={{ width:170, background:navy, padding:"18px 14px", minHeight:300 }}>
                   <div style={{ fontSize:12, fontWeight:800, color:gold, letterSpacing:".05em", marginBottom:4 }}>LuxEdu</div>
                   <div style={{ fontSize:10, color:"rgba(255,255,255,.3)", marginBottom:18 }}>Espace Directeur</div>
-                  {[["Tableau de bord",true],["Tous les eleves",false],["Notes",false],["Paiements",false],["Reclamations",false]].map(([item,active])=>(
+                  {[["Tableau de bord",true],["Tous les eleves",false],["Notes",false],["Paiements",false],["Réclamations",false]].map(([item,active])=>(
                     <div key={item} style={{ padding:"8px 10px", borderRadius:8, fontSize:11, color:active?white:"rgba(255,255,255,.4)", background:active?"rgba(255,255,255,.11)":"transparent", marginBottom:3, fontWeight:active?600:400 }}>{item}</div>
                   ))}
                 </div>
                 <div style={{ flex:1, padding:18, background:"#F8FAFC" }}>
                   <div style={{ fontSize:13, fontWeight:700, color:navy, marginBottom:12 }}>Tableau de bord</div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:6, marginBottom:14 }}>
-                    {[["248","Eleves",blue],["94%","Presence",green],["86%","Recouvr.",gold],["3","Alertes","#EF4444"]].map(([v,l,c])=>(
+                    {[["248","Élèves",blue],["94%","Presence",green],["86%","Recouvr.",gold],["3","Alertes","#EF4444"]].map(([v,l,c])=>(
                       <div key={l} style={{ background:white, borderRadius:8, padding:"8px 6px", textAlign:"center", border:"1px solid #f1f5f9" }}>
                         <div style={{ fontSize:16, fontWeight:700, color:c }}>{v}</div>
                         <div style={{ fontSize:9, color:"#94a3b8" }}>{l}</div>
@@ -218,7 +219,7 @@ export default function LandingPage() {
       {/* TRUST BAR */}
       <section style={{ background:white, borderBottom:"1px solid #f1f5f9", padding:"24px 5%" }}>
         <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", justifyContent:"space-around", alignItems:"center", flexWrap:"wrap", gap:20 }}>
-          {[["Nouveau en 2026","Lancement officiel"],["30 jours","Demonstration gratuite"],["24h","Deploiement garanti"],["100% Maroc","Concu pour vous"],["0 MAD","WhatsApp inclus"]].map(([v,l])=>(
+          {[["Nouveau en 2026","Lancement officiel"],["30 jours","Démonstration gratuite"],["24h","Déploiement garanti"],["100% Maroc","Conçu pour vous"],["0 MAD","WhatsApp inclus"]].map(([v,l])=>(
             <div key={l} style={{ textAlign:"center" }}>
               <div style={{ fontSize:22, fontWeight:800, color:navy, letterSpacing:"-0.5px" }}>{v}</div>
               <div style={{ fontSize:12, color:"#64748b", marginTop:2 }}>{l}</div>
@@ -232,13 +233,13 @@ export default function LandingPage() {
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:52 }}>
             <span style={{ display:"inline-block", background:"#EFF6FF", border:"1px solid #BFDBFE", borderRadius:100, padding:"5px 18px", fontSize:12, fontWeight:700, color:blue, marginBottom:14, letterSpacing:".06em", textTransform:"uppercase" }}>Pourquoi LuxEdu</span>
-            <h2 style={{ fontSize:42, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 14px" }}>Fini les outils disperses.</h2>
-            <p style={{ fontSize:17, color:"#64748b", maxWidth:500, margin:"0 auto", lineHeight:1.7 }}>LuxEdu remplace 5 outils differents par une seule plateforme pensee pour le Maroc.</p>
+            <h2 style={{ fontSize:42, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 14px" }}>Fini les outils dispersés.</h2>
+            <p style={{ fontSize:17, color:"#64748b", maxWidth:500, margin:"0 auto", lineHeight:1.7 }}>LuxEdu remplace 5 outils différents par une seule plateforme pensée pour le Maroc.</p>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
             <div style={{ background:"#FEF2F2", border:"1px solid #FECACA", borderRadius:20, padding:"32px 36px" }}>
               <div style={{ fontSize:12, fontWeight:800, color:"#DC2626", textTransform:"uppercase", letterSpacing:".12em", marginBottom:22 }}>Sans LuxEdu</div>
-              {["Excel pour les paiements — erreurs et retards","SMS a 0.35 MAD piece pour les parents","Bulletins imprimes et distribues manuellement","Absences sur cahier — parents non informes","Aucune visibilite sur le recouvrement","3 logiciels qui ne communiquent pas","Pas de portail parents ni application mobile"].map(t=>(
+              {["Excel pour les paiements — erreurs et retards","SMS a 0.35 MAD piece pour les parents","Bulletins imprimés et distribués manuellement","Absences sur cahier — parents non informés","Aucune visibilité sur le recouvrement","3 logiciels qui ne communiquent pas","Pas de portail parents ni application mobile"].map(t=>(
                 <div key={t} style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:12 }}>
                   <Xmark />
                   <span style={{ fontSize:14, color:"#7F1D1D", lineHeight:1.5 }}>{t}</span>
@@ -247,7 +248,7 @@ export default function LandingPage() {
             </div>
             <div style={{ background:"#F0FDF4", border:"1px solid #BBF7D0", borderRadius:20, padding:"32px 36px" }}>
               <div style={{ fontSize:12, fontWeight:800, color:green, textTransform:"uppercase", letterSpacing:".12em", marginBottom:22 }}>Avec LuxEdu</div>
-              {["Paiements suivis, relances WhatsApp automatiques","WhatsApp gratuit — taux d ouverture 95%","Bulletins PDF generes et envoyes en 1 clic","Absence enregistree — parent alerte en 2 minutes","Dashboard temps reel — recouvrement et presences","Tout centralise : notes, paiements, RH, parents","App mobile iPhone et Android pour parents et eleves"].map(t=>(
+              {["Paiements suivis, relances WhatsApp automatiques","WhatsApp gratuit — taux d'ouverture 95%","Bulletins PDF générés et envoyés en 1 clic","Absence enregistrée — parent alerté en 2 min","Dashboard temps réel — recouvrement et presences","Tout centralisé : notes, paiements, RH, parents","App mobile iPhone et Android — parents et élèves"].map(t=>(
                 <div key={t} style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:12 }}>
                   <Chk />
                   <span style={{ fontSize:14, color:"#14532D", lineHeight:1.5 }}>{t}</span>
@@ -263,7 +264,7 @@ export default function LandingPage() {
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:60 }}>
             <span style={{ display:"inline-block", background:"#FFF7ED", border:"1px solid #FED7AA", borderRadius:100, padding:"5px 18px", fontSize:12, fontWeight:700, color:"#EA580C", marginBottom:14, textTransform:"uppercase", letterSpacing:".06em" }}>31 Modules</span>
-            <h2 style={{ fontSize:42, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 14px" }}>Tout ce dont votre ecole a besoin.</h2>
+            <h2 style={{ fontSize:42, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 14px" }}>Tout ce dont votre école à besoin.</h2>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
             {[
@@ -296,7 +297,7 @@ export default function LandingPage() {
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div style={{ background:"linear-gradient(135deg,#EFF6FF,#F0FDF4)", border:"1px solid #BFDBFE", borderRadius:20, padding:"36px 48px", display:"flex", justifyContent:"space-between", alignItems:"center", gap:32 }}>
             <div>
-              <div style={{ fontSize:12, fontWeight:700, color:blue, textTransform:"uppercase", letterSpacing:".1em", marginBottom:8 }}>Demonstration interactive</div>
+              <div style={{ fontSize:12, fontWeight:700, color:blue, textTransform:"uppercase", letterSpacing:".1em", marginBottom:8 }}>Démonstration interactive</div>
               <h3 style={{ fontSize:24, fontWeight:800, color:navy, margin:"0 0 8px", letterSpacing:"-0.5px" }}>Voyez LuxEdu en action maintenant</h3>
               <p style={{ fontSize:15, color:"#64748b", margin:0, lineHeight:1.6 }}>Explorez sans inscription. Demo parent, etudiant et directeur disponibles immediatement.</p>
             </div>
@@ -312,7 +313,7 @@ export default function LandingPage() {
       <section style={{ padding:"80px 5%", background:"#F8FAFC" }}>
         <div style={{ maxWidth:900, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:44 }}>
-            <h2 style={{ fontSize:40, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>3 fois moins cher. Infiniment plus complet.</h2>
+            <h2 style={{ fontSize:40, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>3× moins cher. Infiniment plus complet.</h2>
             <p style={{ fontSize:16, color:"#64748b" }}>Comparaison avec les solutions existantes au Maroc</p>
           </div>
           <div style={{ border:"1px solid #E2E8F0", borderRadius:20, overflow:"hidden" }}>
@@ -347,10 +348,10 @@ export default function LandingPage() {
       <section style={{ padding:"80px 5%", background:white }}>
         <div style={{ maxWidth:1000, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:52 }}>
-            <h2 style={{ fontSize:38, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>Operationnel en 24 heures, garanti.</h2>
+            <h2 style={{ fontSize:38, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>Opérationnel en 24 heures, garanti.</h2>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }}>
-            {[{n:"01",t:"Demo gratuite",d:"30 minutes en ligne. On vous montre LuxEdu sur un exemple concret de votre ecole.",c:blue},{n:"02",t:"Configuration",d:"Import de vos classes, eleves et tarifs. Votre espace pret en quelques heures.",c:"#7C3AED"},{n:"03",t:"Formation",d:"2 heures pour directeur, enseignants et fonctionnaires. Manuel complet fourni.",c:gold},{n:"04",t:"Mise en ligne",d:"Votre ecole est operationnelle. Support dedie pendant 30 jours.",c:green}].map(s=>(
+            {[{n:"01",t:"Démo gratuite",d:"30 minutes en ligne. On vous montre LuxEdu sur un exemple concret de votre école.",c:blue},{n:"02",t:"Configuration",d:"Import de vos classes, élèves et tarifs. Votre espace prêt en quelques heures.",c:"#7C3AED"},{n:"03",t:"Formation",d:"2 heures pour directeur, enseignants et fonctionnaires. Manuel complet fourni.",c:gold},{n:"04",t:"Mise en ligne",d:"Votre ecole est operationnelle. Support dédié pendant 30 jours.",c:green}].map(s=>(
               <div key={s.n} style={{ background:"#F8FAFC", borderRadius:16, padding:"24px 20px", border:"1px solid #E2E8F0", position:"relative", overflow:"hidden" }}>
                 <div style={{ width:40, height:40, borderRadius:10, background:s.c, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:800, color:white, marginBottom:14, position:"relative", zIndex:1 }}>{s.n}</div>
                 <div style={{ fontSize:50, fontWeight:900, color:s.c, opacity:.07, position:"absolute", top:-8, right:8, lineHeight:1 }}>{s.n}</div>
@@ -367,7 +368,7 @@ export default function LandingPage() {
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:52 }}>
             <h2 style={{ fontSize:38, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>Ce que disent nos premiers clients</h2>
-            <p style={{ fontSize:15, color:"#64748b" }}>Ecoles pilotes ayant teste LuxEdu en avant-premiere</p>
+            <p style={{ fontSize:15, color:"#64748b" }}>Écoles pilotes ayant testé LuxEdu en avant-premiere</p>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:24 }}>
             {[{i:"MB",bg:navy,n:"Mohamed Benjelloun",r:"Directeur — Casablanca",t:"Notre taux de recouvrement est passe de 52% a 91% en six semaines. Les rappels WhatsApp automatiques ont tout change."},{i:"KA",bg:blue,n:"Khadija El Alami",r:"Responsable admin. — Rabat",t:"La plateforme remplace cinq outils differents. Bulletins, presences, paiements — tout centralise. Formation en 2h."},{i:"YT",bg:"#0D9488",n:"Youssef Tazi",r:"Directeur — Marrakech",t:"Deploiement en une journee, support reactif, interface claire. Les parents nous felicitent pour notre communication."}].map(t=>(
@@ -389,14 +390,14 @@ export default function LandingPage() {
         <div style={{ maxWidth:1100, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:20 }}>
             <h2 style={{ fontSize:38, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>Simple, transparent, sans surprise.</h2>
-            <p style={{ fontSize:15, color:"#64748b", maxWidth:440, margin:"0 auto 12px" }}>Facture annuellement. Setup offert la 1ere annee.</p>
+            <p style={{ fontSize:15, color:"#64748b", maxWidth:440, margin:"0 auto 12px" }}>Facturé annuellement. Setup offert la 1ere annee.</p>
           </div>
           <div style={{ background:`linear-gradient(135deg,${navy},#1a3a8f)`, borderRadius:16, padding:"20px 32px", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:32 }}>
             <div>
-              <div style={{ fontSize:16, fontWeight:700, color:white, marginBottom:4 }}>Obtenez votre demonstration personnalisee</div>
-              <div style={{ fontSize:14, color:"rgba(255,255,255,.45)" }}>Demonstration 30 min · Reponse sous 24h · Aucun engagement</div>
+              <div style={{ fontSize:16, fontWeight:700, color:white, marginBottom:4 }}>Obtenez votre démonstration personnalisée</div>
+              <div style={{ fontSize:14, color:"rgba(255,255,255,.45)" }}>Démonstration 30 min · Reponse sous 24h · Aucun engagement</div>
             </div>
-            <Btn variant="gold" href="#contact">Demander une demo</Btn>
+            <Btn variant="gold" href="#contact">Demander une démo</Btn>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:24 }}>
             {[
@@ -421,7 +422,7 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <Btn variant={p.featured?"gold":"outline"} href="#contact">Demander une demo</Btn>
+                <Btn variant={p.featured?"gold":"outline"} href="#contact">Demander une démo</Btn>
               </div>
             ))}
           </div>
@@ -432,12 +433,12 @@ export default function LandingPage() {
       <section style={{ padding:"80px 5%", background:"#F8FAFC" }}>
         <div style={{ maxWidth:780, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:44 }}>
-            <h2 style={{ fontSize:36, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>Questions frequentes</h2>
+            <h2 style={{ fontSize:36, fontWeight:900, color:navy, letterSpacing:"-1.5px", margin:"0 0 12px" }}>Questions fréquentes</h2>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {[
               ["Combien de temps pour deployer LuxEdu ?","24 heures maximum. Nous nous occupons de tout : creation de votre compte, import de vos eleves, configuration et formation de votre equipe."],
-              ["Y a-t-il un engagement ou contrat ?","Non. Demonstration gratuite sans carte bancaire. Abonnement annuel resiliable. Vous restez parce que ca marche."],
+              ["Y a-t-il un engagement ou contrat ?","Non. Démonstration gratuite sans carte bancaire. Abonnement annuel resiliable. Vous restez parce que ca marche."],
               ["Les parents doivent-ils installer une application ?","Non obligatoire. Application web depuis le navigateur du telephone. Une version Android est aussi disponible sur Google Play."],
               ["LuxEdu est-il compatible avec Massar MEN ?","Oui. LuxEdu integre nativement le code Massar, la saisie des notes et export au format officiel du Ministere de l Education Nationale."],
               ["Que se passe-t-il si j ai plus de 300 eleves ?","Choisissez le plan Pro (illimite). Vous pouvez evoluer a tout moment sans perte de donnees."],
@@ -453,8 +454,8 @@ export default function LandingPage() {
         <div style={{ maxWidth:640, margin:"0 auto", position:"relative" }}>
           <div style={{ textAlign:"center", marginBottom:44 }}>
             <img src="/luxedu-logo-white.png" alt="LuxEdu" style={{ height:68, width:"auto", marginBottom:20, opacity:.9 }} />
-            <h2 style={{ fontSize:40, fontWeight:900, color:white, letterSpacing:"-1.5px", margin:"0 0 14px" }}>Demandez votre demonstration</h2>
-            <p style={{ fontSize:16, color:"rgba(255,255,255,.5)", lineHeight:1.7 }}>Notre equipe vous contacte sous 24h pour organiser une demonstration personnalisee de 30 minutes sur votre ecole.</p>
+            <h2 style={{ fontSize:40, fontWeight:900, color:white, letterSpacing:"-1.5px", margin:"0 0 14px" }}>Demandez votre démonstration</h2>
+            <p style={{ fontSize:16, color:"rgba(255,255,255,.5)", lineHeight:1.7 }}>Notre équipe vous contacte sous 24h pour organiser une démonstration personnalisée de 30 minutes sur votre école.</p>
           </div>
           <ContactForm />
           <div style={{ display:"flex", justifyContent:"center", marginTop:24 }}>
@@ -478,7 +479,7 @@ export default function LandingPage() {
               <p style={{ fontSize:13, color:"rgba(255,255,255,.28)", lineHeight:1.7, maxWidth:260 }}>La solution ERP scolaire concue pour les ecoles privees du Maroc.</p>
               <div style={{ marginTop:14, fontSize:13, color:"rgba(255,255,255,.25)" }}>info@luxeduschool.com</div>
             </div>
-            {[{t:"Produit",ls:["Fonctionnalites","Tarifs","Modules","App Android","Portail parents"]},{t:"Ressources",ls:["Documentation","Guide demarrage","FAQ","Support"]},{t:"Contact",ls:["WhatsApp","E-mail","Demonstration","A propos"]}].map(col=>(
+            {[{t:"Produit",ls:["Fonctionnalités","Tarifs","Modules","App Android","Portail parents"]},{t:"Ressources",ls:["Documentation","Guide demarrage","FAQ","Support"]},{t:"Contact",ls:["WhatsApp","E-mail","Démonstration","A propos"]}].map(col=>(
               <div key={col.t}>
                 <div style={{ fontSize:11, fontWeight:700, color:"rgba(255,255,255,.28)", textTransform:"uppercase", letterSpacing:".1em", marginBottom:14 }}>{col.t}</div>
                 {col.ls.map(l=><div key={l} style={{ fontSize:13, color:"rgba(255,255,255,.35)", marginBottom:9 }}><a href="#" style={{ color:"inherit", textDecoration:"none" }}>{l}</a></div>)}

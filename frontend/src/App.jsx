@@ -100,19 +100,18 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomeRoute />} />
-        <Route path="/landing" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/landing" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/parent" element={<ParentPortal />} />
         <Route path="/etudiant" element={<StudentPortal />} />
         <Route path="/etudiant-demo" element={<StudentPortalDemo />} />
         <Route path="/mobile" element={<MobileApp />} />
         <Route path="/demo" element={<DemoGate />} />
-        <Route path="/demo" element={<DemoGate />} />
         <Route path="/etudiant/:code" element={<StudentPortal />} />
         <Route path="/app" element={<RoleRoute />} />
         <Route path="/app/*" element={<RoleRoute />} />
-        <Route path="/*" element={<RoleRoute />} />
+        <Route path="/app/*" element={<RoleRoute />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,0 +1,61 @@
+* { box-sizing: border-box; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none !important; }
+  .nav-cta-secondary { display: none !important; }
+
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+  .hero-mockup { display: none !important; }
+  .hero-title {
+    font-size: 34px !important;
+    letter-spacing: -1px !important;
+    line-height: 1.1 !important;
+  }
+  .hero-desc { font-size: 15px !important; }
+  .hero-btns {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .hero-btns a, .hero-btns button {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .trust-bar {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+    text-align: center !important;
+  }
+  .ba-grid { grid-template-columns: 1fr !important; }
+  .feat-grid { grid-template-columns: 1fr !important; }
+  .compare-table { font-size: 11px !important; overflow-x: auto !important; }
+  .compare-row { grid-template-columns: 3fr 1fr 1fr !important; }
+  .compare-header { grid-template-columns: 3fr 1fr 1fr !important; }
+  .steps-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+  .testi-grid { grid-template-columns: 1fr !important; }
+  .price-grid { grid-template-columns: 1fr !important; }
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+  .form-row { grid-template-columns: 1fr !important; }
+  .demo-banner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 20px !important;
+  }
+  .demo-btns { flex-wrap: wrap !important; width: 100% !important; }
+  .demo-btns a { flex: 1 !important; text-align: center !important; justify-content: center !important; }
+  .section-mobile { padding: 56px 4% !important; }
+  .hero-trust {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .cta-btns { flex-direction: column !important; align-items: center !important; }
+  .cta-btns a, .cta-btns button { width: 100% !important; justify-content: center !important; }
+  .faq-section { padding: 56px 4% !important; }
+  .contact-section { padding: 56px 4% !important; }
+  h2 { font-size: 26px !important; letter-spacing: -0.5px !important; }
+}
+// Mobile responsive - Wed Jun 10 22:45:06 CET 2026

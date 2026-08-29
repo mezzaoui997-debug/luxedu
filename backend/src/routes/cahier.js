@@ -14,7 +14,7 @@ const getStore = (sid) => {
 };
 
 router.get('/', protect, (req, res) => {
-  const items = getStore(req.user.schoolId);
+  const items = getStore(req.schoolId);
   const { classId, subject } = req.query;
   let filtered = items;
   if (classId) filtered = filtered.filter(i => i.classId === classId);
@@ -23,11 +23,11 @@ router.get('/', protect, (req, res) => {
 });
 
 router.post('/', protect, (req, res) => {
-  const items = getStore(req.user.schoolId);
+  const items = getStore(req.schoolId);
   const item = {
     id: Date.now().toString(),
     ...req.body,
-    teacherName: `${req.user.firstName} ${req.user.lastName}`,
+    teacherName: `${req.firstName} ${req.lastName}`,
     assignedDate: new Date().toISOString().split('T')[0],
     done: false,
     attachments: [],
@@ -37,14 +37,14 @@ router.post('/', protect, (req, res) => {
 });
 
 router.put('/:id', protect, (req, res) => {
-  const items = getStore(req.user.schoolId);
+  const items = getStore(req.schoolId);
   const idx = items.findIndex(i => i.id === req.params.id);
   if (idx >= 0) items[idx] = { ...items[idx], ...req.body };
   res.json(items[idx]);
 });
 
 router.delete('/:id', protect, (req, res) => {
-  const items = getStore(req.user.schoolId);
+  const items = getStore(req.schoolId);
   const idx = items.findIndex(i => i.id === req.params.id);
   if (idx >= 0) items.splice(idx, 1);
   res.json({ ok: true });

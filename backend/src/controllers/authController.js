@@ -16,7 +16,7 @@ const register = async (req, res) => {
       include: { users: true }
     });
     const user = school.users[0];
-    const token = jwt.sign({ userId: user.id, schoolId: school.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, schoolId: school.id, role: user.role, firstName, lastName }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
     res.status(201).json({ token, user: { id: user.id, firstName, lastName, email, role: user.role }, school: { id: school.id, name: school.name } });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -37,7 +37,7 @@ const login = async (req, res) => {
     // Demo bypass - no DB needed
     if (DEMO_ACCOUNTS[email] && password === 'password123') {
       const demoUser = DEMO_ACCOUNTS[email];
-      const token = jwt.sign({ userId: demoUser.id, schoolId: demoUser.schoolId, role: demoUser.role }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
+      const token = jwt.sign({ userId: demoUser.id, schoolId: demoUser.schoolId, role: demoUser.role, firstName: demoUser.firstName, lastName: demoUser.lastName }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
       return res.json({ token, user: { ...demoUser, email }, school: DEMO_SCHOOL });
     }
 
@@ -45,14 +45,14 @@ const login = async (req, res) => {
     if (!user) return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
-    const token = jwt.sign({ userId: user.id, schoolId: user.schoolId, role: user.role }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, schoolId: user.schoolId, role: user.role, firstName: user.firstName, lastName: user.lastName }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
     res.json({ token, user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role }, school: { id: user.school.id, name: user.school.name } });
   } catch (error) {
     // If DB fails, check demo accounts
     const { email, password } = req.body;
     if (DEMO_ACCOUNTS[email] && password === 'password123') {
       const demoUser = DEMO_ACCOUNTS[email];
-      const token = jwt.sign({ userId: demoUser.id, schoolId: demoUser.schoolId, role: demoUser.role }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
+      const token = jwt.sign({ userId: demoUser.id, schoolId: demoUser.schoolId, role: demoUser.role, firstName: demoUser.firstName, lastName: demoUser.lastName }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
       return res.json({ token, user: { ...demoUser, email }, school: DEMO_SCHOOL });
     }
     res.status(500).json({ error: error.message });
@@ -75,7 +75,7 @@ const registerTeacher = async (req, res) => {
       },
       include: { school: true }
     });
-    const token = jwt.sign({ userId: user.id, schoolId: user.schoolId, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, schoolId: user.schoolId, role: user.role, firstName, lastName }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
     res.status(201).json({ token, user: { id: user.id, firstName, lastName, email, role: user.role, subject }, school: { id: user.school.id, name: user.school.name } });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -105,7 +105,7 @@ const registerStaff = async (req, res) => {
       data: { firstName, lastName, email, password: hash, role: role || 'TEACHER', schoolId: req.schoolId },
       include: { school: true }
     });
-    const token = jwt.sign({ userId: user.id, schoolId: user.schoolId, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, schoolId: user.schoolId, role: user.role, firstName, lastName }, process.env.JWT_SECRET || 'luxedu-secret-2026', { expiresIn: '7d' });
     res.status(201).json({ token, user: { id: user.id, firstName, lastName, email, role: user.role }, school: { id: user.school.id, name: user.school.name } });
   } catch (error) {
     res.status(500).json({ error: error.message });

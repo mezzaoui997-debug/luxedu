@@ -423,7 +423,7 @@ export default function StudentPortalDemo() {
             {/* Sub tabs */}
             <div style={{ display: 'flex', gap: 8 }}>
               {['concours', 'maroc', 'international'].map(t => (
-                <button key={t} onClick={() => setTawjihTab(t)} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: tawjihTab===t ? navy : 'white', color: tawjihTab===t ? 'white' : '#64748b', fontSize: 13, fontWeight: 500, cursor: 'pointer', border: `1px solid ${tawjihTab===t ? navy : '#e2e8f0'}` }}>
+                <button key={t} onClick={() => setTawjihTab(t)} style={{ padding: '8px 18px', borderRadius: 8, background: tawjihTab===t ? navy : 'white', color: tawjihTab===t ? 'white' : '#64748b', fontSize: 13, fontWeight: 500, cursor: 'pointer', border: `1px solid ${tawjihTab===t ? navy : '#e2e8f0'}` }}>
                   {t === 'concours' ? 'Concours & Admissions' : t === 'maroc' ? 'Universités Marocaines' : 'Etranger'}
                 </button>
               ))}

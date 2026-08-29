@@ -198,7 +198,7 @@ export default function MobileApp() {
   // HOME
   if (screen === 'home') return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: navy, padding: '60px 28px 44px', textAlign: 'center', background: `linear-gradient(160deg, #1e2d4f 0%, #152238 100%)` }}>
+      <div style={{ padding: '60px 28px 44px', textAlign: 'center', background: `linear-gradient(160deg, #1e2d4f 0%, #152238 100%)` }}>
         <img src="/luxedu-logo-white.png" alt="LuxEdu" style={{ height: 120, width: 'auto', filter: 'drop-shadow(0 8px 32px rgba(201,150,63,0.5))' }} onError={e => e.target.style.display = 'none'} />
         <div style={{ marginTop: 14 }}>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '.2em', textTransform: 'uppercase' }}>PLATEFORME SCOLAIRE</div>
@@ -237,11 +237,8 @@ export default function MobileApp() {
                   setRecs([{ id: 1, sujet: 'Absence injustifiee du 08/04', date: '10/04/2026', statut: 'traitee', reponse: "Apres verification, l'absence a ete justifiee." }]);
                   setParentTab('home'); setScreen('parent');
                 }
-              }} style={{ flex: 1, padding: '11px 8px', borderRadius: 10, border: `1.5px solid ${item.sc}`, background: 'white', color: item.sc, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, transition: 'all .2s' }}>
+              }} style={{ flex: 1, padding: '11px 8px', borderRadius: 10, border: 'none', background: item.sc, color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, boxShadow: `0 4px 16px ${item.sc}50` }}>
                 Voir la demo
-              </button>
-              <button onClick={() => { setLoginType(item.type); setScreen('login'); setError(''); setCode(''); setPassword(''); }} style={{ flex: 1, padding: '11px 8px', borderRadius: 10, border: 'none', background: item.sc, color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, boxShadow: `0 4px 16px ${item.sc}50` }}>
-                Connexion
               </button>
             </div>
           </div>
